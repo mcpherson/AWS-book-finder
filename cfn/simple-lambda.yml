@@ -1,0 +1,58 @@
+# Helpful head start from https://github.com/SanderKnape/cognito-apigateway-jwt
+#
+# aws cloudformation create-stack --stack-name explore --template-body file://explore-cfn.yml
+# aws cloudformation update-stack --stack-name explore --template-body file://explore-cfn.yml
+# aws cloudformation delete-stack --stack-name explore
+# aws cloudformation describe-stacks --stack-name explore --query "Stacks[].Outputs[].OutputValue"
+# aws cloudformation describe-stack-events --stack-name explore
+# aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE
+# aws cloudformation list-stack-resources --stack-name explore --query "StackResourceSummaries[].LogicalResourceId"
+# aws cloudformation list-stack-resources --stack-name explore --query 'StackResourceSummaries[].[LogicalResourceId, PhysicalResourceId,ResourceType]' --output table
+# must use --capabilities CAPABILITY_NAMED_IAM when creating a role
+# aws cloudformation create-stack --stack-name explore --template-body file://explore-cfn.yml --capabilities CAPABILITY_NAMED_IAM
+# curl -k -i (if you get curl: (60) SSL: no alternative certificate...)
+# curl -w '\n' -i https://...  (gets rud of the % at the end of cURL's returned data)
+AWSTemplateFormatVersion: 2010-09-09
+Description: Exploring AWS HTTP API Gateway
+
+Parameters:
+
+  LambdaFunctionName:
+    Type: String
+    AllowedPattern: ^[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9]+$
+    Default: simple-lambda
+
+Resources:
+
+  SimpleLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+#      ManagedPolicyArns: 
+#       - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+
+  SimpleLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref LambdaFunctionName
+      Role: !GetAtt SimpleLambdaRole.Arn
+      Runtime: python3.9
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          import json
+
+          def handler(event, context):
+            return {
+              'statusCode': 200,
+              'body': json.dumps('Hello from Lambda!')
+            }
+
+      MemorySize: 128
+      Timeout: 30

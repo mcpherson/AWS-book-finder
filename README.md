@@ -19,3 +19,11 @@ Collections of notes on Udemy Rocking AWS Serverless class.
   - Steampipe
   - AWS CDK
   - AWS Cloudformation
+
+## Extrapolations on Course Sections
+Other ways of doing things he's doing in the video
+
+### Section 1: Getting Started
+Two lambda functions are created. One is very basic, the other is triggered by an S3 file upload.
+Try to recreate and test the two functions using only the AWS CLI.
+
