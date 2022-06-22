@@ -22,6 +22,7 @@ RUN apt-get update \
         htop                                      \
         gnupg2                                    \
         ssh                                       \
+        make                                      \
         groff                                     \
         python3                                   \
         python3-pip                               \
