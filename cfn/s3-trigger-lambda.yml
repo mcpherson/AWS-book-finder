@@ -1,0 +1,109 @@
+# create-stack --stack-name s3-trigger-lambda --template-body file://s3-trigger-lambda.yml --capabilities CAPABILITY_NAMED_IAM
+# ...wait a while...
+# aws cloudformation list-stacks
+# ...to see if it's been created...
+# aws lambda invoke --invocation-type RequestResponse --function-name s3-trigger-lambda out.txt
+# cat out.txt
+# rm out.txt
+# ...explore stack, lambda, role in the console if so inclined...
+# aws cloudformation delete-stack --stack-name s3-trigger-lambda
+AWSTemplateFormatVersion: 2010-09-09
+Description: Udemy Rocking AWS Serverless (s3 trigger lambda)
+
+Parameters:
+
+  LambdaFunctionName:
+    Type: String
+    AllowedPattern: ^[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9]+$
+    Default: s3-trigger-lambda
+
+  BucketName:
+    Type: String
+    Default: losalamosal-udemy-images
+
+Resources:
+
+  # Must create a new bucket. CFN can "import" existing resources but it's a pain.
+  # You must use the console or the CLI.
+  # CDK seems to handle the problem of importing exting resources better.
+  Bucket:
+    Type: AWS::S3::Bucket
+    DependsOn:
+      - S3TriggerLambdaPermission
+    Properties:
+      BucketName: !Ref BucketName
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt S3TriggerLambda.Arn
+            Filter:
+              S3Key:
+                Rules:
+                - Name: suffix
+                  Value: .png
+
+  S3TriggerLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref S3TriggerLambda
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub 'arn:aws:s3:::${BucketName}'
+      SourceAccount: !Ref AWS::AccountId
+
+  S3TriggerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      # So lambda can write logs
+      ManagedPolicyArns: 
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: getAndDeleteObjects
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - s3:GetObject
+              - s3:DeleteObject
+              Resource:  !Sub 'arn:aws:s3:::${BucketName}/*'
+
+  S3TriggerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref LambdaFunctionName
+      Role: !GetAtt S3TriggerLambdaRole.Arn
+      Runtime: nodejs16.x
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          exports.handler = async (event, context) => {     
+            // console.log("ENVIRONMENT VARIABLES\n" + JSON.stringify(process.env, null, 2))
+            // console.info("EVENT\n" + JSON.stringify(event, null, 2))
+            console.log("\n" +
+                        "routeKey:       " + event.routeKey       + "\n" +
+                        "rawPath:        " + event.rawPath        + "\n" +
+                        "rawQueryString: " + event.rawQueryString)
+            // console.warn("Event not processed")
+            const response = {
+              statusCode: 200,
+              body: "Lambda: success"
+            }
+            return response
+          }
+      MemorySize: 128
+      Timeout: 30
+
+  # Thanks https://ldoughty.com/2020/01/aws-http-api-gateway-cloudformation-setup/
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName: !Join [/,["/aws/lambda", !Ref S3TriggerLambda ]]
+      RetentionInDays: 3

@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:buster
 
 RUN adduser --home /home/devboy --shell /usr/bin/zsh --no-create-home devboy \
     && usermod -aG sudo devboy \
@@ -20,6 +20,7 @@ RUN apt-get update \
         git                                       \
         jq                                        \
         htop                                      \
+        man-db                                    \
         gnupg2                                    \
         ssh                                       \
         make                                      \
