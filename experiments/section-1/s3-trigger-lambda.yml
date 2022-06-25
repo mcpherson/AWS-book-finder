@@ -1,11 +1,13 @@
-# create-stack --stack-name s3-trigger-lambda --template-body file://s3-trigger-lambda.yml --capabilities CAPABILITY_NAMED_IAM
+# aws cloudformation create-stack --stack-name s3-trigger-lambda --template-body file://s3-trigger-lambda.yml --capabilities CAPABILITY_NAMED_IAM
+# or...
+# aws cloudformation deploy --stack-name s3-trigger-lambda --template-file s3-trigger-lambda.yml --capabilities CAPABILITY_NAMED_IAM
 # ...wait a while...
 # aws cloudformation list-stacks
 # ...to see if it's been created...
-# aws lambda invoke --invocation-type RequestResponse --function-name s3-trigger-lambda out.txt
-# cat out.txt
-# rm out.txt
+# s3 cp somefile.txt s3://losalamosal-udemy-devboy/a/b/c/
+# check logs in console to see that lambda was triggered
 # ...explore stack, lambda, role in the console if so inclined...
+# aws s3 rm s3://losalamosal-udemy-devboy --recursive
 # aws cloudformation delete-stack --stack-name s3-trigger-lambda
 AWSTemplateFormatVersion: 2010-09-09
 Description: Udemy Rocking AWS Serverless (s3 trigger lambda)
