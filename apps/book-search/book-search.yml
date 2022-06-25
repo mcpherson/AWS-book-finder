@@ -1,0 +1,130 @@
+# create-stack --stack-name s3-trigger-lambda --template-body file://s3-trigger-lambda.yml --capabilities CAPABILITY_NAMED_IAM
+# ...wait a while...
+# aws cloudformation list-stacks
+# ...to see if it's been created...
+# aws lambda invoke --invocation-type RequestResponse --function-name s3-trigger-lambda out.txt
+# cat out.txt
+# rm out.txt
+# ...explore stack, lambda, role in the console if so inclined...
+# aws cloudformation delete-stack --stack-name s3-trigger-lambda
+AWSTemplateFormatVersion: 2010-09-09
+Description: Udemy Rocking AWS Serverless (s3 trigger lambda)
+
+Parameters:
+
+  LambdaFunctionName:
+    Type: String
+    AllowedPattern: ^[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9]+$
+    Default: s3-trigger-lambda
+
+  BucketName:
+    Type: String
+    Default: losalamosal-udemy-images
+
+Resources:
+
+  # Must create a new bucket. CFN can "import" existing resources but it's a pain.
+  # You must use the console or the CLI.
+  # CDK seems to handle the problem of importing exting resources better.
+  Bucket:
+    Type: AWS::S3::Bucket
+    DependsOn:
+      - S3TriggerLambdaPermission
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Ref BucketName
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt S3TriggerLambda.Arn
+            Filter:
+              S3Key:
+                Rules:
+                - Name: suffix
+                  Value: .png
+
+  S3TriggerLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref S3TriggerLambda
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub 'arn:aws:s3:::${BucketName}'
+      SourceAccount: !Ref AWS::AccountId
+
+  S3TriggerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      # So lambda can write logs
+      ManagedPolicyArns: 
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: getAndDeleteObjects
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - s3:GetObject
+              - s3:DeleteObject
+              Resource:  !Sub 'arn:aws:s3:::${BucketName}/*'
+        - PolicyName: detectTextRek
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action: rekognition:DetectText
+              Resource: '*'
+
+  # Cloudformation handling of lambda functions kind of blows. Since CFN does not
+  # look at the filesystem to detect changes (it only parses the CNF file for changes)
+  # it is unable to recognize an updated lamnda. The easiest fix is to embed the lambda
+  # source in the CFN file. Otherwise, more complicated solutions (make, manual upload,
+  # renaming, etc.) are required. CDK might handle this better.
+  S3TriggerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref LambdaFunctionName
+      Role: !GetAtt S3TriggerLambdaRole.Arn
+      Runtime: nodejs16.x
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          const aws = require('aws-sdk');
+          const rek = new aws.Rekognition();
+          exports.handler = async (event, context) => {
+            const bucket = event.Records[0].s3.bucket.name;
+            const photo = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
+            const params = {
+              Image: {
+                S3Object: {
+                  Bucket: bucket,
+                  Name: photo
+                }
+              }
+            }
+            console.log(`${bucket}   ${photo}`)
+            let response = await rek.detectText(params).promise()
+            console.log(`Detected Text for: ${photo}`)
+            response.TextDetections.forEach(label => {
+              console.log(`Detected Text: ${label.DetectedText}`)
+              console.log(`Type: ${label.Type}`)
+              console.log(`ID: ${label.Id}`)
+            })
+          }
+      MemorySize: 256
+      Timeout: 10
+
+  # Thanks https://ldoughty.com/2020/01/aws-http-api-gateway-cloudformation-setup/
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName: !Join [/,["/aws/lambda", !Ref S3TriggerLambda ]]
+      RetentionInDays: 3
