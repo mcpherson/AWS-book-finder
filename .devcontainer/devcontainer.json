@@ -8,7 +8,8 @@
         "dsteenman.cloudformation-yaml-snippets",
         "kddejong.vscode-cfn-lint"],
     "mounts": [
-        "source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/devboy/.aws,type=bind"
+        "source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/devboy/.aws,type=bind",
+        "source=${env:HOME}${env:USERPROFILE}/.zsh-history/aws-book-finder,target=/home/devboy/.zsh_history,type=bind"
     ],
     "remoteUser": "devboy"
 }
