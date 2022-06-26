@@ -1,0 +1,14 @@
+{
+    "name": "Udemy (rock-aws-serverless)",
+    "dockerFile": "Dockerfile",
+    "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+    },
+    "extensions": [
+        "dsteenman.cloudformation-yaml-snippets",
+        "kddejong.vscode-cfn-lint"],
+    "mounts": [
+        "source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/devboy/.aws,type=bind"
+    ],
+    "remoteUser": "devboy"
+}
