@@ -1,0 +1,42 @@
+html {
+    background-color: lightgray;
+}
+
+body {
+    margin: 0;
+}
+
+#header {
+    height: 13vh;
+    background-color: rgb(184, 184, 184);
+    border-bottom: 3px solid black;
+    width: 100vw;
+}
+
+#logo {
+    max-height: 11vh;
+    padding: 1vh;
+}
+
+#nav, #logo-container {
+    display: inline;
+}
+
+#nav {
+    float: right;
+}
+
+#nav-items {
+    height: 13vh;
+    display: flex;
+}
+
+.nav-item {
+    padding-right: 50px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 600;
+    font-size: 2rem;
+}
