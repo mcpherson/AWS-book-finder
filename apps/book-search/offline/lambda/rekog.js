@@ -18,6 +18,7 @@ exports.handler = async (event, context) => {
   let response = await rek.detectText(params).promise()
   console.log(`Detected Text for: ${photo}`)
   
+  // Need to write search results to new S3 bucket (versioned?)
   response.TextDetections.forEach(label => {
     console.log(`Detected Text: ${label.DetectedText}`)
     console.log(`Type: ${label.Type}`)
