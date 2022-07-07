@@ -105,7 +105,7 @@ Resources:
       FunctionName: !Ref LambdaFunctionName
       Role: !GetAtt S3TriggerLambdaRole.Arn
       Runtime: nodejs16.x
-      Handler: rekog.handler
+      Handler: index.handler
       Code:
         S3Bucket: !Ref ZipBucketName
         S3Key: !Ref ZipS3Key
