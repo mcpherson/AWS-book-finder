@@ -22,5 +22,5 @@ deploy: lambda.zip
 		--capabilities CAPABILITY_NAMED_IAM
 
 lambda.zip: lambda/rekog.js
-	@zip lambda.zip lambda/*
+	@cd lambda; zip ../lambda.zip *
 	@aws s3 cp lambda.zip s3://$(lambda_bucket)
