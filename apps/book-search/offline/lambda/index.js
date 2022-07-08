@@ -5,6 +5,7 @@ const s3 = new aws.S3();
 
 exports.handler = async (event, context) => {
   const bucket = event.Records[0].s3.bucket.name;
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent
   const photo = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
   const params = {
     Image: {
@@ -19,9 +20,10 @@ exports.handler = async (event, context) => {
 
   let response = await rek.detectText(params).promise()
 
+  const json_file = photo.replace('.png', '.json')
   const s3_params = {
     Bucket : bucket,
-    Key : `results/${photo}.json`,
+    Key : `json/${json_file}ls`,
     Body : JSON.stringify(response)
   }
 
