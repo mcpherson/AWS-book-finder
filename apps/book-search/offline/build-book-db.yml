@@ -106,6 +106,10 @@ Resources:
         S3Bucket: !Ref ZipBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
+      # https://github.com/charoitel/lambda-layer-canvas-nodejs/wiki
+      # https://docs.aws.amazon.com/serverlessrepo/latest/devguide/sharing-lambda-layers.html
+      Layers:
+        - arn:aws:lambda:us-west-2:136545519964:layer:canvas-nodejs:1
       MemorySize: 256
       Timeout: 10
 

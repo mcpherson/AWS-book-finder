@@ -3,9 +3,11 @@ const rek = new aws.Rekognition();
 
 const s3 = new aws.S3();
 
+let { registerFont, createCanvas } = require('canvas');
+
 exports.handler = async (event, context) => {
   const bucket = event.Records[0].s3.bucket.name;
-  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent
   const photo = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
   const params = {
     Image: {
