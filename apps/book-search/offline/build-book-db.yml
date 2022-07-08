@@ -83,6 +83,7 @@ Resources:
             Statement:
             - Effect: Allow
               Action:
+              - s3:PutObject
               - s3:GetObject
               - s3:DeleteObject
               Resource:  !Sub 'arn:aws:s3:::${ImageBucketName}/*'
@@ -94,11 +95,6 @@ Resources:
               Action: rekognition:DetectText
               Resource: '*'
 
-  # Cloudformation handling of lambda functions kind of blows. Since CFN does not
-  # look at the filesystem to detect changes (it only parses the CNF file for changes)
-  # it is unable to recognize an updated lamnda. The easiest fix is to embed the lambda
-  # source in the CFN file. Otherwise, more complicated solutions (make, manual upload,
-  # renaming, etc.) are required. CDK might handle this better.
   S3TriggerLambda:
     Type: AWS::Lambda::Function
     Properties:

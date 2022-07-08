@@ -1,6 +1,8 @@
 const aws = require('aws-sdk');
 const rek = new aws.Rekognition();
 
+const s3 = new aws.S3();
+
 exports.handler = async (event, context) => {
   const bucket = event.Records[0].s3.bucket.name;
   const photo = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
@@ -16,12 +18,19 @@ exports.handler = async (event, context) => {
   console.log(`${bucket}   ${photo}`)
 
   let response = await rek.detectText(params).promise()
-  console.log(`Detected Text for: ${photo}`)
-  
+
+  const s3_params = {
+    Bucket : bucket,
+    Key : `results/${photo}.json`,
+    Body : JSON.stringify(response)
+  }
+
+  const result = await s3.putObject(s3_params).promise()
+
   // Need to write search results to new S3 bucket (versioned?)
-  response.TextDetections.forEach(label => {
+/*   response.TextDetections.forEach(label => {
     console.log(`Detected Text: ${label.DetectedText}`)
     console.log(`Type: ${label.Type}`)
     console.log(`ID: ${label.Id}`)
-  })
-}
+  }) */
+} 

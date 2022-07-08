@@ -2,7 +2,7 @@
 
 stack_name = build-book-db
 cfn_file = build-book-db.yml
-lambda_file_name = rekog.js
+lambda_file_name = index.js
 
 # Bucket must exist and have versioning enabled
 lambda_bucket = losalamosal-udemy-uploads
