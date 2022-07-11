@@ -25,7 +25,7 @@ exports.handler = async (event, context) => {
   const json_file = photo.replace('.png', '.json')
   const s3_params = {
     Bucket : bucket,
-    Key : `json/${json_file}ls`,
+    Key : `json/${json_file}`,
     Body : JSON.stringify(response)
   }
 

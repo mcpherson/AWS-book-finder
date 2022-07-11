@@ -28,6 +28,8 @@ RUN apt-get update \
         python3                                   \
         python3-pip                               \
         python3-setuptools                        \
+        # needed (temporarily) to install node-canvas from source (no ARM binary)
+        build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
         openssh-client ca-certificates \
     && update-ca-certificates \
     && apt-get clean \
