@@ -1,5 +1,38 @@
 ## Book Finder: Offline Processing
 
+### S3 Requirements
+
+#### Lambda Upload Bucket
+
+This section describes how we use a Makefile and a version-enabled S3 bucket to
+handle lambda ZIP uploads.
+
+#### Image Processing Bucket
+
+We need a bucket to store the uploaded images and the processed results.
+
+```
+s3-image-processing-bucket
+  /originals      - upload images here; after processing they are noved to processed
+  /processed      - images that have been operated on are move from originals to here
+  /thumbs         - one thumbnail for each processed image;
+                    should be available via HTTP to client application
+  /json           - one JSON file of text matches for each processed image;
+                  - server will read these to perform search;
+                  - may possibly coalesce into one file with "shelf" reference
+  /debug          - offline process may store intermediate iamges here;
+                  - these would be the masked images or images showing matched text
+```
+
+File name format:
+
+- `s3-image-processing-bucket/`
+  - `/originals/file.png`: might want to put a "shelf" number in there somewhere
+  - `/processed/file.png`: same as originals
+  - `thumbs/file-thumb.png`
+  - `/json/file.json`
+  - `/debug/file-mode-n.png`: where mode can be "outline" or "masked"; n is the sequence of the intermediate image
+
 ### Data Storage
 
 The records looks like (less than 400 byts per book, and could reduce that--don't need
@@ -21,7 +54,7 @@ all that precision in `X` and `Y`):
     }
   ]
 }
-```json
+```
 
 Need a tool to merge multiple JSON files.
 
@@ -40,7 +73,8 @@ Index can be updated using a lambda for new data. No free plan. Costs.
 EFS: This is cheap and should work well, but must deal with VPC and getting lambda into same
 VPC as EFS. Still may be a server charge.
 
-Raw JSON data: This is the best approach. 300 books (300 * 400 = 120KB) 
+Raw JSON data: This is the best approach. 300 books (300 * 400 = 120KB, less if we limit
+precision of the X and Y elements that delimit text bounding polygon) 
 means small amount of data. Could just
 load it into lambda as part of `node_modules` or put it in a lambda layer. Found a post
 on the web where a guy uses lambda layers to store small hash tables for rapid search.
