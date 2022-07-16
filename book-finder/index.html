@@ -37,7 +37,7 @@
         <div id="demo-container">
             <div id="sign-up">
                 <p id="sign-up-label">SIGN UP</p>
-                <form class="">
+                <form class="" method="post">
                     <div class="form-group">
                         <label
                             for="email"
@@ -50,7 +50,7 @@
                             name="email"
                             required>
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label
                             for="phone"
                             class="control-label">PHONE</label>
@@ -61,7 +61,7 @@
                             placeholder="PHONE"
                             name="phone"
                             required>
-                    </div>
+                    </div> -->
                     <div class="form-group">
                         <label
                             for="password"
@@ -94,6 +94,7 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="app.js"></script>
+    <script type="module" src="./app.js"></script>
+    <script type="module" src="./amazon-cognito-identity.min.js"></script>
 </body>
 </html>

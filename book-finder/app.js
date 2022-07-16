@@ -5,16 +5,22 @@ const alertMessage = document.getElementById('alert-message');
 submitButton.addEventListener('click', (event) => {
     event.preventDefault();
     const emailField = document.getElementById('email').value;
-    const phoneField = document.getElementById('phone').value;
+    // const phoneField = document.getElementById('phone').value;
     const passwordField = document.getElementById('password').value;
     const confirmPasswordField = document.getElementById('confirm-password').value;
     validateEmail(emailField);
-    validatePhone(phoneField);
+    // validatePhone(phoneField);
     checkPassword(passwordField);
     comparePasswords(passwordField, confirmPasswordField);
-    signUp();
+    const userData = {
+        email: emailField,
+        // phone: phoneField,
+        password: passwordField
+    };
+    createUser(userData);
 });
 
+// EMAIL ADDRESS VALIDATION
 function validateEmail(emailField) {
     if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(emailField)) {
         return true;
@@ -25,16 +31,18 @@ function validateEmail(emailField) {
     }
 }
 
-function validatePhone(phoneField) {
-    if (/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im.test(phoneField)) {
-        return true;
-    } else {
-        alertArea.style.backgroundColor = "lightcoral";
-        alertMessage.innerText = "PLEASE ENTER A VALID PHONE NUMBER."
-        throw new Error("PLEASE ENTER A VALID PHONE NUMBER.");
-    }
-}
+// PHONE NUMBER VALIDATION
+// function validatePhone(phoneField) {
+//     if (/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im.test(phoneField)) {
+//         return true;
+//     } else {
+//         alertArea.style.backgroundColor = "lightcoral";
+//         alertMessage.innerText = "PLEASE ENTER A VALID PHONE NUMBER."
+//         throw new Error("PLEASE ENTER A VALID PHONE NUMBER.");
+//     }
+// }
 
+// PASSWORD VALIDATION
 function checkPassword(passwordField) {
     const checkedPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,32}$/;
     if (passwordField.match(checkedPassword)) {
@@ -61,6 +69,27 @@ function comparePasswords(passwordField, confirmPasswordField) {
 
 
 
-function signUp(emailField, phoneField, passwordField) {
+async function createUser(userData) {
 
+
+    // const response = await fetch("https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/signup", {
+    //     method: 'POST',
+    //     mode: 'cors',
+    //     cache: 'no-cache',
+    //     credentials: 'same-origin',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         'Access-Control-Allow-Origin': '*'
+    //     },
+    //     redirect: 'follow',
+    //     referrerPolicy: 'no-referrer',
+    //     body: JSON.stringify(userData)
+    // });
+    // console.log(response.json());
+    // return response.json();
+
+    const signupReq = new XMLHttpRequest();
+    signupReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/signup");
+    console.log(userData);
+    signupReq.send(JSON.stringify(userData));
 }
