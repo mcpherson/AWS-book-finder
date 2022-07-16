@@ -55,8 +55,6 @@ function checkPassword(passwordField) {
     }
 }
 
-
-
 function comparePasswords(passwordField, confirmPasswordField) {
     if (passwordField === confirmPasswordField && passwordField.length != 0) {
         return true;
