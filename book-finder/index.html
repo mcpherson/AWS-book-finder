@@ -35,8 +35,8 @@
     </div>
     <div class="container" id="body">
         <div id="demo-container">
-            <div id="sign-up">
-                <p id="sign-up-label">SIGN UP</p>
+            <div class="sign-up-area" id="sign-up">
+                <p class="sign-up-label">SIGN UP</p>
                 <form class="" method="post">
                     <div class="form-group">
                         <label
@@ -86,10 +86,31 @@
                             name="confirmPassword"
                             required>
                     </div>
-                    <button id="form-submit" type="submit">SUBMIT</button>
+                    <button class="form-submit" id="sign-up-form-submit" type="submit">SUBMIT</button>
                 </form>
-                <div id="alert">
-                    <p id="alert-message">* 8-32 CHARACTERS. MUST CONTAIN AT LEAST ONE NUMBER, SYMBOL, AND CAPITAL LETTER.</p>
+                <div class="alert" id="sign-up-alert">
+                    <p class="alert-message" id="sign-up-alert-message"><strong>* PASSWORD REQUIREMENTS:</strong><br>8-32 CHARACTERS<br>AT LEAST ONE NUMBER<br>AT LEAST ONE SPECIAL CHARACTER<br>&nbsp;&nbsp;&nbsp;&nbsp;(^$*.[]{}()?-"!@#%&/\,><':;|_~`+=)<br>AT LEAST ONE LOWERCASE LETTER<br>AT LEAST ONE UPPERCASE LETTER</p>
+                </div>
+            </div>
+            <div class="sign-up-area" id="confirm-sign-up">
+                <p class="sign-up-label">CONFIRM EMAIL</p>
+                <form class="" method="post">
+                    <div class="form-group">
+                        <label
+                            for="confirm"
+                            class="control-label">CONFIRMATION CODE</label>
+                        <input
+                            type="text"
+                            id="confirmation"
+                            class="form-field"
+                            placeholder="CONFIRMATION CODE"
+                            name="confirm"
+                            required>
+                    </div>
+                    <button class="form-submit" id="cofirmation-form-submit" type="submit">SUBMIT</button>
+                </form>
+                <div class="alert">
+                    <p class="alert-message">A CONFIRMATION CODE HAS BEEN SENT TO YOUR EMAIL ADDRESS. ENTER IT ABOVE.</p>
                 </div>
             </div>
         </div>

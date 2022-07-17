@@ -43,7 +43,7 @@ body {
 
 /* SIGN UP FORM */
 
-#sign-up {
+.sign-up-area {
     margin: 5vh auto 0 auto;
     padding: 3vh;
     border: 3px solid grey;
@@ -51,7 +51,7 @@ body {
     width: 26vw;
 }
 
-#sign-up-label {
+.sign-up-label {
     font-family: 'Kanit', sans-serif;
     font-weight: 600;
     font-size: 1.6rem;
@@ -81,23 +81,23 @@ body {
     -moz-box-sizing: border-box;
 }
 
-#alert {
+.alert {
     padding: 3px;
     background-color: rgb(185, 185, 185);
     border-radius: 5px;
     margin-top: 30px;
 }
 
-#alert-message {
+.alert-message {
     color: black;
     font-family: 'Kanit', sans-serif;
     font-weight: 400;
     font-size: 1rem;
-    text-align: center;
-    padding: 0 5px;
+    text-align: left;
+    padding: 0 10px;
 }
 
-#form-submit {
+.form-submit {
     font-family: 'Kanit', sans-serif;
     font-weight: 600;
     font-size: 1.3rem;
@@ -107,4 +107,8 @@ body {
     color: black;
     background-color: lightgreen;
     border-radius: 5px;
+}
+
+#confirm-sign-up {
+    display: none;
 }
