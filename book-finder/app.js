@@ -95,16 +95,22 @@ async function createUser(userData) {
     console.log(userData);
     signupReq.send(JSON.stringify(userData));
 
+    signupReq.onload = function() {
+        if (signupReq.status != 200) { // analyze HTTP status of the response
+          console.log(`Error ${signupReq.status}: ${signupReq.statusText}`); // e.g. 404: Not Found
+        } else { // show the result
+          console.log(signupReq.response); // response is the server response
+        }
+      };
+
     document.querySelector('#sign-up').style.display = "none";
-    document.querySelector('#confirm-sign-up').style.display = "unset";
-    console.log(response.json());
-    return response;
+    document.querySelector('#confirm-sign-up').style.display = "block";
 
 }
 
-confirmButton.addEventListener('click', (response) => {
-    const userID = response.UserSub;
-    const confirmationCode = document.getElementById('confirmation').value;
+confirmButton.addEventListener('click', (res) => {
+    const userID = res.UserSub;
+    const confirmationCode = res.getElementById('confirmation').value;
 
 
 });
