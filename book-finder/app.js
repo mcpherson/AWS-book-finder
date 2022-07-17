@@ -71,38 +71,40 @@ function comparePasswords(passwordField, confirmPasswordField) {
 async function createUser(userData) {
 
 
-    const response = await fetch("https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/signup", {
-        method: 'POST',
-        mode: 'cors',
-        cache: 'no-cache',
-        credentials: 'same-origin',
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        },
-        redirect: 'follow',
-        referrerPolicy: 'no-referrer',
-        body: JSON.stringify(userData)
-    });
+    // const response = await fetch("https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/signup", {
+    //     method: 'POST',
+    //     mode: 'cors',
+    //     cache: 'no-cache',
+    //     credentials: 'same-origin',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         'Access-Control-Allow-Origin': '*'
+    //     },
+    //     redirect: 'follow',
+    //     referrerPolicy: 'no-referrer',
+    //     body: JSON.stringify(userData)
+    // });
+
+    
+    
+    
+    
+    
+    const signupReq = new XMLHttpRequest();
+    signupReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/signup", false);
+    console.log(userData);
+    signupReq.send(JSON.stringify(userData));
 
     document.querySelector('#sign-up').style.display = "none";
     document.querySelector('#confirm-sign-up').style.display = "unset";
-    
-
     console.log(response.json());
     return response;
-    
 
-
-    // const signupReq = new XMLHttpRequest();
-    // signupReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/signup");
-    // console.log(userData);
-    // signupReq.send(JSON.stringify(userData));
 }
 
 confirmButton.addEventListener('click', (response) => {
     const userID = response.UserSub;
     const confirmationCode = document.getElementById('confirmation').value;
 
-    
+
 });
