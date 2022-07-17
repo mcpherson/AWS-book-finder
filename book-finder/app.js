@@ -91,7 +91,7 @@ async function createUser(userData) {
     
     
     const signupReq = new XMLHttpRequest();
-    signupReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/signup", false);
+    signupReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/signup");
     console.log(userData);
     signupReq.send(JSON.stringify(userData));
 
