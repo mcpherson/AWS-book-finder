@@ -21,8 +21,11 @@ confirmButton.addEventListener('click', (event) => {
     confirmationReq.onload = function() {
         if (confirmationReq.status != 200) { // analyze HTTP status of the response
             console.log(`Error ${confirmationReq.status}: ${confirmationReq.statusText}`);
+            alertArea.style.backgroundColor = "lightcoral";
+            alertMessage.innerText = "The information you entered is invalid. Please check your email address and verification code and try again.";
+            throw new Error("Verification failed. Enter correct information or see console for details. Contact administrator if necessary.");
         } else {
-            console.log(confirmationReq.response); // response is the server response
+            // console.log(confirmationReq.response); // response is the server response
             window.location.href = "../login/login.html";
         }
     };

@@ -100,8 +100,11 @@ async function createUser(userData) {
     signupReq.onload = function() {
         if (signupReq.status != 200) { // analyze HTTP status of the response
             console.log(`Error ${signupReq.status}: ${signupReq.statusText}`);
+            alertArea.style.backgroundColor = "lightcoral";
+            alertMessage.innerText = "Signup failed. See console for details. Contact administrator if necessary.";
+            throw new Error("Signup failed. See console for details. Contact administrator if necessary.");
         } else {
-            console.log(signupReq.response); // response is the server response
+            // console.log(signupReq.response); // response is the server response
             localStorage.setItem('UserSub', signupReq.response.UserSub);
             localStorage.setItem('bookFinderUsername', userData.email); 
             window.location.href = "./verification.html";
