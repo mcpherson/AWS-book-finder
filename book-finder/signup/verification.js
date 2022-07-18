@@ -1,5 +1,6 @@
 const alertArea = document.getElementById('sign-up-alert');
 const alertMessage = document.getElementById('sign-up-alert-message');
+const emailField = document.getElementById('emailField');
 const confirmField = document.getElementById('confirmation');
 const confirmButton = document.getElementById('cofirmation-form-submit');
 
@@ -9,7 +10,7 @@ confirmButton.addEventListener('click', (event) => {
     event.preventDefault();
 
     const confirmationData = {
-        username: localStorage.getItem('bookFinderUsername'),
+        username: emailField.value || localStorage.getItem('bookFinderUsername'),
         confirmationCode: confirmField.value
     };
 
