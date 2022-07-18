@@ -1,5 +1,4 @@
 # Redirects from what the browser requests to what we serve
-/book-finder /book-finder
 /book-finder/index.html /book-finder
 /book-finder/signup/signup.html /book-finder/signup
 /book-finder/signup/verification.html /book-finder/signup/verification
