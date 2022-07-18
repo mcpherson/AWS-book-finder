@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../resources/favicon.ico">
-    <title>Book Finder - Verification</title>
+    <title>Book Finder - Login</title>
 </head>
 <body>
     <div class="container" id="header">
@@ -24,10 +24,7 @@
                 <a class="nav-item" href="">
                     FAQ
                 </a>
-                <a class="nav-item" href="../login/index.html">
-                    LOGIN
-                </a>
-                <a class="nav-item" id="signup-link" href="./index.html">
+                <a class="nav-item" id="signup-link" href="../signup/index.html">
                     SIGN UP
                 </a>
             </div>
@@ -36,7 +33,7 @@
     <div class="container" id="body">
         <div id="demo-container">
             <div class="sign-up-area" id="confirm-sign-up">
-                <p class="sign-up-label">CONFIRM EMAIL</p>
+                <p class="sign-up-label">LOG IN</p>
                 <form class="" method="post">
                     <div class="form-group">
                         <label
@@ -44,7 +41,7 @@
                             class="control-label">EMAIL ADDRESS</label>
                         <input
                             type="text"
-                            id="emailField"
+                            id="login-email"
                             class="form-field"
                             placeholder="EMAIL ADDRESS"
                             name="email"
@@ -52,24 +49,24 @@
                     </div>
                     <div class="form-group">
                         <label
-                            for="confirm"
-                            class="control-label">CONFIRMATION CODE</label>
+                            for="password"
+                            class="control-label">PASSWORD</label>
                         <input
                             type="text"
-                            id="confirmation"
+                            id="login-password"
                             class="form-field"
-                            placeholder="CONFIRMATION CODE"
-                            name="confirm"
+                            placeholder="PASSWORD"
+                            name="password"
                             required>
                     </div>
-                    <button class="form-submit" id="cofirmation-form-submit" type="submit">SUBMIT</button>
+                    <button class="form-submit" id="login-form-submit" type="submit">LOG IN</button>
                 </form>
-                <div class="alert">
-                    <p class="alert-message">A confirmation code has been sent to your email address. Enter it above.</p>
+                <div class="backup-message">
+                    <p>Forgot your password? <a id="forgot-password" class="backup-link" href="javascript:void(0);">Click here.</a></p>
                 </div>
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="./verification.js"></script>
+    <script type="text/javascript" src="./login.js"></script>
 </body>
 </html>
