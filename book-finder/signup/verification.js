@@ -7,7 +7,7 @@ const confirmButton = document.getElementById('cofirmation-form-submit');
 
 confirmButton.addEventListener('click', (event) => {
     event.preventDefault();
-    
+
     const confirmationData = {
         username: localStorage.getItem('bookFinderUsername'),
         confirmationCode: confirmField.value
@@ -22,9 +22,9 @@ confirmButton.addEventListener('click', (event) => {
             console.log(`Error ${confirmationReq.status}: ${confirmationReq.statusText}`);
         } else {
             console.log(confirmationReq.response); // response is the server response
+            window.location.href = "../login/login.html";
         }
     };
 
-    window.location.href = "../login/login.html";
 
 });

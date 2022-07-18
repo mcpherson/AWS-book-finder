@@ -25,6 +25,7 @@ body {
 
 #nav {
     float: right;
+    padding-right: 25px;
 }
 
 #nav-items {
@@ -143,7 +144,7 @@ body {
     background-color: rgb(162, 238, 162);
 }
 
-#confirmation-backup {
+.backup-message {
     color: white;
     font-family: 'Kanit', sans-serif;
     font-weight: 500;
@@ -152,8 +153,9 @@ body {
     padding-top: 10px;
 }
 
-#confirmation-backup-link {
-    color: lightblue
+.backup-link {
+    color: lightblue;
+    text-decoration: underline;
 }
 
 /* DASHBOARD */

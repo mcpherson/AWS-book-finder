@@ -103,10 +103,10 @@ async function createUser(userData) {
         } else {
             console.log(signupReq.response); // response is the server response
             localStorage.setItem('UserSub', signupReq.response.UserSub);
+            localStorage.setItem('bookFinderUsername', userData.email); 
+            window.location.href = "./verification.html";
         }
     };
 
-    localStorage.setItem('bookFinderUsername', userData.email); 
     
-    window.location.href = "./verification.html";
 }
