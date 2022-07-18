@@ -4,31 +4,28 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="resources/favicon.ico">
-    <title>Book Finder</title>
+    <link rel="icon" type="image/x-icon" href="../resources/favicon.ico">
+    <title>Book Finder - Sign Up</title>
 </head>
 <body>
     <div class="container" id="header">
         <div id="logo-container">
-            <img src="resources/logo.png" alt="Book Finder logo" id="logo">
+            <img src="../resources/logo.png" alt="Book Finder logo" id="logo">
         </div>
         <div id="nav">
             <div id="nav-items">
-                <a class="nav-item" href="">
+                <a class="nav-item" href="../index.html">
                     HOME
                 </a>
                 <a class="nav-item" href="">
                     FAQ
                 </a>
-                <a class="nav-item" href="">
+                <a class="nav-item" href="../login/login.html">
                     LOGIN
-                </a>
-                <a class="nav-item" href="./signup/signup.html">
-                    SIGN UP
                 </a>
             </div>
         </div>
@@ -88,6 +85,9 @@
                     </div>
                     <button class="form-submit" id="sign-up-form-submit" type="submit">SUBMIT</button>
                 </form>
+                <div id="confirmation-backup">
+                    <p>Have a verification code? <a id="confirmation-backup-link" href="./verification.html">Click here.</a></p>
+                </div>
                 <div class="alert" id="sign-up-alert">
                     <p class="alert-message" id="sign-up-alert-message">
                         <strong>* Password requirements:</strong><br>
@@ -100,29 +100,8 @@
                     </p>
                 </div>
             </div>
-            <div class="sign-up-area" id="confirm-sign-up">
-                <p class="sign-up-label">CONFIRM EMAIL</p>
-                <form class="" method="post">
-                    <div class="form-group">
-                        <label
-                            for="confirm"
-                            class="control-label">CONFIRMATION CODE</label>
-                        <input
-                            type="text"
-                            id="confirmation"
-                            class="form-field"
-                            placeholder="CONFIRMATION CODE"
-                            name="confirm"
-                            required>
-                    </div>
-                    <button class="form-submit" id="cofirmation-form-submit" type="submit">SUBMIT</button>
-                </form>
-                <div class="alert">
-                    <p class="alert-message">A confirmation code has been sent to your email address. Enter it above.</p>
-                </div>
-            </div>
         </div>
     </div>
-    <script type="text/javascript" src="./app.js"></script>
+    <script type="text/javascript" src="./signup.js"></script>
 </body>
 </html>

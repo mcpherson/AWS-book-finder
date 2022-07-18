@@ -4,30 +4,30 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="resources/favicon.ico">
-    <title>Book Finder</title>
+    <link rel="icon" type="image/x-icon" href="../resources/favicon.ico">
+    <title>Book Finder - Verification</title>
 </head>
 <body>
     <div class="container" id="header">
         <div id="logo-container">
-            <img src="resources/logo.png" alt="Book Finder logo" id="logo">
+            <img src="../resources/logo.png" alt="Book Finder logo" id="logo">
         </div>
         <div id="nav">
             <div id="nav-items">
-                <a class="nav-item" href="">
+                <a class="nav-item" href="../index.html">
                     HOME
                 </a>
                 <a class="nav-item" href="">
                     FAQ
                 </a>
-                <a class="nav-item" href="">
+                <a class="nav-item" href="../login/login.html">
                     LOGIN
                 </a>
-                <a class="nav-item" href="./signup/signup.html">
+                <a class="nav-item" id="signup-link" href="./signup.html">
                     SIGN UP
                 </a>
             </div>
@@ -35,71 +35,6 @@
     </div>
     <div class="container" id="body">
         <div id="demo-container">
-            <div class="sign-up-area" id="sign-up">
-                <p class="sign-up-label">SIGN UP</p>
-                <form class="" method="post">
-                    <div class="form-group">
-                        <label
-                            for="email"
-                            class="control-label">EMAIL</label>
-                        <input
-                            type="email"
-                            id="email"
-                            class="form-field"
-                            placeholder="EMAIL"
-                            name="email"
-                            required>
-                    </div>
-                    <!-- <div class="form-group">
-                        <label
-                            for="phone"
-                            class="control-label">PHONE</label>
-                        <input
-                            type="phone"
-                            id="phone"
-                            class="form-field"
-                            placeholder="PHONE"
-                            name="phone"
-                            required>
-                    </div> -->
-                    <div class="form-group">
-                        <label
-                            for="password"
-                            class="control-label">PASSWORD</label>
-                        <input
-                            type="password"
-                            id="password"
-                            class="form-field"
-                            placeholder="PASSWORD *"
-                            name="password"
-                            required>
-                    </div>
-                    <div class="form-group">
-                        <label
-                            for="confirmPassword"
-                            class="control-label">CONFIRM PASSWORD</label>
-                        <input
-                            type="password"
-                            id="confirm-password"
-                            class="form-field"
-                            placeholder="CONFIRM PASSWORD"
-                            name="confirmPassword"
-                            required>
-                    </div>
-                    <button class="form-submit" id="sign-up-form-submit" type="submit">SUBMIT</button>
-                </form>
-                <div class="alert" id="sign-up-alert">
-                    <p class="alert-message" id="sign-up-alert-message">
-                        <strong>* Password requirements:</strong><br>
-                        8-32 characters<br>
-                        At least one digit<br>
-                        At least one special character:<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="allowed-chars">^$*.[]{}()?-"!@#%&/\,><':;|_~`+=</span><br>
-                        At least one lowercase letter<br>
-                        At least one uppercase letter
-                    </p>
-                </div>
-            </div>
             <div class="sign-up-area" id="confirm-sign-up">
                 <p class="sign-up-label">CONFIRM EMAIL</p>
                 <form class="" method="post">
@@ -123,6 +58,6 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="./app.js"></script>
+    <script type="text/javascript" src="./verification.js"></script>
 </body>
 </html>
