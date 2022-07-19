@@ -28,7 +28,7 @@ loginButton.addEventListener('click', (event) => {
         } else {
             // console.log(loginReq.response); // response is the server response
             localStorage.setItem('book-finder-login-data', loginReq.response);
-            window.location.href = "../dashboard/index.html";
+            window.location.href = "/book-finder/dashboard/";
         }
     };
 

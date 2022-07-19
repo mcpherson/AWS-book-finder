@@ -107,7 +107,7 @@ async function createUser(userData) {
             // console.log(signupReq.response); // response is the server response
             localStorage.setItem('UserSub', signupReq.response.UserSub);
             localStorage.setItem('bookFinderUsername', userData.email); 
-            window.location.href = "./verification/index.html";
+            window.location.href = "/book-finder/signup/verification/";
         }
     };
 
