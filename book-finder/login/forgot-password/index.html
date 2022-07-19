@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../resources/favicon.ico">
+    <title>Book Finder - Forgot Password</title>
+</head>
+<body>
+    <div class="container" id="header">
+        <div id="logo-container">
+            <img src="../../resources/logo.png" alt="Book Finder logo" id="logo">
+        </div>
+        <div id="nav">
+            <div id="nav-items">
+                <a class="nav-item" href="../../index.html">
+                    HOME
+                </a>
+                <a class="nav-item" href="">
+                    FAQ
+                </a>
+                <a class="nav-item" href="../index.html">
+                    LOG IN
+                </a>
+                <a class="nav-item" id="signup-link" href="../../signup/index.html">
+                    SIGN UP
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="body">
+        <div id="demo-container">
+            <div class="form-area">
+                <p class="form-title">PASSWORD RECOVERY</p>
+                <form class="" method="post">
+                    <div class="form-group">
+                        <label
+                            for="email"
+                            class="control-label">EMAIL ADDRESS</label>
+                        <input
+                            type="text"
+                            id="forgot-password-email"
+                            class="form-field"
+                            placeholder="EMAIL ADDRESS"
+                            name="email"
+                            required>
+                    </div>
+                    <button class="form-submit" id="forgot-password-form-submit" type="submit">RECOVER PASSWORD</button>
+                </form>
+                <div class="backup-message">
+                    <p>Enter your email address to receive a password recovery email.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="./forgot-password.js"></script>
+</body>
+</html>
