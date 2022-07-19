@@ -58,9 +58,9 @@ body {
     text-shadow: 0 0 0px rgba(0,0,0,0);
 }
 
-/* SIGN UP FORM */
+/* FORMS */
 
-.sign-up-area {
+.form-area {
     background-color: rgb(48, 48, 48);
     margin: 5vh auto 0 auto;
     padding: 3vh;
@@ -70,7 +70,7 @@ body {
     box-shadow: 0px 0px 10px black;
 }
 
-.sign-up-label {
+.form-title {
     color: white;
     text-shadow: 0 0 7px black;
     font-family: 'Kanit', sans-serif;
