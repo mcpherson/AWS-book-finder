@@ -109,10 +109,10 @@ async function createUser(userData) {
     signupReq.send(JSON.stringify(userData));
 
     signupReq.onload = function() {
-        if (signupReq.status != 200) { // analyze HTTP status of the response
+        if (signupReq.status != 200 || signupReq.response.$metadata.httpStatusCode != 200) { // analyze HTTP status of the response
             formArea.style.visibility = "visible";
             spinner.style.display = "none";
-            console.log(`Error ${signupReq.status}: ${signupReq.statusText}`);
+            console.log(`Error ${signupReq.status}: ${signupReq.statusText} - AWS Error: ${signupReq.response}`);
             alertArea.style.backgroundColor = "lightcoral";
             alertMessage.innerText = "Signup failed. See console for details. Contact administrator if necessary.";
             throw new Error("Signup failed. See console for details. Contact administrator if necessary.");
