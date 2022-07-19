@@ -1,12 +1,12 @@
-// CHECK USER STATUS, CHANGE NAVIGATION
+// CHECK USER STATUS, CHANGE INTERFACE
 const loginNav = document.getElementById('login-link');
 const logoutNav = document.getElementById('logout-link');
 window.onload = () => {
-    if (localStorage.getItem('book-finder-login-data')) {
+    if (localStorage.getItem('book-finder-login-data') && loginNav != null && logoutNav != null) {
         loginNav.style.display = "none";
         logoutNav.style.display = "flex";
         return;
-    } else {
+    } else if (loginNav != null && logoutNav != null) {
         loginNav.style.display = "flex";
         logoutNav.style.display = "none";
         return;
