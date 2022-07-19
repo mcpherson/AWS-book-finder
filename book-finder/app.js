@@ -1,6 +1,6 @@
 function logOut() {
     const logoutData = {
-        accessToken : localStorage.getItem('book-finder-login-data').AccessToken
+        accessToken : localStorage.getItem('book-finder-login-data').AuthenticationResult.AccessToken
     }
     const logoutReq = new XMLHttpRequest();
     logoutReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/logout");
@@ -15,7 +15,7 @@ function logOut() {
             throw new Error("logout failed. See console for details.");
         } else {
             // console.log(logoutReq.response); // response is the server response
-            localStorage.removeItem('book-finder-logout-data');
+            localStorage.removeItem('book-finder-login-data');
             window.location.href = "/index.html";
         }
     };
