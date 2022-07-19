@@ -1,6 +1,6 @@
 function logOut() {
     const logoutData = {
-        accessToken : localStorage.getItem('book-finder-login-data').AuthenticationResult.AccessToken
+        accessToken : JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.AccessToken
     }
     const logoutReq = new XMLHttpRequest();
     logoutReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/logout");
