@@ -1,16 +1,10 @@
-const alertArea = document.getElementById('alert');
-const alertMessage = document.getElementById('alert-message');
+const alertArea = document.querySelector('.alert');
+const alertMessage = document.querySelector('.alert-message');
 const emailField = document.getElementById('emailField');
 const confirmField = document.getElementById('confirmation');
 const confirmButton = document.getElementById('cofirmation-form-submit');
 const formArea = document.querySelector('.form');
 const spinner = document.querySelector('.spinner');
-
-window.onload = () => {
-    if (localStorage.getItem('bookFinderUsername')) {
-        emailField.value = localStorage.getItem('bookFinderUsername');
-    }
-};
 
 confirmButton.addEventListener('click', (event) => {
     event.preventDefault();

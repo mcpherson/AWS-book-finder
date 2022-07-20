@@ -1,7 +1,18 @@
 // CHECK USER STATUS, CHANGE INTERFACE
 const loginNav = document.getElementById('login-link');
 const logoutNav = document.getElementById('logout-link');
+
+// RUN WHEN PAGE LOADS
 window.onload = () => {
+
+    // RUN ONLY ON VERIFICATION PAGE
+    if (window.location.href === "https://mcpherson.dev/book-finder/signup/verification/") {
+        if (localStorage.getItem('bookFinderUsername')) {
+            emailField.value = localStorage.getItem('bookFinderUsername');
+        }
+    }
+
+    // RUN ON ALL PAGES
     if (localStorage.getItem('book-finder-login-data') && loginNav != null && logoutNav != null) {
         loginNav.style.display = "none";
         logoutNav.style.display = "flex";
