@@ -109,7 +109,7 @@ async function createUser(userData) {
     signupReq.send(JSON.stringify(userData));
 
     signupReq.onload = function() {
-        if (signupReq.status != 200 || signupReq.response.$metadata.httpStatusCode != 200) { // analyze HTTP status of the response
+        if (signupReq.status != 200 || signupReq.response.hasOwnProperty('__type')) { // analyze HTTP status of the response
             formArea.style.visibility = "visible";
             spinner.style.display = "none";
             console.log(`Error ${signupReq.status}: ${signupReq.statusText} - AWS Error: ${signupReq.response}`);
