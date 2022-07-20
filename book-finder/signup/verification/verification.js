@@ -4,13 +4,17 @@ const emailField = document.getElementById('emailField');
 const confirmField = document.getElementById('confirmation');
 const confirmButton = document.getElementById('cofirmation-form-submit');
 
-
+window.onload = () => {
+    if (localStorage.getItem('bookFinderUsername')) {
+        emailField.value = localStorage.getItem('bookFinderUsername');
+    }
+};
 
 confirmButton.addEventListener('click', (event) => {
     event.preventDefault();
 
     const confirmationData = {
-        username: emailField.value || localStorage.getItem('bookFinderUsername'),
+        username: emailField.value,
         confirmationCode: confirmField.value
     };
 
@@ -19,10 +23,10 @@ confirmButton.addEventListener('click', (event) => {
     confirmationReq.send(JSON.stringify(confirmationData));
 
     confirmationReq.onload = function() {
-        if (confirmationReq.status != 200) { // analyze HTTP status of the response
-            console.log(`Error ${confirmationReq.status}: ${confirmationReq.statusText}`);
+        if (confirmationReq.status != 200 || JSON.parse(signupReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
+            console.log(`Error ${confirmationReq.status}: ${confirmationReq.statusText} - AWS Error: ${signupReq.response}`);
             alertArea.style.backgroundColor = "lightcoral";
-            alertMessage.innerText = "The information you entered is invalid. Please check your email address and verification code and try again.";
+            alertMessage.innerText = "Verification failed. Enter correct information or see console for details. Contact administrator if necessary.";
             throw new Error("Verification failed. Enter correct information or see console for details. Contact administrator if necessary.");
         } else {
             // console.log(confirmationReq.response); // response is the server response
