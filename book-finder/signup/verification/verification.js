@@ -1,5 +1,5 @@
-const alertArea = document.getElementById('sign-up-alert');
-const alertMessage = document.getElementById('sign-up-alert-message');
+const alertArea = document.getElementById('alert');
+const alertMessage = document.getElementById('alert-message');
 const emailField = document.getElementById('emailField');
 const confirmField = document.getElementById('confirmation');
 const confirmButton = document.getElementById('cofirmation-form-submit');
