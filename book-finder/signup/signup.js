@@ -109,7 +109,7 @@ async function createUser(userData) {
     signupReq.send(JSON.stringify(userData));
 
     signupReq.onload = function() {
-        if (signupReq.status != 200 || signupReq.response.hasOwnProperty('__type')) { // analyze HTTP status of the response
+        if (signupReq.status != 200 || JSON.parse(signupReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
             formArea.style.visibility = "visible";
             spinner.style.display = "none";
             console.log(`Error ${signupReq.status}: ${signupReq.statusText} - AWS Error: ${signupReq.response}`);
@@ -118,8 +118,10 @@ async function createUser(userData) {
             throw new Error("Signup failed. See console for details. Contact administrator if necessary.");
         } else {
             console.log(signupReq.response); // response is the server response
+            const signupResponse = JSON.parse(signupReq.response);
             localStorage.setItem('UserSub', signupReq.response.UserSub);
             localStorage.setItem('bookFinderUsername', userData.email); 
+            return signupResponse;
             // window.location.href = "/book-finder/signup/verification/";
         }
     };
