@@ -3,6 +3,8 @@ const alertMessage = document.getElementById('sign-up-alert-message');
 const emailField = document.getElementById('emailField');
 const confirmField = document.getElementById('confirmation');
 const confirmButton = document.getElementById('cofirmation-form-submit');
+const formArea = document.querySelector('.form');
+const spinner = document.querySelector('.spinner');
 
 window.onload = () => {
     if (localStorage.getItem('bookFinderUsername')) {
@@ -12,6 +14,11 @@ window.onload = () => {
 
 confirmButton.addEventListener('click', (event) => {
     event.preventDefault();
+
+    formArea.style.visibility = "hidden";
+    spinner.style.display = "block";
+    spinner.style.left = `${(0.5*window.innerWidth)-100}px`;
+    spinner.style.top = `${(formArea.getBoundingClientRect().top)+(0.5*formArea.offsetHeight)-100}px`;
 
     const confirmationData = {
         username: emailField.value,
@@ -24,6 +31,8 @@ confirmButton.addEventListener('click', (event) => {
 
     confirmationReq.onload = function() {
         if (confirmationReq.status != 200 || JSON.parse(signupReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
+            formArea.style.visibility = "visible";
+            spinner.style.display = "none";
             console.log(`Error ${confirmationReq.status}: ${confirmationReq.statusText} - AWS Error: ${signupReq.response}`);
             alertArea.style.backgroundColor = "lightcoral";
             alertMessage.innerText = "Verification failed. Enter correct information or see console for details. Contact administrator if necessary.";
