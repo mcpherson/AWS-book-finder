@@ -117,12 +117,10 @@ async function createUser(userData) {
             alertMessage.innerText = "Signup failed. See console for details. Contact administrator if necessary.";
             throw new Error("Signup failed. See console for details. Contact administrator if necessary.");
         } else {
-            console.log(signupReq.response); // response is the server response
-            const signupResponse = JSON.parse(signupReq.response);
-            localStorage.setItem('UserSub', signupReq.response.UserSub);
+            // console.log(signupReq.response); // response is the server response
+            // localStorage.setItem('UserSub', signupReq.response.UserSub);
             localStorage.setItem('bookFinderUsername', userData.email); 
-            return signupResponse;
-            // window.location.href = "/book-finder/signup/verification/";
+            window.location.href = "/book-finder/signup/verification/";
         }
     };
 
