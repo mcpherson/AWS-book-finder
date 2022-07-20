@@ -3,11 +3,18 @@ const alertMessage = document.getElementById('login-alert-message');
 const emailField = document.getElementById('login-email');
 const passwordField = document.getElementById('login-password');
 const loginButton = document.getElementById('login-form-submit');
+const formArea = document.querySelector('.form');
+const spinner = document.querySelector('.spinner');
 
 
 
 loginButton.addEventListener('click', (event) => {
     event.preventDefault();
+
+    formArea.style.visibility = "hidden";
+    spinner.style.display = "block";
+    spinner.style.left = `${(0.5*window.innerWidth)-100}px`;
+    spinner.style.top = `${(formArea.getBoundingClientRect().top)+(0.5*formArea.offsetHeight)-100}px`;
 
     const loginData = {
         username: emailField.value || localStorage.getItem('bookFinderUsername'),
@@ -19,8 +26,10 @@ loginButton.addEventListener('click', (event) => {
     loginReq.send(JSON.stringify(loginData));
 
     loginReq.onload = function() {
-        if (loginReq.status != 200) { // analyze HTTP status of the response
-            console.log(`Error ${loginReq.status}: ${loginReq.statusText}`);
+        if (loginReq.status != 200 || JSON.parse(loginReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
+            formArea.style.visibility = "visible";
+            spinner.style.display = "none";
+            console.log(`Error ${loginReq.status}: ${loginReq.statusText} - AWS Error: ${loginReq.response}`);
             alertArea.style.display = "block";
             alertArea.style.backgroundColor = "lightcoral";
             alertMessage.innerText = "Invalid login information. Please check your email address and re-type your password and try again. Make sure that your account has been verified. Reset password if necessary.";

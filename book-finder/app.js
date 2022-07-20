@@ -5,8 +5,8 @@ const logoutNav = document.getElementById('logout-link');
 // RUN WHEN PAGE LOADS
 window.onload = () => {
 
-    // RUN ONLY ON VERIFICATION PAGE
-    if (window.location.href === "https://mcpherson.dev/book-finder/signup/verification/") {
+    // RUN ONLY ON VERIFICATION AND LOGIN PAGES
+    if (window.location.href === "https://mcpherson.dev/book-finder/signup/verification/" || window.location.href === "https://mcpherson.dev/book-finder/login/") {
         if (localStorage.getItem('bookFinderUsername')) {
             emailField.value = localStorage.getItem('bookFinderUsername');
         }
