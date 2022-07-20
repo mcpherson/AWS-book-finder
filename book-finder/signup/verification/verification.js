@@ -30,10 +30,10 @@ confirmButton.addEventListener('click', (event) => {
     confirmationReq.send(JSON.stringify(confirmationData));
 
     confirmationReq.onload = function() {
-        if (confirmationReq.status != 200 || JSON.parse(signupReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
+        if (confirmationReq.status != 200 || JSON.parse(confirmationReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
             formArea.style.visibility = "visible";
             spinner.style.display = "none";
-            console.log(`Error ${confirmationReq.status}: ${confirmationReq.statusText} - AWS Error: ${signupReq.response}`);
+            console.log(`Error ${confirmationReq.status}: ${confirmationReq.statusText} - AWS Error: ${confirmationReq.response}`);
             alertArea.style.backgroundColor = "lightcoral";
             alertMessage.innerText = "Verification failed. Enter correct information or see console for details. Contact administrator if necessary.";
             throw new Error("Verification failed. Enter correct information or see console for details. Contact administrator if necessary.");
