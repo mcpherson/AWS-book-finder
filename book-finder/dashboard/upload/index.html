@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html id="entire-page" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/book-finder/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/book-finder/resources/favicon.ico">
+    <script src="https://kit.fontawesome.com/080cdc086c.js" crossorigin="anonymous"></script>
+    <title>Book Finder - Upload Image</title>
+</head>
+<body>
+    <div class="container" id="header">
+        <div id="logo-container">
+            <a href="/book-finder/"><img src="/book-finder/resources/logo.png" alt="Book Finder logo" id="logo"></a>
+        </div>
+        <div id="nav">
+            <div id="nav-items">
+                <a class="nav-item" href="/book-finder/dashboard/">
+                    DASHBOARD
+                </a>
+                <a class="nav-item" href="/book-finder/dashboard/library/">
+                    LIBRARY
+                </a>
+                <a class="nav-item" href="">
+                    FAQ
+                </a>
+                <a class="nav-item" id="logout-link" href="javascript:void(0)">
+                    LOGOUT
+                </a>
+                <a class="nav-item" id="login-link" href="/book-finder/login/">
+                    LOGIN
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="body">
+        <div id="demo-container">
+            <div id="upload-container">
+                <div id="upload-form-area">
+                    <label for="file-upload" class="custom-file-upload">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> &nbsp;UPLOAD FILE
+                    </label>
+                    <input id="file-upload" type="file"/>
+                    <p id="file-name"></p>
+                    <button id="crop-button"><i class="fa-solid fa-crop-simple"></i> &nbsp;CROP IMAGE</button>
+                    <button id="clear-button"><i class="fa-solid fa-trash-can"></i> &nbsp;CLEAR IMAGE</button>
+                </div>
+            </div>
+            <div id="canvas-area">
+                <canvas id="uploaded-image"></canvas>
+                <canvas id="draw-area"></canvas>
+            </div>
+            <img id="test-image" src="" alt="">
+        </div>
+    </div>
+    <script type="text/javascript" src="/book-finder/app.js"></script>
+    <script type="text/javascript" src="/book-finder/dashboard/upload/upload.js"></script>
+</body>
+</html>

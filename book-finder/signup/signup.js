@@ -7,10 +7,12 @@ const spinner = document.querySelector('.spinner');
 
 submitButton.addEventListener('click', (event) => {
     event.preventDefault();
+
     formArea.style.visibility = "hidden";
     spinner.style.display = "block";
     spinner.style.left = `${(0.5*window.innerWidth)-100}px`;
     spinner.style.top = `${(formArea.getBoundingClientRect().top)+(0.5*formArea.offsetHeight)-100}px`;
+    
     const emailField = document.getElementById('email').value;
     // const phoneField = document.getElementById('phone').value;
     const passwordField = document.getElementById('password').value;
