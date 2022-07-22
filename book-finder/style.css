@@ -224,26 +224,25 @@ html, body {
 }
 
 #canvas-area {
-    position: absolute;
-    background-color: rgb(48,48,48);
     width: 100vw;
-    box-shadow: 0px -3px 7px rgb(13, 13, 13);
     text-align: center;
     padding-top: 10px;
 }
 
 #uploaded-image {
-    position: relative;
-    display: block;
-    margin: 0 auto;
-    background-color: white;
     z-index: 1;
-    /* max-height: 83vh;
-    max-width: 70vw; */
 }
 
 #draw-area {
-    position: relative;
     background-color: rgba(0,0,0,0);
     z-index: 2;
+}
+
+#final-image, #draw-area, #uploaded-image {
+    /* width: 0;
+    height: 0; */
+    position: absolute;
+    display: block;
+    left: 50%; 
+    transform: translate(-50%);
 }
