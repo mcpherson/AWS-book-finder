@@ -22,6 +22,7 @@ const cropRect = {
 let userImage;
 let finalImage;
 let isMouseDown = false;
+let imageScale = 1;
 
 // UPLOAD IMAGE, ADD TO IMAGE CANVAS
 function handleImage(e) {
@@ -34,9 +35,16 @@ function handleImage(e) {
             context.drawImage(uploadedImage, 0, 0);
             drawCanvas.height = uploadedImage.height;
             drawCanvas.width = uploadedImage.width;
+            // get window size
+            const screenWidth = document.documentElement.clientWidth;
+            // set scale for large images
+            if (screenWidth < (uploadedImage.width)*.95) {
+                imageScale = (screenWidth*.95) / uploadedImage.width;
+            }
         }
         uploadedImage.src = event.target.result;
         userImage = uploadedImage;
+        
     };
     fileName.innerText = `${e.target.files[0].name}`;
     reader.readAsDataURL(e.target.files[0]);
@@ -62,7 +70,12 @@ drawCanvas.addEventListener('mousemove', (ev) => {
     if (isMouseDown) {
         drawContext.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
         drawContext.fillStyle = 'rgba(40, 230, 0, .3)';
-        drawContext.fillRect(cropRect.startX, cropRect.startY, (ev.offsetX - cropRect.startX), (ev.offsetY - cropRect.startY));
+        drawContext.fillRect(
+            cropRect.startX/imageScale, 
+            cropRect.startY/imageScale, 
+            (ev.offsetX - cropRect.startX)/imageScale, 
+            (ev.offsetY - cropRect.startY)/imageScale
+        );
     }
 });
 
@@ -77,8 +90,18 @@ drawCanvas.addEventListener('mouseup', (event) => {
         } else {
             drawContext.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
             drawContext.fillStyle = 'rgba(40, 230, 0, .3)';
-            drawContext.fillRect(cropRect.startX, cropRect.startY, cropRect.width, cropRect.height);
-            drawContext.strokeRect(cropRect.startX, cropRect.startY, cropRect.width, cropRect.height);
+            drawContext.fillRect(
+                cropRect.startX/imageScale, 
+                cropRect.startY/imageScale, 
+                cropRect.width/imageScale, 
+                cropRect.height/imageScale
+            );
+            drawContext.strokeRect(
+                cropRect.startX/imageScale, 
+                cropRect.startY/imageScale, 
+                cropRect.width/imageScale, 
+                cropRect.height/imageScale
+            );
         }
     }
     isMouseDown = false;
@@ -140,6 +163,7 @@ const clearImages = function () {
     Object.keys(cropRect).forEach((i) => {
         cropRect[i] = 0
     });
+    imageScale = 1;
 }
 
 clearButton.addEventListener('click', clearImages);
@@ -147,18 +171,19 @@ clearButton.addEventListener('click', clearImages);
 // DRAW CROPPED IMAGE TO FINAL CANVAS 
 cropButton.addEventListener('click', () => {
     finalCanvas.style.display = "block";
-    finalCanvas.width = cropRect.width;
-    finalCanvas.height = cropRect.height;
+    finalCanvas.width = cropRect.width/imageScale;
+    finalCanvas.height = cropRect.height/imageScale;
     finalContext.drawImage(
         userImage, 
-        cropRect.startX, 
-        cropRect.startY, 
-        cropRect.width, 
-        cropRect.height, 
+        cropRect.startX/imageScale, 
+        cropRect.startY/imageScale, 
+        cropRect.width/imageScale, 
+        cropRect.height/imageScale, 
         0, 
         0, 
-        cropRect.width, 
-        cropRect.height);
+        cropRect.width/imageScale, 
+        cropRect.height/imageScale
+    );
     imageCanvas.style.display = "none";
     drawCanvas.style.display = "none";
 });

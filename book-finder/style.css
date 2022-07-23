@@ -9,6 +9,10 @@ html, body {
     margin: 0;
 }
 
+#hide-overflow {
+    overflow: hidden;
+}
+
 #header {
     height: 13vh;
     background-color: rgb(48, 48, 48);
@@ -239,10 +243,9 @@ html, body {
 }
 
 #final-image, #draw-area, #uploaded-image {
-    /* width: 0;
-    height: 0; */
     position: absolute;
     display: block;
     left: 50%; 
     transform: translate(-50%);
+    max-width: 95%;
 }
