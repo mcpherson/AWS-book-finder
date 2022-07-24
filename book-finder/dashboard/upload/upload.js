@@ -4,6 +4,9 @@ const fileName = document.getElementById('file-name');
 const cropButton = document.getElementById('crop-button');
 const clearButton = document.getElementById('clear-button');
 const imageInput = document.getElementById("file-upload");
+const imageInputLabel = document.getElementById('image-input-label');
+const newFileNameField = document.getElementById("new-file-name");
+const uploadButton = document.getElementById("upload-button");
 imageInput.addEventListener("change", handleImage, false);
 // CANVASES 
 const imageCanvas = document.getElementById("uploaded-image");
@@ -21,6 +24,7 @@ const cropRect = {
 };
 let userImage;
 let finalImage;
+let newFileName;
 let isMouseDown = false;
 let imageScale = 1;
 
@@ -60,9 +64,7 @@ function handleImage(e) {
         userImage = uploadedImage;
         
     };
-    fileName.innerText = `${e.target.files[0].name}`;
     reader.readAsDataURL(e.target.files[0]);
-    fileName.style.visibility = "visible";
     cropButton.style.visibility = "visible";
     clearButton.style.visibility = "visible";
 };
@@ -125,6 +127,7 @@ drawCanvas.addEventListener('mouseup', (event) => {
         }
     }
     isMouseDown = false;
+    cropButton.disabled = false;
 });
 
 
@@ -180,9 +183,17 @@ const clearImages = function () {
     finalCanvas.width = 0;
     // RESET CONTROLS AND DATA 
     fileName.innerText = "";
+    newFileNameField.value = "";
+    newFileName = "";
+    imageInputLabel.style.display = "inline";
     fileName.style.visibility = "hidden";
     clearButton.style.visibility = "hidden";
+    cropButton.style.display = "inline";
     cropButton.style.visibility = "hidden";
+    cropButton.disabled = true;
+    newFileNameField.style.visibility = "hidden";
+    uploadButton.style.display = "none";
+    uploadButton.disabled = true;
     userImage = undefined;
     Object.keys(cropRect).forEach((i) => {
         cropRect[i] = 0
@@ -210,6 +221,37 @@ cropButton.addEventListener('click', () => {
         cropRect.width/imageScale, 
         cropRect.height/imageScale
     );
+    newFileNameField.style.visibility = "visible";
     imageCanvas.style.display = "none";
     drawCanvas.style.display = "none";
+    imageInputLabel.style.display = "none";
+    cropButton.style.display = "none";
+    uploadButton.style.display = "inline"
+    uploadButton.style.visibility = "visible"
+    fileName.innerText = "";
+
+    finalImage = finalCanvas.toDataURL('image/png', 1);
+
+});
+
+
+
+// RENAME IMAGE
+newFileNameField.addEventListener('keyup', (event) => {
+    if (newFileNameField.value != "") {
+        uploadButton.disabled = false;
+        fileName.innerText = `${newFileNameField.value}.png`;
+        newFileName = newFileNameField.value;
+        fileName.style.visibility = "visible";
+    } else {
+        fileName.innerText = "";
+        uploadButton.disabled = true;
+    }
+});
+
+
+
+// UPLOAD IMAGE TO S3
+uploadButton.addEventListener('click', (imageParams) => {
+
 });

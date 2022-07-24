@@ -197,7 +197,7 @@ html, body {
     padding: 6px 12px;
     cursor: pointer;
     background-color: white;
-    margin-right: 10px;
+    margin: 0 4px 0 10px;
 }
 
 #file-upload {
@@ -213,7 +213,7 @@ html, body {
     margin: 0 10px;
 }
 
-#crop-button, #clear-button {
+#crop-button, #clear-button, #upload-button {
     visibility: hidden;
     font-family: 'Kanit', sans-serif;
     font-weight: 600;
@@ -225,6 +225,19 @@ html, body {
     cursor: pointer;
     background-color: white;
     margin-left: 10px;
+}
+
+#rename-file {
+    display: inline;
+}
+
+#new-file-name {
+    visibility: hidden;
+    border: unset;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: text;
+    display: inline;
 }
 
 #canvas-area {

@@ -42,13 +42,15 @@
         <div id="demo-container">
             <div id="upload-container">
                 <div id="upload-form-area">
-                    <label for="file-upload" class="custom-file-upload">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> &nbsp;UPLOAD FILE
+                    <label for="file-upload" class="custom-file-upload" id="image-input-label">
+                        <i class="fa-solid fa-upload"></i> &nbsp;UPLOAD FILE
                     </label>
                     <input id="file-upload" type="file"/>
-                    <p id="file-name"></p>
-                    <button id="crop-button"><i class="fa-solid fa-crop-simple"></i> &nbsp;CROP IMAGE</button>
+                    <button id="crop-button" disabled="true"><i class="fa-solid fa-crop-simple"></i> &nbsp;CROP IMAGE</button>
                     <button id="clear-button"><i class="fa-solid fa-trash-can"></i> &nbsp;CLEAR IMAGE</button>
+                    <button id="upload-button" disabled="true"><i class="fa-solid fa-cloud-arrow-up"></i> &nbsp;UPLOAD IMAGE</button>
+                    <input type="text" id="new-file-name" class="custom-file-upload" placeholder="NAME YOUR FILE">
+                    <p id="file-name"></p>
                 </div>
             </div>
             <div id="canvas-area">
