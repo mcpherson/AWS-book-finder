@@ -24,6 +24,20 @@ let finalImage;
 let isMouseDown = false;
 let imageScale = 1;
 
+
+
+// WINDOW RESIZE DETECTION TO PRESERVE SCALE
+window.addEventListener('resize', () => {
+    if (userImage != undefined) {
+        const screenWidth = document.documentElement.clientWidth;
+        if (screenWidth < (userImage.width)*.95) {
+            imageScale = (screenWidth*.95) / userImage.width;
+        }
+    }
+});
+
+
+
 // UPLOAD IMAGE, ADD TO IMAGE CANVAS
 function handleImage(e) {
     const reader = new FileReader();
@@ -53,6 +67,8 @@ function handleImage(e) {
     clearButton.style.visibility = "visible";
 };
 
+
+
 // GET START COORD ON DRAW CANVAS
 drawCanvas.addEventListener('mousedown', (event) => {
     // reset rectangle dimensions
@@ -64,6 +80,8 @@ drawCanvas.addEventListener('mousedown', (event) => {
     cropRect.startX = startPosition[0];
     cropRect.startY = startPosition[1];
 });
+
+
 
 // DRAW RECT ON DRAW CANVAS WHILE MOVING
 drawCanvas.addEventListener('mousemove', (ev) => {
@@ -78,6 +96,8 @@ drawCanvas.addEventListener('mousemove', (ev) => {
         );
     }
 });
+
+
 
 // GET END COORD, DRAW RECTANGLE ON DRAW CANVAS
 drawCanvas.addEventListener('mouseup', (event) => {
@@ -106,6 +126,8 @@ drawCanvas.addEventListener('mouseup', (event) => {
     }
     isMouseDown = false;
 });
+
+
 
 // RESET DRAW IF CURSOR LEAVES CANVAS AND UNCLICKS, BUT PRESERVE DRAW IF CURSOR REENTERS CANVAS - THIS WAS HARD
 // cursor leaves draw area 
@@ -139,6 +161,8 @@ drawCanvas.addEventListener('mouseleave', (event) =>{
     }
 });
 
+
+
 // CLEAR ALL CANVASES AND RESET PAGE TO STARTING STATE
 const clearImages = function () {
     // RESET CANVASES 
@@ -167,6 +191,8 @@ const clearImages = function () {
 }
 
 clearButton.addEventListener('click', clearImages);
+
+
 
 // DRAW CROPPED IMAGE TO FINAL CANVAS 
 cropButton.addEventListener('click', () => {
