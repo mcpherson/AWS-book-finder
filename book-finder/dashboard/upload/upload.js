@@ -128,6 +128,7 @@ drawCanvas.addEventListener('mouseup', (event) => {
     }
     isMouseDown = false;
     cropButton.disabled = false;
+    cropButton.style.backgroundColor = "lightgreen";
 });
 
 
@@ -189,10 +190,12 @@ const clearImages = function () {
     fileName.style.visibility = "hidden";
     clearButton.style.visibility = "hidden";
     cropButton.style.display = "inline";
+    cropButton.style.backgroundColor = "white";
     cropButton.style.visibility = "hidden";
     cropButton.disabled = true;
     newFileNameField.style.visibility = "hidden";
     uploadButton.style.display = "none";
+    uploadButton.style.backgroundColor = "white";
     uploadButton.disabled = true;
     userImage = undefined;
     Object.keys(cropRect).forEach((i) => {
@@ -226,6 +229,8 @@ cropButton.addEventListener('click', () => {
     drawCanvas.style.display = "none";
     imageInputLabel.style.display = "none";
     cropButton.style.display = "none";
+    cropButton.style.backgroundColor = "white";
+    cropButton.disabled = "true";
     uploadButton.style.display = "inline"
     uploadButton.style.visibility = "visible"
     fileName.innerText = "";
@@ -240,12 +245,14 @@ cropButton.addEventListener('click', () => {
 newFileNameField.addEventListener('keyup', (event) => {
     if (newFileNameField.value != "") {
         uploadButton.disabled = false;
+        uploadButton.style.backgroundColor = "lightgreen";
         fileName.innerText = `${newFileNameField.value}.png`;
         newFileName = newFileNameField.value;
         fileName.style.visibility = "visible";
     } else {
         fileName.innerText = "";
         uploadButton.disabled = true;
+        uploadButton.style.backgroundColor = "white";
     }
 });
 
@@ -253,5 +260,6 @@ newFileNameField.addEventListener('keyup', (event) => {
 
 // UPLOAD IMAGE TO S3
 uploadButton.addEventListener('click', (imageParams) => {
-
+    // VALIDATE NEW FILE NAME
+    // PASS localStorage.getItem('userSub'), [newFileName.value, finalImage]=>image
 });
