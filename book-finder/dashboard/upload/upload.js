@@ -3,10 +3,10 @@ const entirePage = document.getElementById('entire-page');
 const fileName = document.getElementById('file-name');
 const cropButton = document.getElementById('crop-button');
 const clearButton = document.getElementById('clear-button');
-const imageInput = document.getElementById("file-upload");
-const imageInputLabel = document.getElementById('image-input-label');
 const newFileNameField = document.getElementById("new-file-name");
 const uploadButton = document.getElementById("upload-button");
+const imageInputLabel = document.getElementById('image-input-label');
+const imageInput = document.getElementById("file-upload");
 imageInput.addEventListener("change", handleImage, false);
 // CANVASES 
 const imageCanvas = document.getElementById("uploaded-image");
@@ -65,6 +65,7 @@ function handleImage(e) {
         
     };
     reader.readAsDataURL(e.target.files[0]);
+    imageInputLabel.style.display = "none";
     cropButton.style.visibility = "visible";
     clearButton.style.visibility = "visible";
 };
@@ -227,7 +228,6 @@ cropButton.addEventListener('click', () => {
     newFileNameField.style.visibility = "visible";
     imageCanvas.style.display = "none";
     drawCanvas.style.display = "none";
-    imageInputLabel.style.display = "none";
     cropButton.style.display = "none";
     cropButton.style.backgroundColor = "white";
     cropButton.disabled = "true";
@@ -249,10 +249,20 @@ newFileNameField.addEventListener('keyup', (event) => {
         fileName.innerText = `${newFileNameField.value}.png`;
         newFileName = newFileNameField.value;
         fileName.style.visibility = "visible";
+        if (!/^[^\\/:\*\?"<>\|]+$/.test(fileName.innerText)) {
+            newFileNameField.style.backgroundColor = 'lightcoral';
+            uploadButton.disabled = true;
+            uploadButton.style.backgroundColor = "white";
+        } else {
+            newFileNameField.style.backgroundColor = 'white';
+            uploadButton.disabled = false;
+            uploadButton.style.backgroundColor = "lightgreen";
+        }
     } else {
         fileName.innerText = "";
         uploadButton.disabled = true;
         uploadButton.style.backgroundColor = "white";
+        newFileNameField.style.backgroundColor = 'white';
     }
 });
 
@@ -260,6 +270,6 @@ newFileNameField.addEventListener('keyup', (event) => {
 
 // UPLOAD IMAGE TO S3
 uploadButton.addEventListener('click', (imageParams) => {
-    // VALIDATE NEW FILE NAME
+
     // PASS localStorage.getItem('userSub'), [newFileName.value, finalImage]=>image
 });

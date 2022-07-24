@@ -42,14 +42,14 @@
         <div id="demo-container">
             <div id="upload-container">
                 <div id="upload-form-area">
-                    <label for="file-upload" class="custom-file-upload" id="image-input-label">
+                    <label for="file-upload" class="custom-file-upload" id="image-input-label" title="Upload an image from your computer. JPG, JPEG, PNG, or BMP only.">
                         <i class="fa-solid fa-upload"></i> &nbsp;IMPORT IMAGE
                     </label>
-                    <input id="file-upload" type="file"/>
-                    <button id="crop-button" disabled="true"><i class="fa-solid fa-crop-simple"></i> &nbsp;CROP IMAGE</button>
+                    <input id="file-upload" type="file" accept="image/jpg, image/jpeg, image/png, image/bmp">
+                    <button id="crop-button" disabled="true" title="Click and drag on your image to select the area of your image that contains books."><i class="fa-solid fa-crop-simple"></i> &nbsp;CROP IMAGE</button>
                     <button id="clear-button"><i class="fa-solid fa-trash-can"></i> &nbsp;CLEAR IMAGE</button>
                     <button id="upload-button" disabled="true"><i class="fa-solid fa-cloud-arrow-up"></i> &nbsp;UPLOAD IMAGE</button>
-                    <input type="text" id="new-file-name" class="custom-file-upload" placeholder="NAME YOUR FILE">
+                    <input type="text" id="new-file-name" class="custom-file-upload" placeholder="NAME YOUR FILE" title="Choose a descriptive name for your image, e.g. 'cookbooks-shelf-1'.">
                     <p id="file-name"></p>
                 </div>
             </div>
