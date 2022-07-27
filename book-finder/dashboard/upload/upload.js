@@ -237,7 +237,6 @@ cropButton.addEventListener('click', () => {
     fileName.innerText = "";
 
     finalImage = finalCanvas.toDataURL('image/png', 1);
-    console.log(finalImage);
 });
 
 
@@ -277,8 +276,8 @@ uploadButton.addEventListener('click', (imageParams) => {
 
 
 
-let imageData;
-var testImage = new Image();
-testImage.src = `data:image/png;base64,${imageData}`;
-document.body.appendChild(testImage);
+// let imageData;
+// var testImage = new Image();
+// testImage.src = `data:image/png;base64,${imageData}`;
+// document.body.appendChild(testImage);
 
