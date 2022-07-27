@@ -4,7 +4,7 @@ const logoutNav = document.getElementById('logout-link');
 
 // RUN WHEN PAGE LOADS
 window.onload = () => {
-
+    
     // RUN ONLY ON VERIFICATION AND LOGIN PAGES
     if (window.location.href === "https://mcpherson.dev/book-finder/signup/verification/" || window.location.href === "https://mcpherson.dev/book-finder/login/") {
         if (localStorage.getItem('bookFinderUsername')) {
@@ -16,12 +16,14 @@ window.onload = () => {
     if (localStorage.getItem('book-finder-login-data') && loginNav != null && logoutNav != null) {
         loginNav.style.display = "none";
         logoutNav.style.display = "flex";
-        return;
+        // return;
     } else if (loginNav != null && logoutNav != null) {
         loginNav.style.display = "flex";
         logoutNav.style.display = "none";
-        return;
+        // return;
     }
+    // REMOVE SPINNER OVERLAY TO PREVENT FLASH OF UNSTYLED CONTENT
+    document.getElementById('fouc').style.display = "none";
 };
 
 
