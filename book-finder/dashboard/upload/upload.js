@@ -271,7 +271,7 @@ newFileNameField.addEventListener('keyup', (event) => {
 // UPLOAD IMAGE TO S3
 uploadButton.addEventListener('click', (imageParams) => {
 
-    // PASS localStorage.getItem('userSub'), [newFileName.value, finalImage]=>image
+    // PASS localStorage.getItem('book-finder-login-data').UserSub, [newFileName.value, finalImage]=>image
 });
 
 
