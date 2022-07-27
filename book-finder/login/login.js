@@ -36,8 +36,7 @@ loginButton.addEventListener('click', (event) => {
             throw new Error("Login failed. Enter correct information or see console for details. Reset password if necessary.");
         } else {
             // console.log(loginReq.response); // response is the server response
-            localStorage.setItem('book-finder-login-data', loginReq.response);
-            localStorage.setItem('UserSub', loginReq.response.UserSub);
+            localStorage.setItem('book-finder-login-data', JSON.parse(loginReq.response));
             window.location.href = "/book-finder/dashboard/";
         }
     };
