@@ -24,6 +24,7 @@ const cropRect = {
 };
 let userImage;
 let finalImage;
+let buf;
 let newFileName;
 let isMouseDown = false;
 let imageScale = 1;
@@ -236,7 +237,7 @@ cropButton.addEventListener('click', () => {
     fileName.innerText = "";
 
     finalImage = finalCanvas.toDataURL('image/png', 1);
-
+    console.log(finalImage);
 });
 
 
@@ -273,3 +274,11 @@ uploadButton.addEventListener('click', (imageParams) => {
 
     // PASS localStorage.getItem('userSub'), [newFileName.value, finalImage]=>image
 });
+
+
+
+let imageData;
+var testImage = new Image();
+testImage.src = `data:image/png;base64,${imageData}`;
+document.body.appendChild(testImage);
+
