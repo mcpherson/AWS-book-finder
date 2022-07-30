@@ -287,6 +287,11 @@ html, body {
     margin-left: 10px;
     cursor: text;
     display: inline;
+    font-weight: 200;
+}
+
+#new-file-name::placeholder {
+    font-weight: 600;
 }
 
 #canvas-area {
@@ -310,6 +315,23 @@ html, body {
     left: 50%; 
     transform: translate(-50%);
     max-width: 95%;
+}
+
+#upload-spinner {
+    left: 50%; 
+    transform: translate(-50%);
+}
+
+#upload-alert-area {
+    display: none;
+    position: absolute;
+    left: 50%; 
+    transform: translate(-50%);
+    max-width: 33%;
+}
+
+#upload-alert-message {
+    
 }
 
 /* LIBRARY */

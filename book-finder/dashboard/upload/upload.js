@@ -3,11 +3,16 @@ const entirePage = document.getElementById('entire-page');
 const fileName = document.getElementById('file-name');
 const cropButton = document.getElementById('crop-button');
 const clearButton = document.getElementById('clear-button');
+const clearIcon = document.createElement('i');
+clearIcon.classList.add("fa-solid", "fa-trash-can");
 const newFileNameField = document.getElementById("new-file-name");
 const uploadButton = document.getElementById("upload-button");
 const imageInputLabel = document.getElementById('image-input-label');
 const imageInput = document.getElementById("file-upload");
 imageInput.addEventListener("change", handleImage, false);
+const uploadSpinner = document.getElementById('upload-spinner');
+const alertArea = document.getElementById('upload-alert-area');
+const alertMessage = document.getElementById('upload-alert-message');
 // CANVASES 
 const imageCanvas = document.getElementById("uploaded-image");
 const drawCanvas = document.getElementById('draw-area');
@@ -113,7 +118,7 @@ drawCanvas.addEventListener('mouseup', (event) => {
             drawContext.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
         } else {
             drawContext.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-            drawContext.fillStyle = 'rgba(40, 230, 0, .3)';
+            drawContext.fillStyle = 'rgba(187, 255, 0, .3)';
             drawContext.fillRect(
                 cropRect.startX/imageScale, 
                 cropRect.startY/imageScale, 
@@ -130,7 +135,7 @@ drawCanvas.addEventListener('mouseup', (event) => {
     }
     isMouseDown = false;
     cropButton.disabled = false;
-    cropButton.style.backgroundColor = "lightgreen";
+    cropButton.style.backgroundColor = "#bbff00";
 });
 
 
@@ -191,6 +196,7 @@ const clearImages = function () {
     imageInputLabel.style.display = "inline";
     fileName.style.visibility = "hidden";
     clearButton.style.visibility = "hidden";
+    clearButton.innerHTML = `${clearIcon} CLEAR IMAGE`;
     cropButton.style.display = "inline";
     cropButton.style.backgroundColor = "white";
     cropButton.style.visibility = "hidden";
@@ -245,7 +251,7 @@ cropButton.addEventListener('click', () => {
 newFileNameField.addEventListener('keyup', (event) => {
     if (newFileNameField.value != "") {
         uploadButton.disabled = false;
-        uploadButton.style.backgroundColor = "lightgreen";
+        uploadButton.style.backgroundColor = "#bbff00";
         fileName.innerText = `${newFileNameField.value}.png`;
         newFileName = newFileNameField.value;
         fileName.style.visibility = "visible";
@@ -256,7 +262,7 @@ newFileNameField.addEventListener('keyup', (event) => {
         } else {
             newFileNameField.style.backgroundColor = 'white';
             uploadButton.disabled = false;
-            uploadButton.style.backgroundColor = "lightgreen";
+            uploadButton.style.backgroundColor = "#bbff00";
         }
     } else {
         fileName.innerText = "";
@@ -269,8 +275,57 @@ newFileNameField.addEventListener('keyup', (event) => {
 
 
 // UPLOAD IMAGE TO S3
-uploadButton.addEventListener('click', (imageParams) => {
+uploadButton.addEventListener('click', () => {
 
+    // CATCH OBVIOUS ERRORS
+    if (fileName.innerText = "") {
+        alertArea.style.display = "block";
+        alertArea.style.backgroundColor = "lightcoral";
+        alertMessage.innerText = "Enter a name for your file.";
+    }
+
+    // CHANGE UI STATE
+    uploadSpinner.style.display = "block";
+    finalCanvas.style.display = "none";
+    clearButton.style.display = "none";
+    uploadButton.style.display = "none";
+    newFileNameField.style.display = "none";
+
+    // DATA TO SEND TO S3
+    const uploadData = {
+        UserSub: localStorage.getItem('book-finder-login-data').UserSub,
+        fileName: fileName.innerText,
+        imageBody: finalImage
+    };
+
+    const uploadReq = new XMLHttpRequest();
+    uploadReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/upload");
+    uploadReq.send(JSON.stringify(uploadData));
+
+    uploadReq.onload = function() {
+        if (uploadReq.status != 200 || JSON.parse(uploadReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
+            uploadSpinner.style.display = "none";
+            console.log(`Error ${uploadReq.status}: ${uploadReq.statusText} - AWS Error: ${uploadReq.response}`);
+            alertArea.style.display = "block";
+            alertArea.style.backgroundColor = "lightcoral";
+            // TODO error handling - invalid usersub, invalid img data, other AWS errors
+            alertMessage.innerText = "Image upload failed.";
+            throw new Error("Image upload failed.");
+        } else {
+            uploadSpinner.style.display = "none";
+            alertArea.style.display = "block";
+            alertArea.style.backgroundColor = "#bbff00";
+            let libLink = document.createElement('a');
+            libLink.setAttribute("href", "/book-finder/dashboard/library/");
+            libLink.innerHTML = "Library";
+            alertMessage.innerText = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your ${libLink} to view the status of your upload or continue uploading images.`;
+            // console.log(uploadReq.response); // response is the server response
+            // CHANGE CLEAR BUTTON STYLE
+            let resetIcon = document.createElement('i');
+            resetIcon.classList.add("fa-solid", "fa-arrow-rotate-right");
+            clearButton.innerHTML = `${resetIcon} UPLOAD ANOTHER IMAGE`;
+        }
+    };
     // PASS localStorage.getItem('book-finder-login-data').UserSub, [newFileName.value, finalImage]=>image
 });
 
