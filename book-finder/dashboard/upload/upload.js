@@ -241,7 +241,6 @@ cropButton.addEventListener('click', () => {
     cropButton.disabled = "true";
     uploadButton.style.display = "inline"
     uploadButton.style.visibility = "visible"
-    fileName.innerText = "";
 
     finalImage = finalCanvas.toDataURL('image/png', 1);
 });
@@ -279,7 +278,7 @@ newFileNameField.addEventListener('keyup', (event) => {
 uploadButton.addEventListener('click', () => {
 
     // CATCH OBVIOUS ERRORS
-    if (fileName.innerText = "") {
+    if (fileName.innerText === "") {
         alertArea.style.display = "block";
         alertArea.style.backgroundColor = "lightcoral";
         alertMessage.innerText = "Enter a name for your file.";
@@ -290,7 +289,8 @@ uploadButton.addEventListener('click', () => {
     finalCanvas.style.display = "none";
     clearButton.style.display = "none";
     uploadButton.style.display = "none";
-    newFileNameField.style.display = "none";
+    newFileNameField.style.visibility = "hidden";
+    fileName.style.visibility = "hidden";
 
     // DATA TO SEND TO S3
     const uploadData = {
@@ -298,36 +298,37 @@ uploadButton.addEventListener('click', () => {
         fileName: fileName.innerHTML,
         imageBody: finalImage
     };
+    console.log(uploadData);
 
-    const uploadReq = new XMLHttpRequest();
-    uploadReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/upload");
-    uploadReq.send(JSON.stringify(uploadData));
+    // const uploadReq = new XMLHttpRequest();
+    // uploadReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/upload");
+    // uploadReq.send(JSON.stringify(uploadData));
 
-    uploadReq.onload = function() {
-        if (uploadReq.status != 200 || JSON.parse(uploadReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
-            uploadSpinner.style.display = "none";
-            console.log(`Error ${uploadReq.status}: ${uploadReq.statusText} - AWS Error: ${uploadReq.response}`);
-            alertArea.style.display = "block";
-            alertArea.style.backgroundColor = "lightcoral";
-            // TODO error handling - invalid usersub, invalid img data, other AWS errors
-            alertMessage.innerText = "Image upload failed.";
-            throw new Error("Image upload failed.");
-        } else {
-            uploadSpinner.style.display = "none";
-            alertArea.style.display = "block";
-            alertArea.style.backgroundColor = "#bbff00";
-            let libLink = document.createElement('a');
-            libLink.setAttribute("href", "/book-finder/dashboard/library/");
-            libLink.innerHTML = "Library";
-            alertMessage.innerText = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your ${libLink} to view the status of your upload or continue uploading images.`;
-            // console.log(uploadReq.response); // response is the server response
-            // CHANGE CLEAR BUTTON STYLE
-            let resetIcon = document.createElement('i');
-            resetIcon.classList.add("fa-solid", "fa-arrow-rotate-right");
-            clearButton.innerHTML = `${resetIcon} UPLOAD ANOTHER IMAGE`;
-            clearButton.style.display = "block";
-        }
-    };
+    // uploadReq.onload = function() {
+    //     if (uploadReq.status != 200 || JSON.parse(uploadReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
+    //         uploadSpinner.style.display = "none";
+    //         console.log(`Error ${uploadReq.status}: ${uploadReq.statusText} - AWS Error: ${uploadReq.response}`);
+    //         alertArea.style.display = "block";
+    //         alertArea.style.backgroundColor = "lightcoral";
+    //         // TODO error handling - invalid usersub, invalid img data, other AWS errors
+    //         alertMessage.innerText = "Image upload failed.";
+    //         throw new Error("Image upload failed.");
+    //     } else {
+    //         uploadSpinner.style.display = "none";
+    //         alertArea.style.display = "block";
+    //         alertArea.style.backgroundColor = "#bbff00";
+    //         let libLink = document.createElement('a');
+    //         libLink.setAttribute("href", "/book-finder/dashboard/library/");
+    //         libLink.innerHTML = "Library";
+    //         alertMessage.innerText = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your ${libLink} to view the status of your upload or continue uploading images.`;
+    //         // console.log(uploadReq.response); // response is the server response
+    //         // CHANGE CLEAR BUTTON STYLE
+    //         let resetIcon = document.createElement('i');
+    //         resetIcon.classList.add("fa-solid", "fa-arrow-rotate-right");
+    //         clearButton.innerHTML = `${resetIcon} UPLOAD ANOTHER IMAGE`;
+    //         clearButton.style.display = "block";
+    //     }
+    // };
     // PASS localStorage.getItem('book-finder-login-data').UserSub, [newFileName.value, finalImage]=>image
 });
 
