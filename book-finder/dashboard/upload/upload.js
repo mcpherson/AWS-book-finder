@@ -3,8 +3,6 @@ const entirePage = document.getElementById('entire-page');
 const fileName = document.getElementById('file-name');
 const cropButton = document.getElementById('crop-button');
 const clearButton = document.getElementById('clear-button');
-const clearIcon = document.createElement('i');
-clearIcon.classList.add("fa-solid", "fa-trash-can");
 const newFileNameField = document.getElementById("new-file-name");
 const uploadButton = document.getElementById("upload-button");
 const imageInputLabel = document.getElementById('image-input-label');
@@ -96,7 +94,7 @@ drawCanvas.addEventListener('mousedown', (event) => {
 drawCanvas.addEventListener('mousemove', (ev) => {
     if (isMouseDown) {
         drawContext.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-        drawContext.fillStyle = 'rgba(40, 230, 0, .3)';
+        drawContext.fillStyle = 'rgba(187, 255, 0, .3)';
         drawContext.fillRect(
             cropRect.startX/imageScale, 
             cropRect.startY/imageScale, 
@@ -317,10 +315,7 @@ uploadButton.addEventListener('click', () => {
             uploadSpinner.style.display = "none";
             alertArea.style.display = "block";
             alertArea.style.backgroundColor = "#bbff00";
-            let libLink = document.createElement('a');
-            libLink.setAttribute("href", "/book-finder/dashboard/library/");
-            libLink.innerHTML = "Library";
-            alertMessage.innerText = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your ${libLink} to view the status of your upload or continue uploading images.`;
+            alertMessage.innerText = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your <a href="/book-finder/dashboard/library/">Library</a> to view the status of your upload or continue uploading images.`;
             // console.log(uploadReq.response); // response is the server response
             // CHANGE CLEAR BUTTON STYLE
             clearButton.innerHTML = `<i class="fa-solid, fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
