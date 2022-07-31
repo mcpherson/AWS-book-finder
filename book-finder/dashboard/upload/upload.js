@@ -295,7 +295,7 @@ uploadButton.addEventListener('click', () => {
     // DATA TO SEND TO S3
     const uploadData = {
         UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub,
-        fileName: fileName.innerText,
+        fileName: fileName.innerHTML,
         imageBody: finalImage
     };
 
