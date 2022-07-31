@@ -205,6 +205,7 @@ const clearImages = function () {
     uploadButton.style.display = "none";
     uploadButton.style.backgroundColor = "white";
     uploadButton.disabled = true;
+    alertArea.style.display = "none";
     userImage = undefined;
     Object.keys(cropRect).forEach((i) => {
         cropRect[i] = 0
@@ -293,7 +294,7 @@ uploadButton.addEventListener('click', () => {
 
     // DATA TO SEND TO S3
     const uploadData = {
-        UserSub: localStorage.getItem('book-finder-login-data').UserSub,
+        UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub,
         fileName: fileName.innerText,
         imageBody: finalImage
     };
@@ -324,6 +325,7 @@ uploadButton.addEventListener('click', () => {
             let resetIcon = document.createElement('i');
             resetIcon.classList.add("fa-solid", "fa-arrow-rotate-right");
             clearButton.innerHTML = `${resetIcon} UPLOAD ANOTHER IMAGE`;
+            clearButton.style.display = "block";
         }
     };
     // PASS localStorage.getItem('book-finder-login-data').UserSub, [newFileName.value, finalImage]=>image
