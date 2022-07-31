@@ -196,7 +196,7 @@ const clearImages = function () {
     imageInputLabel.style.display = "inline";
     fileName.style.visibility = "hidden";
     clearButton.style.visibility = "hidden";
-    clearButton.innerHTML = `${clearIcon} CLEAR IMAGE`;
+    clearButton.innerHTML = `<i class="fa-solid fa-trash-can"></i> &nbsp;CLEAR IMAGE`;
     cropButton.style.display = "inline";
     cropButton.style.backgroundColor = "white";
     cropButton.style.visibility = "hidden";
@@ -323,9 +323,7 @@ uploadButton.addEventListener('click', () => {
             alertMessage.innerText = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your ${libLink} to view the status of your upload or continue uploading images.`;
             // console.log(uploadReq.response); // response is the server response
             // CHANGE CLEAR BUTTON STYLE
-            let resetIcon = document.createElement('i');
-            resetIcon.classList.add("fa-solid", "fa-arrow-rotate-right");
-            clearButton.innerHTML = `${resetIcon} UPLOAD ANOTHER IMAGE`;
+            clearButton.innerHTML = `<i class="fa-solid, fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
             clearButton.style.display = "block";
         }
     };
