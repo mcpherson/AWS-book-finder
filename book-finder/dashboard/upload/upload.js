@@ -299,7 +299,8 @@ uploadButton.addEventListener('click', () => {
     console.log(uploadData);
 
     const uploadReq = new XMLHttpRequest();
-    uploadReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/upload");
+
+    uploadReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/upload-image");
     uploadReq.send(JSON.stringify(uploadData));
 
     uploadReq.onload = function() {
