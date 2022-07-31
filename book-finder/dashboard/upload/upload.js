@@ -319,7 +319,7 @@ uploadButton.addEventListener('click', () => {
             alertMessage.innerText = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your <a href="/book-finder/dashboard/library/">Library</a> to view the status of your upload or continue uploading images.`;
             // console.log(uploadReq.response); // response is the server response
             // CHANGE CLEAR BUTTON STYLE
-            clearButton.innerHTML = `<i class="fa-solid, fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
+            clearButton.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
             clearButton.style.display = "block";
         }
     };
