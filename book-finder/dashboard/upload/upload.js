@@ -296,7 +296,6 @@ uploadButton.addEventListener('click', () => {
         fileName: fileName.innerHTML,
         imageBody: finalImage
     };
-    console.log(uploadData);
 
     const uploadReq = new XMLHttpRequest();
 
@@ -304,13 +303,13 @@ uploadButton.addEventListener('click', () => {
     uploadReq.send(JSON.stringify(uploadData));
 
     uploadReq.onload = function() {
-        if (uploadReq.status != 200 || JSON.parse(uploadReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
+        if (uploadReq.status != 200 || JSON.parse(uploadReq.response).hasOwnProperty('__type') || JSON.parse(uploadReq.response).hasOwnProperty('errorType')) { // analyze HTTP status of the response
             uploadSpinner.style.display = "none";
             console.log(`Error ${uploadReq.status}: ${uploadReq.statusText} - AWS Error: ${uploadReq.response}`);
             alertArea.style.display = "block";
             alertArea.style.backgroundColor = "lightcoral";
             // TODO error handling - invalid usersub, invalid img data, other AWS errors
-            alertMessage.innerText = "Image upload failed.";
+            alertMessage.innerText = `Image upload failed. ${JSON.parse(uploadReq.response).errorMessage}`;
             throw new Error("Image upload failed.");
         } else {
             uploadSpinner.style.display = "none";
