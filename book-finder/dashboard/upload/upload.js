@@ -320,6 +320,7 @@ uploadButton.addEventListener('click', () => {
             // CHANGE CLEAR BUTTON STYLE
             clearButton.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
             clearButton.style.display = "inline";
+            console.log(uploadReq.response);
         }
     };
     // PASS localStorage.getItem('book-finder-login-data').UserSub, [newFileName.value, finalImage]=>image
