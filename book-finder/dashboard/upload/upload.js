@@ -302,6 +302,7 @@ uploadButton.addEventListener('click', () => {
     uploadReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/S3-upload");
     uploadReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.AccessToken);
     uploadReq.setRequestHeader('Accept', 'application/json');
+    console.log(uploadReq);
 
     uploadReq.send(JSON.stringify(uploadData));
 
