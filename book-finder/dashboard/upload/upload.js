@@ -292,7 +292,6 @@ uploadButton.addEventListener('click', () => {
 
     // DATA TO SEND TO S3
     const uploadData = {
-        IdToken: JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken,
         UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub,
         fileName: fileName.innerHTML,
         imageBody: finalImage
@@ -301,6 +300,7 @@ uploadButton.addEventListener('click', () => {
     const uploadReq = new XMLHttpRequest();
 
     uploadReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/upload-image");
+    uploadReq.setRequestHeader('IdToken', JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
     uploadReq.send(JSON.stringify(uploadData));
 
     uploadReq.onload = function() {
