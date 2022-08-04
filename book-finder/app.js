@@ -12,29 +12,6 @@ window.onload = () => {
         }
     }
 
-    // RUN ONLY ON LIBRARY PAGE
-    if(window.location.href === "https://mcpherson.dev/book-finder/dashboard/library/") {
-        // GET ALL IMAGE URLS FROM BUCKET
-        const getURLs = new XMLHttpRequest();
-        getURLs.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/logout");
-        getURLs.send(JSON.stringify(logoutData));    
-    
-        getURLs.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/logout");
-        getURLs.send(JSON.stringify(logoutData));
-    
-        getURLs.onload = function() {
-            if (getURLs.status != 200) { // analyze HTTP status of the response
-                console.log(`Error ${getURLs.status}: ${getURLs.statusText}`);
-                // alertArea.style.display = "block";
-                // alertArea.style.backgroundColor = "lightcoral";
-                // alertMessage.innerText = "Invalid logout information. Please check your email address and re-type your password and try again. Make sure that your account has been verified. Reset password if necessary.";
-                throw new Error("Logout failed. See console for details.");
-            } else {
-                localStorage.setItem('imageURLs', getURLs.response);
-            }
-        }
-    }
-
     // RUN ON ALL PAGES
     if (localStorage.getItem('book-finder-login-data') && loginNav != null && logoutNav != null) {
         loginNav.style.display = "none";

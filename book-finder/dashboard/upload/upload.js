@@ -316,11 +316,20 @@ uploadButton.addEventListener('click', () => {
             alertArea.style.display = "block";
             alertArea.style.backgroundColor = "#bbff00";
             alertMessage.innerText = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your <a href="/book-finder/dashboard/library/">Library</a> to view the status of your upload or continue uploading images.`;
-            // console.log(uploadReq.response); // response is the server response
             // CHANGE CLEAR BUTTON STYLE
             clearButton.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
             clearButton.style.display = "inline";
-            console.log(uploadReq.response);
+            // CHECK FOR IMAGE URLS ARRAY IN LOCAL STORAGE - CREATE IF IT DOESN'T EXIST YET
+            if (!localStorage.getItem('imageURLs')) {
+                localStorage.setItem('imageURLs', []);
+            } else {
+                // CREATE URL DATA AND PUSH TO LOCAL STORAGE FOR USE ON LIBRARY PAGE
+                let urlObj = {
+                    "Key" : uploadData.fileName,
+                    "imageURL" : `https://book-finder-${uploadData.UserSub}.s3.amazonaws.com/${uploadData.fileName}`
+                };
+                localStorage.getItem('imageURLs').push(urlObj);
+            }
         }
     };
     // PASS localStorage.getItem('book-finder-login-data').UserSub, [newFileName.value, finalImage]=>image
