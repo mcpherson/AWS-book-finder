@@ -52,7 +52,7 @@ const getImageURLs = function(event) {
             localStorage.setItem('numUploads', JSON.stringify(objKeys.length)); // store number of uploaded images for comparison on pageload
             objKeys.forEach((i) => {
                 let objKey = JSON.parse(keysReq.response);
-                console.log(objKey[i-1]);
+                console.log(objKey);
                 let urlObj = {
                     "Key" : JSON.parse(keysReq.response)[i],
                     "imageURL" : `https://book-finder-${reqData.UserSub}.s3.amazonaws.com/${JSON.parse(keysReq.response)[i]}`
