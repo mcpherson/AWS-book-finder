@@ -337,7 +337,7 @@ html, body {
 /* LIBRARY */
 
 #library-container {
-    margin-top: 20px auto 0 auto;
+    margin: 20px auto 0 auto;
     width: 95%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
