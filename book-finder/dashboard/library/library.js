@@ -12,6 +12,7 @@ window.onload = () => {
         getImageURLs();
     }
     
+    // CLEAR LOADING SPINNER
     loadingSpinner.style.display = "none";
     
     // TODO - construct URLs with AWS listobjects
