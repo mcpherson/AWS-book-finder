@@ -336,8 +336,34 @@ html, body {
 
 /* LIBRARY */
 
+#refresh-images-container {
+    float: right;
+}
+
+#refresh-images {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: unset;
+    border-radius: 5px;
+    display: inline;
+    padding: 6px 12px;
+    cursor: pointer;
+    background-color: white;
+    margin-left: 10px;
+}
+
+#refresh-images-label {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: white;
+    display: inline;
+    margin: 0 10px;
+}
+
 #library-container {
-    margin: 20px auto 0 auto;
+    margin: 0 auto;
     width: 98%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);

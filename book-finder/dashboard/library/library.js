@@ -2,14 +2,33 @@ const alertArea = document.getElementById('alert-area');
 const alertMessage = document.getElementById('alert-message');
 const loadingSpinner = document.getElementById('fouc');
 const libraryContainer = document.getElementById('library-container');
+const refreshButton = document.getElementById('refresh-images');
 
 window.onload = () => {
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
     
     // ONLY CALL S3 IF NECESSARY
     if (JSON.parse(localStorage.getItem('numUploads')) != JSON.parse(localStorage.getItem('imageURLs')).length || !JSON.parse(localStorage.getItem('imageURLs'))) {
+        getImageURLs();
+    }
+    
+    loadingSpinner.style.display = "none";
+    
+    // TODO - construct URLs with AWS listobjects
+    
+    // DISPLAY EACH IMAGE AND KEY
+    JSON.parse(localStorage.getItem('imageURLs')).forEach((i) => {
+        console.log(i);
+    }); 
+}
+
+const getImageURLs = function(event) {
+    // CLEAR AND RESET LOCALSTORAGE FOR MANUAL REFRESH
+    if (event) {
+        console.log(event);
+    } else {
         const reqData = {UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub}
-        
+            
         const keysReq = new XMLHttpRequest();
         
         keysReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/get-s3-keys");
@@ -42,15 +61,7 @@ window.onload = () => {
             }
         };
     }
-        
-    
-    // TODO - construct URLs with AWS listobjects
-    
-    // DISPLAY EACH IMAGE AND KEY
-    JSON.parse(localStorage.getItem('imageURLs')).forEach((i) => {
-        console.log(i);
-    });
-    
-    
-    
 }
+
+// REFRESH IMAGES MANUALLY
+refreshButton.addEventListener('click', getImageURLs);
