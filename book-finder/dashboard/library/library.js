@@ -31,7 +31,7 @@ window.onload = () => {
                 objKeys.forEach((i) => {
                     let urlObj = {
                         "Key" : reqData.fileName,
-                        "imageURL" : `https://book-finder-${reqData.UserSub}.s3.amazonaws.com/${JSON.parse(keysReq.response[i])}`
+                        "imageURL" : `https://book-finder-${reqData.UserSub}.s3.amazonaws.com/${objKeys[i]}`
                     };
                     localStorage.getItem('imageURLs').push(urlObj);
                 });
