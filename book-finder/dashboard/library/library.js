@@ -11,7 +11,7 @@ window.onload = () => {
 
         const keysReq = new XMLHttpRequest();
 
-        keysReq.open("GET", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/get-s3-keys");
+        keysReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/get-s3-keys");
         keysReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
         keysReq.send(JSON.stringify(reqData));
 
