@@ -339,29 +339,14 @@ html, body {
 #library-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    grid-column-gap: 10px;
-    grid-row-gap: 10px;
-}
-
-#library-row {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: flex-start;
-    align-items: flex-start;
-    align-content: flex-start;
-    margin: 20px auto 0 auto;
-    width: 96%;
+    grid-auto-rows: minmax(100px, auto);
+    gap: 10px;
 }
 
 .library-item {
     border-radius: 8px;
     border: 2px solid rgb(38, 38, 38);
-    margin: .5%;
     background-color: rgb(48, 48, 48);
-    max-width: 23.5%;
-    flex: 23.5%;
-
 }
 
 .library-item-label {

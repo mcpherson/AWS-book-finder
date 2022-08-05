@@ -1,6 +1,7 @@
 const alertArea = document.getElementById('alert-area');
 const alertMessage = document.getElementById('alert-message');
 const loadingSpinner = document.getElementById('fouc');
+const libraryContainer = document.getElementById('library-container');
 
 window.onload = () => {
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
@@ -11,6 +12,7 @@ window.onload = () => {
         const keysReq = new XMLHttpRequest();
 
         keysReq.open("GET", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/get-image-names");
+        keysReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
         keysReq.send(JSON.stringify(reqData));
 
         keysReq.onload = function() {
