@@ -7,7 +7,7 @@ window.onload = () => {
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
     if (!localStorage.getItem('imageURLs')) {
         
-        const reqData = {UserSub: localStorage.getItem('book-finder-login-data').UserSub}
+        const reqData = {UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub}
 
         const keysReq = new XMLHttpRequest();
 
