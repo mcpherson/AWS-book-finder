@@ -15,8 +15,6 @@ window.onload = () => {
     // CLEAR LOADING SPINNER
     loadingSpinner.style.display = "none";
     
-    // TODO - construct URLs with AWS listobjects
-    
     // DISPLAY EACH IMAGE AND KEY
     JSON.parse(localStorage.getItem('imageURLs')).forEach((i) => {
 
@@ -51,6 +49,7 @@ const getImageURLs = function(event) {
         } else { // create and store URLs
             loadingSpinner.style.display = "none";
             let objKeys = JSON.parse(keysReq.response);
+            localStorage.setItem('numUploads', JSON.stringify(objKeys.length)); // store number of uploaded images for comparison on pageload
             objKeys.forEach((i) => {
                 let urlObj = {
                     "Key" : JSON.parse(keysReq.response)[i],
@@ -59,9 +58,6 @@ const getImageURLs = function(event) {
                 let storedURLs = JSON.parse(localStorage.getItem('imageURLs'));
                 storedURLs.push(urlObj);
                 localStorage.setItem('imageURLs', JSON.stringify(storedURLs));
-                let numUploads = JSON.parse(localStorage.getItem('numUploads'));
-                numUploads++;
-                localStorage.setItem('numUploads', JSON.stringify(numUploads));
             });
         };
     };
