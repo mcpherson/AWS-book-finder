@@ -27,7 +27,8 @@ window.onload = () => {
                 throw new Error("Image request failed.");
             } else { // create and store URLs
                 loadingSpinner.style.display = "none";
-                keysReq.response.forEach((i) => {
+                console.log(JSON.parse(keysReq.response));
+                JSON.parse(keysReq.response).forEach((i) => {
                     let urlObj = {
                         "Key" : reqData.fileName,
                         "imageURL" : `https://book-finder-${reqData.UserSub}.s3.amazonaws.com/${JSON.parse(keysReq.response[i])}`
