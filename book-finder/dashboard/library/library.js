@@ -33,7 +33,9 @@ window.onload = () => {
                         "Key" : reqData.fileName,
                         "imageURL" : `https://book-finder-${reqData.UserSub}.s3.amazonaws.com/${objKeys[i]}`
                     };
-                    localStorage.getItem('imageURLs').push(urlObj);
+                    let storedURLs = JSON.parse(localStorage.getItem('imageURLs'));
+                    storedURLs.push(urlObj);
+                    localStorage.setItem('imageURLs', JSON.stringify(storedURLs));
                 });
             }
         };
