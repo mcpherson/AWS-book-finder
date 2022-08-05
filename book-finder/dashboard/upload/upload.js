@@ -324,15 +324,17 @@ uploadButton.addEventListener('click', () => {
             clearButton.style.display = "inline";
             // CHECK FOR IMAGE URLS ARRAY IN LOCAL STORAGE - CREATE IF IT DOESN'T EXIST YET
             if (!localStorage.getItem('imageURLs')) {
-                localStorage.setItem('imageURLs', []);
-            } else {
-                // CREATE URL DATA AND PUSH TO LOCAL STORAGE FOR USE ON LIBRARY PAGE
-                let urlObj = {
-                    "Key" : uploadData.fileName,
-                    "imageURL" : `https://book-finder-${uploadData.UserSub}.s3.amazonaws.com/${uploadData.fileName}`
-                };
-                localStorage.getItem('imageURLs').push(urlObj);
+                let imageURLs = [];
+                localStorage.setItem('imageURLs', JSON.stringify(imageURLs));
             }
+            // CREATE URL DATA AND PUSH TO LOCAL STORAGE FOR USE ON LIBRARY PAGE
+            let urlObj = {
+                "Key" : uploadData.fileName,
+                "imageURL" : `https://book-finder-${uploadData.UserSub}.s3.amazonaws.com/${uploadData.fileName}`
+            };
+            let imageURLStorage = JSON.parse(localStorage.getItem('imageURLs'));
+            imageURLStorage.push(urlObj);
+            localStorage.setItem('imageURLs', JSON.stringify(imageURLStorage));
         }
     };
     // PASS localStorage.getItem('book-finder-login-data').UserSub, [newFileName.value, finalImage]=>image
