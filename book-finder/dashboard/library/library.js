@@ -29,10 +29,11 @@ window.onload = () => {
             } else { // create and store URLs
                 loadingSpinner.style.display = "none";
                 let objKeys = JSON.parse(keysReq.response);
+                console.log(objKeys);
                 objKeys.forEach((i) => {
                     let urlObj = {
-                        "Key" : reqData.fileName,
-                        "imageURL" : `https://book-finder-${reqData.UserSub}.s3.amazonaws.com/${objKeys[i]}`
+                        "Key" : JSON.parse(keysReq.response)[i],
+                        "imageURL" : `https://book-finder-${reqData.UserSub}.s3.amazonaws.com/${JSON.parse(keysReq.response)[i]}`
                     };
                     let storedURLs = JSON.parse(localStorage.getItem('imageURLs'));
                     storedURLs.push(urlObj);

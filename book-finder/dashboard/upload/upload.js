@@ -336,7 +336,7 @@ uploadButton.addEventListener('click', () => {
             localStorage.setItem('imageURLs', JSON.stringify(imageURLStorage));
             // TRACK NUMBER OF UPLOADS BY USER IN LOCAL STORAGE TO PREVENT UNNECESSARY API CALLS ON LIBRARY PAGE
             if (!localStorage.getItem('numUploads')) {
-                localStorage.setItem('numUploads', JSON.stringify(0));
+                localStorage.setItem('numUploads', JSON.stringify(1));
             } else {
                 let numUploads = JSON.parse(localStorage.getItem('numUploads'));
                 numUploads++;
