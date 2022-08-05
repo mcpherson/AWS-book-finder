@@ -5,16 +5,17 @@ const libraryContainer = document.getElementById('library-container');
 
 window.onload = () => {
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
-    if (!localStorage.getItem('imageURLs')) {
-        
+    
+    // ONLY CALL S3 IF NECESSARY
+    if (JSON.parse(localStorage.getItem('numUploads')) != JSON.parse(localStorage.getItem('imageURLs')).length || !JSON.parse(localStorage.getItem('imageURLs'))) {
         const reqData = {UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub}
-
+        
         const keysReq = new XMLHttpRequest();
-
+        
         keysReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/get-s3-keys");
         keysReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
         keysReq.send(JSON.stringify(reqData));
-
+        
         keysReq.onload = function() {
             if (JSON.parse(keysReq.response).length === 0) { // no keys returned
                 loadingSpinner.style.display = "none";
@@ -39,14 +40,16 @@ window.onload = () => {
                 });
             }
         };
-
-        // TODO - construct URLs with AWS listobjects
-    } else {
-        // DISPLAY EACH IMAGE AND KEY
-        localStorage.getItem('imageURLs').forEach((i) => {
-            console.log(i);
-        });
     }
-
-
+        
+    
+    // TODO - construct URLs with AWS listobjects
+    
+    // DISPLAY EACH IMAGE AND KEY
+    JSON.parse(localStorage.getItem('imageURLs')).forEach((i) => {
+        console.log(i);
+    });
+    
+    
+    
 }

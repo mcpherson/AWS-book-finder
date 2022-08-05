@@ -334,6 +334,14 @@ uploadButton.addEventListener('click', () => {
             let imageURLStorage = JSON.parse(localStorage.getItem('imageURLs'));
             imageURLStorage.push(urlObj);
             localStorage.setItem('imageURLs', JSON.stringify(imageURLStorage));
+            // TRACK NUMBER OF UPLOADS BY USER IN LOCAL STORAGE TO PREVENT UNNECESSARY API CALLS ON LIBRARY PAGE
+            if (!localStorage.getItem('numUploads')) {
+                localStorage.setItem('numUploads', JSON.stringify(0));
+            } else {
+                let numUploads = JSON.parse(localStorage.getItem('numUploads'));
+                numUploads++;
+                localStorage.setItem('numUploads', JSON.stringify(numUploads));
+            }
         }
     };
     // PASS localStorage.getItem('book-finder-login-data').UserSub, [newFileName.value, finalImage]=>image
