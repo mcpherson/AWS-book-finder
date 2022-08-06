@@ -26,5 +26,6 @@ deploy: lambda.zip
 		--capabilities CAPABILITY_NAMED_IAM
 
 lambda.zip: lambda/$(lambda_file_name)
-	@cd lambda; zip ../lambda.zip *
+	@echo "Lambda modified. Zipping and uploading new version..."
+	@cd lambda; zip -r -q ../lambda.zip *
 	@aws s3 cp lambda.zip s3://$(lambda_bucket)

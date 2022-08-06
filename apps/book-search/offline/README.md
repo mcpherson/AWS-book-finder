@@ -22,6 +22,9 @@ s3-image-processing-bucket
                   - may possibly coalesce into one file with "shelf" reference
   /debug          - offline process may store intermediate iamges here;
                   - these would be the masked images or images showing matched text
+  /passes         - input images for each rekognition pass; text that has been
+                    previously found is covered with a white polygon so that it
+                    isn't detected in subsequent passes.
 ```
 
 File name format:

@@ -37,7 +37,7 @@ Resources:
   # Must create a new bucket. CFN can "import" existing resources but it's a pain.
   # You must use the console or the CLI.
   # CDK seems to handle the problem of importing exting resources better.
-  Bucket:
+  S3ImageBucket:
     Type: AWS::S3::Bucket
     DependsOn:
       - S3TriggerLambdaPermission
@@ -51,6 +51,8 @@ Resources:
             Filter:
               S3Key:
                 Rules:
+                - Name: prefix
+                  Value: originals/
                 - Name: suffix
                   Value: .png
 
@@ -110,8 +112,8 @@ Resources:
       # https://docs.aws.amazon.com/serverlessrepo/latest/devguide/sharing-lambda-layers.html
       Layers:
         - arn:aws:lambda:us-west-2:136545519964:layer:canvas-nodejs:1
-      MemorySize: 256
-      Timeout: 10
+      MemorySize: 1024
+      Timeout: 300
 
   # Thanks https://ldoughty.com/2020/01/aws-http-api-gateway-cloudformation-setup/
   LambdaLogGroup:
