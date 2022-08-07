@@ -90,13 +90,13 @@ const displayImages = function() {
         newItem.classList.add('library-item');
         newItem.innerHTML = `
         <div class="library-image">
-            <img src="${i[index].imageURL}" alt="${i[index].Key}">
+            <img src="${i.imageURL}" alt="${i.Key}">
         </div>
         <div class="delete-area">
             <button id="delete-image-${index}" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
         </div>
         <div class="library-item-label-area">
-            <p class="library-item-label">${i[index].Key.slice(0, -4)}</p>
+            <p class="library-item-label">${i.Key.slice(0, -4)}</p>
         </div>
         <div class="details-area">
             <button id="image-details-${index}" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
