@@ -20,7 +20,7 @@ window.onload = () => {
     }
     
     // RESIZE ELEMENTS BASED ON WINDOW WIDTH
-    resizeElements();
+    // resizeElements();
     
     // CLEAR LOADING SPINNER
     loadingSpinner.style.display = "none";
