@@ -1,24 +1,35 @@
+// CHECK USER STATUS, CHANGE INTERFACE
+const loginNav = document.getElementById('login-link');
+const logoutNav = document.getElementById('logout-link');
+
 const alertArea = document.getElementById('alert-area');
 const alertMessage = document.getElementById('alert-message');
 const loadingSpinner = document.getElementById('fouc');
 const libraryContainer = document.getElementById('library-container');
-const refreshButton = document.getElementById('refresh-images');
+const refreshButton = document.getElementById('refresh-images-button');
 
 window.onload = () => {
-    // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
-    
-    // ONLY CALL S3 IF NECESSARY
-    if (JSON.parse(localStorage.getItem('numUploads')) != JSON.parse(localStorage.getItem('imageURLs')).length || !JSON.parse(localStorage.getItem('imageURLs'))) {
-        getImageURLs();
+    // CHANGE UI BASED ON LOGGED IN STATE
+    if (localStorage.getItem('book-finder-login-data')) {
+        loginNav.style.display = "none";
+        logoutNav.style.display = "flex";
+    } else {
+        loginNav.style.display = "flex";
+        logoutNav.style.display = "none";
     }
     
     // CLEAR LOADING SPINNER
     loadingSpinner.style.display = "none";
     
+    // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
+    
+    // ONLY CALL S3 IF NECESSARY
+    if (!localStorage.getItem('imageURLs') || JSON.parse(localStorage.getItem('numUploads')) != JSON.parse(localStorage.getItem('imageURLs')).length) {
+        getImageURLs();
+    }
+    
     // DISPLAY EACH IMAGE AND KEY
-    JSON.parse(localStorage.getItem('imageURLs')).forEach((i) => {
-
-    }); 
+    displayImages(); 
 }
 
 const getImageURLs = function(event) {
@@ -32,6 +43,7 @@ const getImageURLs = function(event) {
     }
     // GET IMAGE KEYS FROM USER'S S3 BUCKET
     const reqData = {UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub}
+    // TODO HANDLE ERROR IF NOT LOGGED IN
     const keysReq = new XMLHttpRequest();
     keysReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/get-s3-keys");
     keysReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
@@ -61,6 +73,12 @@ const getImageURLs = function(event) {
             });
         };
     };
+};
+
+const displayImages = function() {
+    JSON.parse(localStorage.getItem('imageURLs')).forEach((i, index) => {
+
+    });
 };
 
 // REFRESH IMAGES MANUALLY
