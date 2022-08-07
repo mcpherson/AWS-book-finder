@@ -38,7 +38,7 @@ window.onload = () => {
 
 const resizeElements = function () {
     // SCALE SEARCH INPUT WIDTH TO LIBRARY ITEM WIDTH
-    document.getElementById('search-field').style.maxWidth = `${Array.from(document.getElementsByClassName('library-item'))[0].offsetWidth}px`;
+    searchInput.style.maxWidth = `${Array.from(document.getElementsByClassName('library-item'))[0].offsetWidth}px`;
 }
 
 const getImageURLs = function(event) {
