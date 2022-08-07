@@ -341,7 +341,7 @@ html, body {
     float: left;
 }
 
-#search-field {
+#search-input {
     font-family: 'Kanit', sans-serif;
     font-weight: 600;
     font-size: 1.1rem;
@@ -354,7 +354,7 @@ html, body {
     width: 22vw;
 }
 
-#search-field:focus {
+#search-input:focus {
     outline: 2px solid #bbff00;
 }
 

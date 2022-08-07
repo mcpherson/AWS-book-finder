@@ -7,6 +7,7 @@ const alertMessage = document.getElementById('alert-message');
 const loadingSpinner = document.getElementById('fouc');
 const libraryContainer = document.getElementById('library-container');
 const refreshButton = document.getElementById('refresh-images-button');
+const searchInput = document.getElementById('search-input');
 
 window.onload = () => {
     // CHANGE UI BASED ON LOGGED IN STATE
@@ -18,9 +19,12 @@ window.onload = () => {
         logoutNav.style.display = "none";
     }
     
+    // RESIZE ELEMENTS BASED ON WINDOW WIDTH
+    resizeElements();
+    
     // CLEAR LOADING SPINNER
     loadingSpinner.style.display = "none";
-    
+
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
     
     // ONLY CALL S3 IF NECESSARY
@@ -30,6 +34,11 @@ window.onload = () => {
     
     // DISPLAY EACH IMAGE AND KEY
     displayImages(); 
+}
+
+const resizeElements = function () {
+    // SCALE SEARCH INPUT WIDTH TO LIBRARY ITEM WIDTH
+    document.getElementById('search-field').style.maxWidth = `${Array.from(document.getElementsByClassName('library-item'))[0].offsetWidth}px`;
 }
 
 const getImageURLs = function(event) {
@@ -77,7 +86,26 @@ const getImageURLs = function(event) {
 
 const displayImages = function() {
     JSON.parse(localStorage.getItem('imageURLs')).forEach((i, index) => {
-
+        let newItem = document.createElement('div');
+        newItem.classList.add('library-item');
+        newItem.innerHTML = `
+        <div class="library-image">
+            <img src="${i[index].imageURL}" alt="${i[index].Key}">
+        </div>
+        <div class="delete-area">
+            <button id="delete-image-${index}" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
+        </div>
+        <div class="library-item-label-area">
+            <p class="library-item-label">${i[index].Key.slice(0, -4)}</p>
+        </div>
+        <div class="details-area">
+            <button id="image-details-${index}" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+        <div class="expand-area">
+            <button id="expand-image-${index}" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
+        </div>
+        `;
+        libraryContainer.appendChild(newItem);
     });
 };
 
