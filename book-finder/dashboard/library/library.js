@@ -84,46 +84,47 @@ const getImageURLs = function(event) {
         };
     };
 };
-
-// IMAGE CONTROLS - DELETE, VIEW DETAILS, ENLARGE
-libraryContainer.addEventListener('click', (e) => {
-    // DELETE IMAGE
-    if (e.target.classList.contains('delete-image-button')) {
-        deleteImage(e.target.id.slice(-1)); // WON'T WORK WITH 2+ digits
-    }
-});
-
+        
 // DISPLAY IMAGES ON PAGE
 const displayImages = function() {
     JSON.parse(localStorage.getItem('imageURLs')).forEach((i, index) => {
         let newItem = document.createElement('div');
         newItem.classList.add('library-item');
-        newItem.setAttribute('id', `library-item-${index}`)
+        newItem.setAttribute('id', `library-item-${i.imageNumber}`)
         newItem.innerHTML = `
         <div class="library-image">
-            <img src="${i.imageURL}" alt="${i.Key}">
+        <img src="${i.imageURL}" alt="${i.Key}">
         </div>
         <div class="delete-area">
-            <button id="delete-image-${index}" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
+        <button id="delete-image-${i.imageNumber}" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
         </div>
         <div class="library-item-label-area">
-            <p class="library-item-label">${i.Key.slice(0, -4)}</p>
+        <p class="library-item-label">${i.Key.slice(0, -4)}</p>
         </div>
         <div class="details-area">
-            <button id="image-details-${index}" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
+        <button id="image-details-${i.imageNumber}" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
         <div class="expand-area">
-            <button id="expand-image-${index}" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
+        <button id="expand-image-${i.imageNumber}" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
         </div>
         `;
         libraryContainer.appendChild(newItem);
+    });
+    // IMAGE CONTROLS - DELETE, VIEW DETAILS, ENLARGE
+    // ADD LISTENERS TO DELETE BUTTONS
+    let deleteButtons = Array.from(document.getElementsByClassName('delete-image-button'))
+    deleteButtons.forEach((i) => {
+        i.addEventListener('click', (e) => {
+            // DELETE IMAGE
+                deleteImage(e.currentTarget.id.slice(-1)); // WON'T WORK WITH 2+ digits
+        });
     });
 };
 
 // DELETE AN IMAGE
 const deleteImage = function(selectedImageNumber) {
-    let selectedImage = JSON.parse(localStorage.getItem('imageURLs')).filter(imageKey => imageKey.imageNumber === selectedImageNumber)[0];
-    let selectedIndex = JSON.parse(localStorage.getItem('imageURLs')).findIndex(object => {return object.imageNumber === selectedImageNumber;});
+    let selectedImage = JSON.parse(localStorage.getItem('imageURLs')).filter(imageKey => imageKey.imageNumber == selectedImageNumber)[0];
+    let selectedIndex = JSON.parse(localStorage.getItem('imageURLs')).findIndex(object => {return object.imageNumber == selectedImageNumber;});
     const deleteData = {
         imageNumber: selectedImage.imageNumber,
         UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub,

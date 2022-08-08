@@ -391,7 +391,7 @@ html, body {
 }
 
 #library-container {
-    margin: 0 auto;
+    margin: 0 auto 15px auto;
     width: 98vw;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
