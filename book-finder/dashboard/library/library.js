@@ -71,16 +71,15 @@ const getImageURLs = function(event) {
             loadingSpinner.style.display = "none";
             let objKeys = JSON.parse(keysReq.response);
             localStorage.setItem('numUploads', JSON.stringify(objKeys.length)); // store number of uploaded images for comparison on pageload
+            let storedURLs = [];
             objKeys.forEach((i, index) => {
-                let storedURLs = JSON.parse(localStorage.getItem('imageURLs'));
                 let urlObj = {
-                    "imageNumber": (storedURLs.length + index),
                     "Key" : JSON.parse(keysReq.response)[index],
                     "imageURL" : `https://book-finder-${reqData.UserSub}.s3.amazonaws.com/${JSON.parse(keysReq.response)[index]}`
                 };
                 storedURLs.push(urlObj);
-                localStorage.setItem('imageURLs', JSON.stringify(storedURLs));
             });
+            localStorage.setItem('imageURLs', JSON.stringify(storedURLs));
         };
     };
     // DISPLAY EACH IMAGE AND KEY
@@ -91,25 +90,26 @@ const getImageURLs = function(event) {
 const displayImages = function() {
     // CLEAR EXISTING IMAGES
     libraryContainer.innerHTML = "";
+
     JSON.parse(localStorage.getItem('imageURLs')).forEach((i, index) => {
         let newItem = document.createElement('div');
         newItem.classList.add('library-item');
-        newItem.setAttribute('id', `library-item-${i.imageNumber}`)
+        newItem.setAttribute('id', `library-item-${index}`)
         newItem.innerHTML = `
         <div class="library-image">
         <img src="${i.imageURL}" alt="${i.Key}">
         </div>
         <div class="delete-area">
-        <button id="delete-image-${i.imageNumber}" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
+        <button id="delete-image-${index}" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
         </div>
         <div class="library-item-label-area">
         <p class="library-item-label">${i.Key.slice(0, -4)}</p>
         </div>
         <div class="details-area">
-        <button id="image-details-${i.imageNumber}" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
+        <button id="image-details-${index}" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
         <div class="expand-area">
-        <button id="expand-image-${i.imageNumber}" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
+        <button id="expand-image-${index}" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
         </div>
         `;
         libraryContainer.appendChild(newItem);
@@ -123,16 +123,15 @@ const displayImages = function() {
                 deleteImage(e.currentTarget.id.slice(-1)); // WON'T WORK WITH 2+ digits
         });
     });
+    return;
 };
 
 // DELETE AN IMAGE
 const deleteImage = function(selectedImageNumber) {
-    let selectedImage = JSON.parse(localStorage.getItem('imageURLs')).filter(imageKey => imageKey.imageNumber == selectedImageNumber)[0];
-    console.log(selectedImage);
-    let selectedIndex = JSON.parse(localStorage.getItem('imageURLs')).findIndex(object => {return object.imageNumber == selectedImageNumber});
-    console.log(selectedIndex);
+    let selectedImage = JSON.parse(localStorage.getItem('imageURLs'))[selectedImageNumber];
+    // let selectedIndex = JSON.parse(localStorage.getItem('imageURLs')).findIndex(object => {return object.imageNumber == selectedImageNumber});
+    // console.log(selectedIndex);
     const deleteData = {
-        imageNumber: selectedImage.imageNumber,
         UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub,
         Key: selectedImage.Key
     };
@@ -151,11 +150,11 @@ const deleteImage = function(selectedImageNumber) {
         } else {
             // UPDATE LOCALSTORAGE
             localStorage.setItem('numUploads', JSON.parse(localStorage.getItem('numUploads'))-1);
-            let updatedURLs = JSON.parse(localStorage.getItem('imageURLs')).splice(selectedIndex, 1);
+            let updatedURLs = JSON.parse(localStorage.getItem('imageURLs')).splice(selectedImageNumber, 1);
             console.log(updatedURLs);
             localStorage.setItem('imageURLs', JSON.stringify(updatedURLs));
             // UPDATE UI
-            document.getElementById(`library-item-${selectedImageNumber}`).remove();
+            displayImages();
         }
     }
 };
