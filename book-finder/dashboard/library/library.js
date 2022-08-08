@@ -83,10 +83,14 @@ const getImageURLs = function(event) {
             });
         };
     };
+    // DISPLAY EACH IMAGE AND KEY
+    displayImages(); 
 };
         
 // DISPLAY IMAGES ON PAGE
 const displayImages = function() {
+    // CLEAR EXISTING IMAGES
+    libraryContainer.innerHTML = "";
     JSON.parse(localStorage.getItem('imageURLs')).forEach((i, index) => {
         let newItem = document.createElement('div');
         newItem.classList.add('library-item');
@@ -124,7 +128,9 @@ const displayImages = function() {
 // DELETE AN IMAGE
 const deleteImage = function(selectedImageNumber) {
     let selectedImage = JSON.parse(localStorage.getItem('imageURLs')).filter(imageKey => imageKey.imageNumber == selectedImageNumber)[0];
-    let selectedIndex = JSON.parse(localStorage.getItem('imageURLs')).findIndex(object => {return object.imageNumber == selectedImageNumber;});
+    console.log(selectedImage);
+    let selectedIndex = JSON.parse(localStorage.getItem('imageURLs')).findIndex(object => {return object.imageNumber == selectedImageNumber});
+    console.log(selectedIndex);
     const deleteData = {
         imageNumber: selectedImage.imageNumber,
         UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub,
