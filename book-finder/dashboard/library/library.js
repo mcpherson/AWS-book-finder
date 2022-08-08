@@ -145,7 +145,9 @@ const deleteImage = function(selectedImageNumber) {
         } else {
             // UPDATE LOCALSTORAGE
             localStorage.setItem('numUploads', JSON.parse(localStorage.getItem('numUploads'))-1);
-            localStorage.setItem('imageURLs', JSON.stringify(JSON.parse(localStorage.getItem('imageURLs')).splice(selectedIndex, 1)));
+            let updatedURLs = JSON.parse(localStorage.getItem('imageURLs')).splice(selectedIndex, 1);
+            console.log(updatedURLs);
+            localStorage.setItem('imageURLs', JSON.stringify(updatedURLs));
             // UPDATE UI
             document.getElementById(`library-item-${selectedImageNumber}`).remove();
         }
@@ -154,3 +156,30 @@ const deleteImage = function(selectedImageNumber) {
 
 // REFRESH IMAGES MANUALLY
 refreshButton.addEventListener('click', getImageURLs);
+
+
+// LOG OUT
+if (logoutNav != null) {
+    logoutNav.addEventListener('click', () => {
+        const logoutData = {
+            accessToken : JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.AccessToken
+        }
+        const logoutReq = new XMLHttpRequest();
+        logoutReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/logout");
+        logoutReq.send(JSON.stringify(logoutData));
+    
+        logoutReq.onload = function() {
+            if (logoutReq.status != 200) { // analyze HTTP status of the response
+                console.log(`Error ${logoutReq.status}: ${logoutReq.statusText}`);
+                // alertArea.style.display = "block";
+                // alertArea.style.backgroundColor = "lightcoral";
+                // alertMessage.innerText = "Invalid logout information. Please check your email address and re-type your password and try again. Make sure that your account has been verified. Reset password if necessary.";
+                throw new Error("Logout failed. See console for details.");
+            } else {
+                // console.log(logoutReq.response); // response is the server response
+                localStorage.removeItem('book-finder-login-data');
+                window.location.href = "/book-finder/";
+            }
+        };
+    });
+}
