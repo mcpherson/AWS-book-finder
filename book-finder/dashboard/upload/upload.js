@@ -336,7 +336,6 @@ uploadButton.addEventListener('click', () => {
             }
             // CREATE URL DATA AND PUSH TO LOCAL STORAGE FOR USE ON LIBRARY PAGE
             let urlObj = {
-                "imageNumber": JSON.parse(localStorage.getItem('numUploads'))-1,
                 "Key" : uploadData.fileName,
                 "imageURL" : `https://book-finder-${uploadData.UserSub}.s3.amazonaws.com/${uploadData.fileName}`
             };
