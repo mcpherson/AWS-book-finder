@@ -150,7 +150,8 @@ const deleteImage = function(selectedImageNumber) {
         } else {
             // UPDATE LOCALSTORAGE
             localStorage.setItem('numUploads', JSON.parse(localStorage.getItem('numUploads'))-1);
-            let updatedURLs = JSON.parse(localStorage.getItem('imageURLs')).splice(selectedImageNumber, 1);
+            let updatedURLs = JSON.parse(localStorage.getItem('imageURLs'));
+            updatedURLs.splice(selectedImageNumber, 1);
             console.log(updatedURLs);
             localStorage.setItem('imageURLs', JSON.stringify(updatedURLs));
             // UPDATE UI
