@@ -326,14 +326,6 @@ uploadButton.addEventListener('click', () => {
                 let imageURLs = [];
                 localStorage.setItem('imageURLs', JSON.stringify(imageURLs));
             }
-            // CREATE URL DATA AND PUSH TO LOCAL STORAGE FOR USE ON LIBRARY PAGE
-            let urlObj = {
-                "Key" : uploadData.fileName,
-                "imageURL" : `https://book-finder-${uploadData.UserSub}.s3.amazonaws.com/${uploadData.fileName}`
-            };
-            let imageURLStorage = JSON.parse(localStorage.getItem('imageURLs'));
-            imageURLStorage.push(urlObj);
-            localStorage.setItem('imageURLs', JSON.stringify(imageURLStorage));
             // TRACK NUMBER OF UPLOADS BY USER IN LOCAL STORAGE TO PREVENT UNNECESSARY API CALLS ON LIBRARY PAGE
             if (!localStorage.getItem('numUploads')) {
                 localStorage.setItem('numUploads', JSON.stringify(1));
@@ -342,6 +334,15 @@ uploadButton.addEventListener('click', () => {
                 numUploads++;
                 localStorage.setItem('numUploads', JSON.stringify(numUploads));
             }
+            // CREATE URL DATA AND PUSH TO LOCAL STORAGE FOR USE ON LIBRARY PAGE
+            let urlObj = {
+                "imageNumber": JSON.parse(localStorage.getItem('numUploads'))-1,
+                "Key" : uploadData.fileName,
+                "imageURL" : `https://book-finder-${uploadData.UserSub}.s3.amazonaws.com/${uploadData.fileName}`
+            };
+            let imageURLStorage = JSON.parse(localStorage.getItem('imageURLs'));
+            imageURLStorage.push(urlObj);
+            localStorage.setItem('imageURLs', JSON.stringify(imageURLStorage));
         }
     };
     // PASS localStorage.getItem('book-finder-login-data').UserSub, [newFileName.value, finalImage]=>image

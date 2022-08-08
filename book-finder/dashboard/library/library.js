@@ -72,11 +72,12 @@ const getImageURLs = function(event) {
             let objKeys = JSON.parse(keysReq.response);
             localStorage.setItem('numUploads', JSON.stringify(objKeys.length)); // store number of uploaded images for comparison on pageload
             objKeys.forEach((i, index) => {
+                let storedURLs = JSON.parse(localStorage.getItem('imageURLs'));
                 let urlObj = {
+                    "imageNumber": (storedURLs.length + index),
                     "Key" : JSON.parse(keysReq.response)[index],
                     "imageURL" : `https://book-finder-${reqData.UserSub}.s3.amazonaws.com/${JSON.parse(keysReq.response)[index]}`
                 };
-                let storedURLs = JSON.parse(localStorage.getItem('imageURLs'));
                 storedURLs.push(urlObj);
                 localStorage.setItem('imageURLs', JSON.stringify(storedURLs));
             });
@@ -84,10 +85,20 @@ const getImageURLs = function(event) {
     };
 };
 
+// IMAGE CONTROLS - DELETE, VIEW DETAILS, ENLARGE
+libraryContainer.addEventListener('click', (e) => {
+    // DELETE IMAGE
+    if (e.target.classList.contains('delete-image-button')) {
+        deleteImage(e.target.id.slice(-1)); // WON'T WORK WITH 2+ digits
+    }
+});
+
+// DISPLAY IMAGES ON PAGE
 const displayImages = function() {
     JSON.parse(localStorage.getItem('imageURLs')).forEach((i, index) => {
         let newItem = document.createElement('div');
         newItem.classList.add('library-item');
+        newItem.setAttribute('id', `library-item-${index}`)
         newItem.innerHTML = `
         <div class="library-image">
             <img src="${i.imageURL}" alt="${i.Key}">
@@ -107,6 +118,35 @@ const displayImages = function() {
         `;
         libraryContainer.appendChild(newItem);
     });
+};
+
+// DELETE AN IMAGE
+const deleteImage = function(selectedImageNumber) {
+    let selectedImage = JSON.parse(localStorage.getItem('imageURLs')).filter(imageKey => imageKey.imageNumber === selectedImageNumber)[0];
+    let selectedIndex = JSON.parse(localStorage.getItem('imageURLs')).findIndex(object => {return object.imageNumber === selectedImageNumber;});
+    const deleteData = {
+        imageNumber: selectedImage.imageNumber,
+        UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub,
+        Key: selectedImage.Key
+    };
+
+    // SEND DELETE REQUEST TO API GATEWAY
+    const deleteReq = new XMLHttpRequest();
+
+    deleteReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/delete-object");
+    deleteReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
+
+    deleteReq.send(JSON.stringify(deleteData));
+
+    deleteReq.onload = function() {
+        if (deleteReq.status != 200 || JSON.parse(deleteReq.response).hasOwnProperty('__type') || JSON.parse(deleteReq.response).hasOwnProperty('errorType')) { // analyze HTTP status of the response
+            console.log(JSON.parse(deleteReq.response));
+        } else {
+            // UPDATE LOCALSTORAGE
+            localStorage.setItem('numUploads', JSON.parse(localStorage.getItem('numUploads'))-1);
+            localStorage.setItem('imageURLs', JSON.parse(localStorage.getItem('imageURLs')).splice(selectedIndex, 1));
+        }
+    }
 };
 
 // REFRESH IMAGES MANUALLY
