@@ -145,7 +145,7 @@ const deleteImage = function(selectedImageNumber) {
         } else {
             // UPDATE LOCALSTORAGE
             localStorage.setItem('numUploads', JSON.parse(localStorage.getItem('numUploads'))-1);
-            localStorage.setItem('imageURLs', JSON.parse(localStorage.getItem('imageURLs')).splice(selectedIndex, 1));
+            localStorage.setItem('imageURLs', JSON.stringify(JSON.parse(localStorage.getItem('imageURLs')).splice(selectedIndex, 1)));
             // UPDATE UI
             document.getElementById(`library-item-${selectedImageNumber}`).remove();
         }
