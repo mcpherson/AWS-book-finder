@@ -1,0 +1,7 @@
+**/.DS_Store
+local
+.vscode
+**/*.png
+**/node_modules
+**/package-lock.json
+**/*.zip

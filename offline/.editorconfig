@@ -1,0 +1,7 @@
+# Using to get GitHub to show Makefile tabs as 4 spaces.
+# NOT using to override VScode formatting (need extension for that).
+root = true
+
+[Makefile]
+indent_style = tab
+tab_width = 4
