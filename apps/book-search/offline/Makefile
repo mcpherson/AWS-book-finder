@@ -1,3 +1,5 @@
+#  Rewrite to used CRUD so initial deploy is create. Then update, delete.
+#  Read would be used to dump status of stack.
 .DEFAULT_GOAL := deploy
 
 stack_name = build-book-db
