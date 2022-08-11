@@ -369,7 +369,7 @@ uploadButton.addEventListener('click', () => {
         // bigReq.setRequestHeader('x-amz-acl', 'public-read');
         bigReq.setRequestHeader('Content-Type', 'image/png');
 
-        bigReq.send(JSON.stringify(imageData));
+        bigReq.send(imageData);
         bigReq.onload = function() {
         console.log(bigReq.response);
         };
