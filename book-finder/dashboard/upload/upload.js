@@ -364,19 +364,19 @@ uploadButton.addEventListener('click', () => {
     urlReq.onload = function() {
         returnedURL = JSON.parse(urlReq.response);
         console.log(JSON.parse(urlReq.response));
+        const bigReq = new XMLHttpRequest();
+    
+        bigReq.open("POST", `${returnedURL}`);
+        // bigReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
+    
+        bigReq.send(imageData);
+        bigReq.onload = function() {
+            console.log(JSON.parse(bigReq.response));
+        };
     };
 
 
 
-    const bigReq = new XMLHttpRequest();
-
-    bigReq.open("POST", `${returnedURL}`);
-    // bigReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
-
-    bigReq.send(imageData);
-    bigReq.onload = function() {
-        console.log(JSON.parse(bigReq.response));
-    };
     
 });
 
