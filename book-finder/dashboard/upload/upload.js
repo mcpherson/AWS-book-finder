@@ -351,7 +351,7 @@ uploadButton.addEventListener('click', () => {
         fileName: fileName.innerHTML
     };
 
-    const imageData = finalImage;
+    const imageData = finalImage.replace(/^data:image\/\w+;base64,/, "");
 
     const urlReq = new XMLHttpRequest();
 
