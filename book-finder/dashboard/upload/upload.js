@@ -370,12 +370,11 @@ uploadButton.addEventListener('click', () => {
 
     const bigReq = new XMLHttpRequest();
 
-    bigReq.open("PUT", returnedURL);
+    bigReq.open("POST", `${returnedURL}`);
     // bigReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
 
     bigReq.send(imageData);
     bigReq.onload = function() {
-        returnedURL = JSON.parse(bigReq.response);
         console.log(JSON.parse(bigReq.response));
     };
     
