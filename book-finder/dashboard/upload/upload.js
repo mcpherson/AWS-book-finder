@@ -370,7 +370,7 @@ uploadButton.addEventListener('click', () => {
         bigReq.setRequestHeader('Content-Type', 'image/png');
         // bigReq.setRequestHeader('Content-Encoding', 'base64');
 
-        bigReq.send(imageData);
+        bigReq.send(JSON.stringify(imageData));
         bigReq.onload = function() {
         console.log(bigReq.response);
         };
