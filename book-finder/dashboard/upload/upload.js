@@ -369,10 +369,11 @@ uploadButton.addEventListener('click', () => {
         bigReq.open("PUT", `${returnedURL}`);
         // bigReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
         // bigReq.setRequestHeader('x-amz-acl', 'public-read');
+        bigReq.setRequestHeader('Content-Type', 'image/png');
 
-        bigReq.send(imageData);
+        bigReq.send(JSON.stringify(imageData));
         bigReq.onload = function() {
-        console.log(JSON.parse(bigReq.response));
+        console.log(bigReq.response);
         };
     };
 
