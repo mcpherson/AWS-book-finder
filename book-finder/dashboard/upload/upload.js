@@ -32,6 +32,8 @@ let newFileName;
 let isMouseDown = false;
 let imageScale = 1;
 
+let returnedURL;
+
 
 
 // WINDOW RESIZE DETECTION TO PRESERVE SCALE
@@ -353,8 +355,6 @@ uploadButton.addEventListener('click', () => {
         imageBody: finalImage
     };
 
-    let returnedURL;
-
     const urlReq = new XMLHttpRequest();
 
     urlReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/get-s3-signed-url");
@@ -365,6 +365,7 @@ uploadButton.addEventListener('click', () => {
         returnedURL = JSON.parse(urlReq.response);
         console.log(JSON.parse(urlReq.response));
     };
+    
 });
 
 
