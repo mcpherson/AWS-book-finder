@@ -365,6 +365,19 @@ uploadButton.addEventListener('click', () => {
         returnedURL = JSON.parse(urlReq.response);
         console.log(JSON.parse(urlReq.response));
     };
+
+
+
+    const bigReq = new XMLHttpRequest();
+
+    bigReq.open("PUT", returnedURL);
+    // bigReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
+
+    bigReq.send(imageData);
+    bigReq.onload = function() {
+        returnedURL = JSON.parse(bigReq.response);
+        console.log(JSON.parse(bigReq.response));
+    };
     
 });
 
