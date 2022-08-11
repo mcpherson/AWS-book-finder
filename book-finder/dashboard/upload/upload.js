@@ -291,66 +291,83 @@ uploadButton.addEventListener('click', () => {
     fileName.style.visibility = "hidden";
 
     // DATA TO SEND TO S3
-    const uploadData = {
+    // const uploadData = {
+    //     UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub,
+    //     fileName: fileName.innerHTML,
+    //     imageBody: finalImage
+    // };
+
+    // const uploadReq = new XMLHttpRequest();
+
+    // uploadReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/upload-object");
+    // uploadReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
+
+    // uploadReq.send(JSON.stringify(uploadData));
+
+    // uploadReq.onload = function() {
+    //     if (uploadReq.status != 200 || JSON.parse(uploadReq.response).hasOwnProperty('__type') || JSON.parse(uploadReq.response).hasOwnProperty('errorType')) { // analyze HTTP status of the response
+    //         uploadSpinner.style.display = "none";
+    //         console.log(`Error ${uploadReq.status}: ${uploadReq.statusText} - AWS Error: ${uploadReq.response}`);
+    //         alertArea.style.display = "block";
+    //         alertArea.style.backgroundColor = "lightcoral";
+    //         // TODO error handling - invalid usersub, invalid img data, other AWS errors
+    //         alertMessage.innerText = `Image upload failed. ${JSON.parse(uploadReq.response).errorMessage}`;
+    //         throw new Error("Image upload failed.");
+    //     } else {
+    //         uploadSpinner.style.display = "none";
+    //         alertArea.style.display = "block";
+    //         alertArea.style.backgroundColor = "#bbff00";
+    //         alertMessage.innerHTML = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your <a href="/book-finder/dashboard/library/">Library</a> to view the status of your upload or continue uploading images.`;
+    //         // CHANGE CLEAR BUTTON STYLE
+    //         clearButton.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
+    //         clearButton.style.display = "inline";
+    //         // CHECK FOR IMAGE URLS ARRAY IN LOCAL STORAGE - CREATE IF IT DOESN'T EXIST YET
+    //         if (!localStorage.getItem('imageURLs')) {
+    //             let imageURLs = [];
+    //             localStorage.setItem('imageURLs', JSON.stringify(imageURLs));
+    //         }
+    //         // TRACK NUMBER OF UPLOADS BY USER IN LOCAL STORAGE TO PREVENT UNNECESSARY API CALLS ON LIBRARY PAGE
+    //         if (!localStorage.getItem('numUploads')) {
+    //             localStorage.setItem('numUploads', JSON.stringify(1));
+    //         } else {
+    //             let numUploads = JSON.parse(localStorage.getItem('numUploads'));
+    //             numUploads++;
+    //             localStorage.setItem('numUploads', JSON.stringify(numUploads));
+    //         }
+    //         // CREATE URL DATA AND PUSH TO LOCAL STORAGE FOR USE ON LIBRARY PAGE
+    //         let urlObj = {
+    //             "Key" : uploadData.fileName,
+    //             "imageURL" : `https://book-finder-${uploadData.UserSub}.s3.amazonaws.com/${uploadData.fileName}`
+    //         };
+    //         let imageURLStorage = JSON.parse(localStorage.getItem('imageURLs'));
+    //         imageURLStorage.push(urlObj);
+    //         localStorage.setItem('imageURLs', JSON.stringify(imageURLStorage));
+    //     }
+    // };
+    const urlData = {
         UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub,
-        fileName: fileName.innerHTML,
+        fileName: fileName.innerHTML
+    };
+
+    const imageData = {
         imageBody: finalImage
     };
 
-    const uploadReq = new XMLHttpRequest();
+    let returnedURL;
 
-    uploadReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/upload-object");
-    uploadReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
+    const urlReq = new XMLHttpRequest();
 
-    uploadReq.send(JSON.stringify(uploadData));
+    urlReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/get-s3-signed-url");
+    urlReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
 
-    uploadReq.onload = function() {
-        if (uploadReq.status != 200 || JSON.parse(uploadReq.response).hasOwnProperty('__type') || JSON.parse(uploadReq.response).hasOwnProperty('errorType')) { // analyze HTTP status of the response
-            uploadSpinner.style.display = "none";
-            console.log(`Error ${uploadReq.status}: ${uploadReq.statusText} - AWS Error: ${uploadReq.response}`);
-            alertArea.style.display = "block";
-            alertArea.style.backgroundColor = "lightcoral";
-            // TODO error handling - invalid usersub, invalid img data, other AWS errors
-            alertMessage.innerText = `Image upload failed. ${JSON.parse(uploadReq.response).errorMessage}`;
-            throw new Error("Image upload failed.");
-        } else {
-            uploadSpinner.style.display = "none";
-            alertArea.style.display = "block";
-            alertArea.style.backgroundColor = "#bbff00";
-            alertMessage.innerHTML = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your <a href="/book-finder/dashboard/library/">Library</a> to view the status of your upload or continue uploading images.`;
-            // CHANGE CLEAR BUTTON STYLE
-            clearButton.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
-            clearButton.style.display = "inline";
-            // CHECK FOR IMAGE URLS ARRAY IN LOCAL STORAGE - CREATE IF IT DOESN'T EXIST YET
-            if (!localStorage.getItem('imageURLs')) {
-                let imageURLs = [];
-                localStorage.setItem('imageURLs', JSON.stringify(imageURLs));
-            }
-            // TRACK NUMBER OF UPLOADS BY USER IN LOCAL STORAGE TO PREVENT UNNECESSARY API CALLS ON LIBRARY PAGE
-            if (!localStorage.getItem('numUploads')) {
-                localStorage.setItem('numUploads', JSON.stringify(1));
-            } else {
-                let numUploads = JSON.parse(localStorage.getItem('numUploads'));
-                numUploads++;
-                localStorage.setItem('numUploads', JSON.stringify(numUploads));
-            }
-            // CREATE URL DATA AND PUSH TO LOCAL STORAGE FOR USE ON LIBRARY PAGE
-            let urlObj = {
-                "Key" : uploadData.fileName,
-                "imageURL" : `https://book-finder-${uploadData.UserSub}.s3.amazonaws.com/${uploadData.fileName}`
-            };
-            let imageURLStorage = JSON.parse(localStorage.getItem('imageURLs'));
-            imageURLStorage.push(urlObj);
-            localStorage.setItem('imageURLs', JSON.stringify(imageURLStorage));
-        }
+    urlReq.send(JSON.stringify(urlData));
+    urlReq.onload = function() {
+        returnedURL = JSON.parse(urlReq.response);
+        console.log(JSON.parse(urlReq.response));
     };
-    // PASS localStorage.getItem('book-finder-login-data').UserSub, [newFileName.value, finalImage]=>image
 });
 
 
 
-// let imageData;
-// var testImage = new Image();
-// testImage.src = `data:image/png;base64,${imageData}`;
-// document.body.appendChild(testImage);
+
 
