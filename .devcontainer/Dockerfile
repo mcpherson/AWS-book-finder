@@ -39,6 +39,17 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Need to build recent version of git to support SSH signed commits
+# Make sure you have a SSH signing key on GitHub
+# Outside the container:
+#     pbcopy < ~/.ssh/id_ed25519.pub
+# In the container:
+#    git config --global commit.gpgsign true
+#    git config --global gpg.format ssh
+#    git config --global user.signingkey '<PASTE from pbcopy>'
+# https://mcgillij.dev/git-sign-commits-with-ssh.html says you need an
+# allowedSignersFile but I didn't find it necessary.
+# https://calebhearth.com/sign-git-with-ssh is also helpful.
 RUN cd /tmp \
     && curl -LksS https://github.com/git/git/archive/v2.37.0.zip -o git.zip \
     && unzip git.zip \
