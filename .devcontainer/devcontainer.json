@@ -6,14 +6,15 @@
         "dotfiles.targetPath": "~/dotfiles",
         "dotfiles.installCommand": "~/dotfiles/install.sh",
         "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.fontFamily": "MesloLGS NF",
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true
     },
     "extensions": [
-		"kddejong.vscode-cfn-lint",
-		"dannysteenman.cloudformation-yaml-snippets",
-		"esbenp.prettier-vscode"
-	],
+        "kddejong.vscode-cfn-lint",
+        "dannysteenman.cloudformation-yaml-snippets",
+        "esbenp.prettier-vscode"
+    ],
     "mounts": [
         "source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/devboy/.aws,type=bind",
         "source=${env:HOME}${env:USERPROFILE}/.vscode-zsh-hists/udemy-rock-aws-serverless,target=/home/devboy/.zsh_history,type=bind"
