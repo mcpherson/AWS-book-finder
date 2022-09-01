@@ -32,10 +32,19 @@ RUN apt-get update \
         # needed (temporarily) to install node-canvas from source (no ARM binary)
         # only used locally--lambda layer used by lambda function
         build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
+        # need these additional to compile git
+        libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libexpat1-dev gettext \
         openssh-client ca-certificates \
     && update-ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+RUN cd /tmp \
+    && curl -LksS https://github.com/git/git/archive/v2.37.0.zip -o git.zip \
+    && unzip git.zip \
+    && cd git-2.37.0 \
+    && make prefix=/usr/local all \
+    && make prefix=/usr/local install
 
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install -y nodejs \
