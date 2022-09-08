@@ -1,0 +1,130 @@
+# create-stack --stack-name s3-trigger-lambda --template-body file://s3-trigger-lambda.yml --capabilities CAPABILITY_NAMED_IAM
+# ...wait a while...
+# aws cloudformation list-stacks
+# ...to see if it's been created...
+# aws lambda invoke --invocation-type RequestResponse --function-name s3-trigger-lambda out.txt
+# cat out.txt
+# rm out.txt
+# ...explore stack, lambda, role in the console if so inclined...
+# aws cloudformation delete-stack --stack-name s3-trigger-lambda
+AWSTemplateFormatVersion: 2010-09-09
+Description: Offline portion of Book Finder App
+
+Parameters:
+  LambdaFunctionName:
+    Type: String
+    AllowedPattern: ^[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9]+$
+    Default: rekog-lambda
+
+  ImageBucketName:
+    Type: String
+    Default: losalamosal-udemy-images
+
+  ZipBucketName:
+    Type: String
+    Default: losalamosal-udemy-uploads
+
+  ZipVersionId:
+    Type: String
+
+  ZipS3Key:
+    Type: String
+    Default: lambda.zip
+
+Resources:
+  # Must create a new bucket. CFN can "import" existing resources but it's a pain.
+  # You must use the console or the CLI.
+  # CDK seems to handle the problem of importing exting resources better.
+  S3ImageBucket:
+    Type: AWS::S3::Bucket
+    DependsOn:
+      - S3TriggerLambdaPermission
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Ref ImageBucketName
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt S3TriggerLambda.Arn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: originals/
+                  - Name: suffix
+                    Value: .png
+
+  S3TriggerLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !Ref S3TriggerLambda
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub "arn:${AWS::Partition}:s3:::${ImageBucketName}"
+      SourceAccount: !Ref AWS::AccountId
+
+  S3TriggerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      # So lambda can write logs
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: getAndDeleteObjects
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                Resource: !Sub "arn:${AWS::Partition}:s3:::${ImageBucketName}/*"
+        - PolicyName: detectTextRek
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: rekognition:DetectText
+                Resource: "*"
+
+  S3TriggerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref LambdaFunctionName
+      Role: !GetAtt S3TriggerLambdaRole.Arn
+      Runtime: nodejs16.x
+      Handler: index.handler
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: !Ref ZipS3Key
+        S3ObjectVersion: !Ref ZipVersionId
+      # https://github.com/charoitel/lambda-layer-canvas-nodejs/wiki
+      # https://docs.aws.amazon.com/serverlessrepo/latest/devguide/sharing-lambda-layers.html
+      Layers:
+        - arn:aws:lambda:us-west-2:136545519964:layer:canvas-nodejs:1
+      MemorySize: 1024
+      Timeout: 300
+
+  S3TriggerLimitRetries:
+    Type: AWS::Lambda::EventInvokeConfig
+    Properties:
+      FunctionName: !Ref S3TriggerLambda
+      MaximumRetryAttempts: 0
+      Qualifier: "$LATEST"
+
+  # Thanks https://ldoughty.com/2020/01/aws-http-api-gateway-cloudformation-setup/
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Join [/, ["/aws/lambda", !Ref S3TriggerLambda]]
+      RetentionInDays: 3
