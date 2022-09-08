@@ -55,7 +55,9 @@ RUN cd /tmp \
     && unzip git.zip \
     && cd git-2.37.0 \
     && make prefix=/usr/local all \
-    && make prefix=/usr/local install
+    && make prefix=/usr/local install \
+    && cd /tmp \
+    && rm -rf git-2.37.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install -y nodejs \

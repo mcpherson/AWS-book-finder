@@ -1,5 +1,8 @@
 ## Book Finder: Offline Processing
 
+`cat results/IMG_1241.json| jq '.TextDetections[].DetectedText'`
+`cat results/IMG_1241.json| jq '. | fromjson'`
+
 ### S3 Requirements
 
 #### Lambda Upload Bucket
@@ -40,6 +43,7 @@ File name format:
 
 The records looks like (less than 400 byts per book, and could reduce that--don't need
 all that precision in `X` and `Y`):
+
 ```json
 {
   "TextDetections": [
@@ -65,19 +69,19 @@ Need a tool to merge multiple JSON files.
 
 DynamoDB: No unique key. Text substring search requires a scan. Will be slow.
 
-Aurora Serverles: SQL. Can do substring search. Not really serverless--minimum monthly charge 
+Aurora Serverles: SQL. Can do substring search. Not really serverless--minimum monthly charge
 of around $40 to keep server active.
 
 DocumentDB: MongoDB clone. Would be good, but again not serverless. Minimum charge for server.
 
-CloudSearch: Can index everything and do Google-type searches. Close enough searchs, etc. 
+CloudSearch: Can index everything and do Google-type searches. Close enough searchs, etc.
 Index can be updated using a lambda for new data. No free plan. Costs.
 
 EFS: This is cheap and should work well, but must deal with VPC and getting lambda into same
 VPC as EFS. Still may be a server charge.
 
-Raw JSON data: This is the best approach. 300 books (300 * 400 = 120KB, less if we limit
-precision of the X and Y elements that delimit text bounding polygon) 
+Raw JSON data: This is the best approach. 300 books (300 \* 400 = 120KB, less if we limit
+precision of the X and Y elements that delimit text bounding polygon)
 means small amount of data. Could just
 load it into lambda as part of `node_modules` or put it in a lambda layer. Found a post
 on the web where a guy uses lambda layers to store small hash tables for rapid search.

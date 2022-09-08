@@ -158,27 +158,53 @@ async function writeAllFound(bucket, basename, found) {
   // https://stackoverflow.com/a/9340239/227441
   let start = performance.now();
 
+  // FIXME: tie this modification to the comment on keeping LINEs (below)
   found.TextDetections.forEach((label) => {
     delete label.Geometry.BoundingBox;
+    if (label.Type == "LINE") {
+      delete label.Geometry;
+    }
   });
-  console.log(JSON.stringify(found.TextDetections[0]));
 
-  found.TextDetections = found.TextDetections.filter((t) => t.Type == "LINE");
-  console.log(JSON.stringify(found.TextDetections[0]));
+  // Initially we thought the UI would only need LINEs. But, since the bounding
+  // boxes on them are so "odd" we will probably keep then in the output JSON.
+  //found.TextDetections = found.TextDetections.filter((t) => t.Type == "LINE");
 
   // FIXME: figure out where ParentId == undefined is coming from!?
   // TODO: write a simple test for this "bug"
-  const reduced = JSON.stringify(found, function (key, val) {
-    if (key != "ParentId") return val.toFixed ? Number(val.toFixed(3)) : val;
+  let skipReducePrecision = false;
+  found.TextDetections.forEach((label) => {
+    if (label.Type == "WORD") {
+      if (label.ParentId == undefined) {
+        console.log(`${label.Id}: undefined ParentId found. Not reducing precision`);
+        skipReducePrecision = true;
+      }
+    }
   });
+
+  // FIXME: this is ugly--even if it works
+  let reduced;
+  if (skipReducePrecision) {
+    console.log("Not reducing precision. Make bug test based on this image");
+    reduced = JSON.stringify(found);
+  } else {
+    reduced = JSON.stringify(found, function (key, val) {
+      if (key != "ParentId") return val.toFixed ? Number(val.toFixed(3)) : val;
+    });
+  }
 
   let et = performance.now() - start;
   console.log(`writeAllFound: reducing precision and entries took ${et / 1000} sec`);
 
+  // This extra step is needed to quote (e.g. \") all internal double quotes if we're
+  // going to put this into DynamoDB. It's the client's responsibility to unquote
+  // (e.g. parse) correctly. DynamoDB doesn't directly support JSON item types.
+  const quoteReduced = JSON.stringify(reduced);
+
   const params = {
     Bucket: bucket,
     Key: `json/${basename}.json`,
-    Body: reduced
+    Body: quoteReduced
   };
   const command = new PutObjectCommand(params);
 
@@ -192,7 +218,7 @@ async function writeAllFound(bucket, basename, found) {
     return;
   } catch (err) {
     console.log(`writeAllFound failed: ${JSON.stringify(error)}`);
-    throw new Error(JSON.stringify(error));
+    throw new Error(JSON.stringify(err));
   }
 }
 
@@ -272,7 +298,7 @@ async function saveThumbnailImage(image, bucket, basename) {
     return;
   } catch (err) {
     console.log(`saveThumbnailImage failed: ${JSON.stringify(error)}`);
-    throw new Error(JSON.stringify(error));
+    throw new Error(JSON.stringify(err));
   }
 }
 
@@ -289,9 +315,10 @@ async function saveAnnotatedImage(image, bucket, basename, found, pass) {
   let et = performance.now() - start;
   console.log(`saveAnnotatedImage: drawImage took ${et / 1000} sec`);
 
+  // FIXME: how do unquoted vals (e.g. poly.Y) work on a JSON object?
   found.TextDetections.forEach((label) => {
-    // Draw a seni-transparent box over all LINEs found.
     if (label.Type == "LINE") {
+      // Draw a semi-transparent box over all LINEs found.
       ctx.fillStyle = "rgba(255, 255, 255, 0.62)";
       ctx.beginPath();
       let first = true;
@@ -347,7 +374,7 @@ async function saveAnnotatedImage(image, bucket, basename, found, pass) {
     return;
   } catch (err) {
     console.log(`saveAnnotatedImage failed: ${JSON.stringify(error)}`);
-    throw new Error(JSON.stringify(error));
+    throw new Error(JSON.stringify(err));
   }
 }
 
@@ -369,8 +396,8 @@ async function saveWhiteoutImage(image, bucket, basename, found, pass) {
   console.log(`saveWhiteoutImage: drawImage took ${et / 1000} sec`);
 
   found.TextDetections.forEach((label) => {
-    // Draw an opaque white box over all LINEs found.
-    if (label.Type == "LINE") {
+    // Draw an opaque white box over all WORDs found.
+    if (label.Type == "WORD") {
       ctx.fillStyle = "rgba(255, 255, 255, 1.0)";
       ctx.beginPath();
       let first = true;
@@ -413,6 +440,6 @@ async function saveWhiteoutImage(image, bucket, basename, found, pass) {
     return [params.Key, nextPassImage];
   } catch (err) {
     console.log(`saveWhiteoutImage failed: ${JSON.stringify(error)}`);
-    throw new Error(JSON.stringify(error));
+    throw new Error(JSON.stringify(err));
   }
 }
