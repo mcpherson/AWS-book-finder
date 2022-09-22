@@ -1,15 +1,15 @@
 {
-    "name": "Udemy (rock-aws-serverless)",
+    "name": "AWS-book-finder",
     "dockerFile": "Dockerfile",
     "settings": {
-        "terminal.integrated.defaultProfile.linux": "zsh"
+        "terminal.integrated.defaultProfile.linux": "bash"
     },
     "extensions": [
         "dsteenman.cloudformation-yaml-snippets",
         "kddejong.vscode-cfn-lint"],
     "mounts": [
         "source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/devboy/.aws,type=bind",
-        "source=${env:HOME}${env:USERPROFILE}/.zsh-history/aws-book-finder,target=/home/devboy/.zsh_history,type=bind"
+        "source=${env:HOME}${env:USERPROFILE}/.vscode-bash-hists/AWS-book-finder,target=/home/devboy/.bash_history,type=bind"
     ],
     "remoteUser": "devboy"
 }

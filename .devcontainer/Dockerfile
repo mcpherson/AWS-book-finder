@@ -1,6 +1,6 @@
 FROM debian:buster
 
-RUN adduser --home /home/devboy --shell /usr/bin/zsh --no-create-home devboy \
+RUN adduser --home /home/devboy --shell /usr/bin/bash --no-create-home devboy \
     && usermod -aG sudo devboy \
     && mkdir /home/devboy \
     && chown devboy /home/devboy \
@@ -15,6 +15,8 @@ RUN apt-get update \
         zip                                       \
         unzip                                     \
         less                                      \
+        file                                      \
+        make                                      \
         httpie                                    \
         curl                                      \
         git                                       \
