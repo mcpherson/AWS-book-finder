@@ -51,14 +51,7 @@ RUN pip3 install cfn-lint
 
 USER devboy
 WORKDIR /home/devboy
-RUN zsh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" || true
-#RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 
 RUN steampipe plugin install steampipe
 RUN steampipe plugin install aws
 RUN steampipe plugin install github
-
-# Oh My ZSH installs a .zshrc. Remove so we can overwrite it when cloning dotfiles.
-#RUN rm ~/.zshrc
-
-#ENV SHELL /bin/zsh    THIS IS WRONG
