@@ -1,0 +1,47 @@
+Book Finder to-do list:
+- GENERAL TO-DOs / REFACTORS
+    - [ ] remove dashboard, replace with library
+    - [ ] change absolute paths to relative in all files
+    - [ ] migrate all AWS resources to us-east-1
+    - [ ] complete API redesign
+    - [ ] host site at bookfinder.mcpherson.dev
+    - [ ] construct basic landing page for mcpherson.dev with links to project/blog/etc.
+    - [ ] cleaner solution for FOUC/loading
+- [ ] UI
+    - [ ] home/demo
+    - [x] signup
+    - [x] confirm-signup
+    - [x] login
+    - [x] upload
+    - [x] library
+    - [ ] search results
+- [ ] AWS FUNCTIONALITY
+    - USERS
+        - [x] signup
+        - [x] confirm-signup
+        - [x] login
+        - [x] logout
+        - [ ] refresh cognito session
+        - [ ] forgot-password
+        - [ ] delete user
+    - LIBRARY 
+        - [x] create image
+        - [x] delete image
+        - [ ] update image
+        - [x] retrieve images
+        - [ ] search
+- [ ] ERROR HANDLING
+    - USERS
+        - [ ] signup
+        - [ ] confirm-signup
+        - [ ] login
+        - [ ] logout
+        - [ ] refresh cognito session
+        - [ ] forgot-password
+        - [ ] delete user
+    - LIBRARY 
+        - [ ] create image
+        - [ ] delete image
+        - [ ] update image
+        - [ ] retrieve images
+        - [ ] search

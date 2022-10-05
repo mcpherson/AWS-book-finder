@@ -33,7 +33,7 @@ confirmButton.addEventListener('click', (event) => {
             throw new Error("Verification failed. Enter correct information or see console for details. Contact administrator if necessary.");
         } else {
             // console.log(confirmationReq.response); // response is the server response
-            window.location.href = "/book-finder/login/";
+            window.location.href = "../../login/";
         }
     };
 

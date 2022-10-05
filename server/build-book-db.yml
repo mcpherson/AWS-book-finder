@@ -11,18 +11,27 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Offline portion of Book Finder App
 
 Parameters:
-  LambdaFunctionName:
+  LambdaFunctionNameRekog:
     Type: String
     AllowedPattern: ^[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9]+$
     Default: rekog-lambda
 
+  LambdaFunctionNameDBTest:
+    Type: String
+    AllowedPattern: ^[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9]+$
+    Default: aws-play-basic-table
+
+  TableName:
+    Type: String
+    Default: bookfinder-table-1
+
   ImageBucketName:
     Type: String
-    Default: losalamosal-udemy-images
+    Default: losalamosal-udemy-images-2
 
   ZipBucketName:
     Type: String
-    Default: losalamosal-udemy-uploads
+    Default: losalamosal-udemy-uploads-3
 
   ZipVersionId:
     Type: String
@@ -35,6 +44,26 @@ Resources:
   # Must create a new bucket. CFN can "import" existing resources but it's a pain.
   # You must use the console or the CLI.
   # CDK seems to handle the problem of importing exting resources better.
+  BookFinderTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TableName: !Ref TableName
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "S"
+        - AttributeName: "Image"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: "HASH"
+        - AttributeName: "Image"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
   S3ImageBucket:
     Type: AWS::S3::Bucket
     DependsOn:
@@ -95,13 +124,14 @@ Resources:
                 Action: rekognition:DetectText
                 Resource: "*"
 
+  # REKOG LAMBDA
   S3TriggerLambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Ref LambdaFunctionName
+      FunctionName: !Ref LambdaFunctionNameRekog
       Role: !GetAtt S3TriggerLambdaRole.Arn
       Runtime: nodejs16.x
-      Handler: index.handler
+      Handler: rekog.handler
       Code:
         S3Bucket: !Ref ZipBucketName
         S3Key: !Ref ZipS3Key
@@ -109,7 +139,7 @@ Resources:
       # https://github.com/charoitel/lambda-layer-canvas-nodejs/wiki
       # https://docs.aws.amazon.com/serverlessrepo/latest/devguide/sharing-lambda-layers.html
       Layers:
-        - arn:aws:lambda:us-west-2:136545519964:layer:canvas-nodejs:1
+        - arn:aws:lambda:us-east-1:795959022439:layer:canvas-nodejs:1
       MemorySize: 1024
       Timeout: 300
 
@@ -128,3 +158,61 @@ Resources:
     Properties:
       LogGroupName: !Join [/, ["/aws/lambda", !Ref S3TriggerLambda]]
       RetentionInDays: 3
+
+  # BEGIN DB LAMBDA TEST RESOURCES
+  BasicTableLambdaRoleDBTest:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      # So lambda can write logs
+      Policies:
+        - PolicyName: genericDynamoDBPermissions
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                Resource:
+                  - !GetAtt BookFinderTable.Arn
+  # The following Resource specification didn't work even though it looks valid
+  # in the error logs. A wildcard Resource ("*") worked OK. Had to use the !GetAttr
+  # version above to get this policy to work???
+  #                - !Sub "arn:${AWS::Partition}:dynamodb:::table/${TableName}"
+      ManagedPolicyArns:
+        # - "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      # Policies:
+      #   - PolicyName: DBPermissions
+      #     PolicyDocument:
+      #       Version: "2012-10-17"
+      #       Statement:
+      #         - Effect: Allow
+      #           Action:
+      #             - dynamodb:DescribeTable
+      #           Resource: !Sub "arn:${AWS::Partition}:dynamodb:::table/${TableName}"
+
+  BasicTableLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref LambdaFunctionNameDBTest
+      Role: !GetAtt BasicTableLambdaRoleDBTest.Arn
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          DB_TABLE_NAME: !Ref TableName
+      Handler: db-test.handler
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: !Ref ZipS3Key
+        S3ObjectVersion: !Ref ZipVersionId
+      MemorySize: 128
+      Timeout: 30
+  # END DB LAMBDA TEST RESOURCES

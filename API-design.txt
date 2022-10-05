@@ -1,0 +1,59 @@
+/user 
+	/signup  
+		[POST]  
+		(creates new user, sends user confirmation code email)  
+		{user-email, user-password } 
+        POSSIBLE ERRORS:
+            
+		IMPLEMENTED?
+			
+	/confirm-signup  
+		[POST]  
+		(allows user to enter code to confirm their signup)  
+		{user-confirmation} 
+	/login  
+		[POST]  
+		(logs a user in)  
+		 {user-email, user-password } 
+		=> user-id, id-token 
+	/logout  
+		<[POST]>  
+		(logs a user out)  
+		 {id-token } 
+	/  
+		<[POST]>  
+		(refreshes logged in user's session) 
+        {id-token, refresh-token} 
+		=> id-token 
+    /forgot-password  
+		<[POST]>  
+		(sends  'forgot password' email to logged in user) 
+		{id-token } 
+	/forgot-password 
+		<[PUT]> 
+		(resets logged in user's password) 
+		{id-token, user-password} 
+	/  
+		<[DELETE]>  
+		(deletes logged in user) 
+		{id-token } 
+/library 
+	/  
+		<[POST]>  
+		(creates a new image) 
+	/  
+		<[DELETE]>  
+		(delete an existing image) 
+	/  
+		<[PUT]>   
+		(update the name of an existing image) 
+	/  
+		<[GET]>  
+		(retrieves all existing images from S3)  
+		 {user-id } 
+		=> all existing images 
+	/search  
+		<[GET]>  
+		(retrieves JSON containing matching terms from DB) 
+		 {terms } 
+		=> results 

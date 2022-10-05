@@ -4,10 +4,11 @@
 
 stack_name = build-book-db
 cfn_file = build-book-db.yml
-lambda_file_name = index.js
+lambda_file_name-rekog = rekog.js
+lambda_file_name-db-test = db-test.js
 
 # Bucket must exist and have versioning enabled
-lambda_bucket = losalamosal-udemy-uploads
+lambda_bucket = losalamosal-udemy-uploads-3
 
 # https://stackoverflow.com/a/20714468/227441
 # https://stackoverflow.com/a/69710710/227441
@@ -27,7 +28,7 @@ deploy: lambda.zip
 		--parameter-overrides ZipVersionId=$$zip_version                          \
 		--capabilities CAPABILITY_NAMED_IAM
 
-lambda.zip: lambda/$(lambda_file_name)
-	@echo "Lambda modified. Zipping and uploading new version..."
+lambda.zip: lambda/$(lambda_file_name-rekog) lambda/$(lambda_file_name-db-test) lambda/node_modules
+	@echo "Lambda(s) modified. Zipping and uploading new version..."
 	@cd lambda; zip -r -q ../lambda.zip *
 	@aws s3 cp lambda.zip s3://$(lambda_bucket)

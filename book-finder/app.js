@@ -48,7 +48,7 @@ if (logoutNav != null) {
             } else {
                 // console.log(logoutReq.response); // response is the server response
                 localStorage.removeItem('book-finder-login-data');
-                window.location.href = "/book-finder/";
+                window.location.href = "/";
             }
         };
     });
