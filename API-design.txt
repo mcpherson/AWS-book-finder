@@ -20,7 +20,7 @@
 		<[POST]>  
 		(logs a user out)  
 		 {id-token } 
-	/  
+	/refresh  
 		<[POST]>  
 		(refreshes logged in user's session) 
         {id-token, refresh-token} 
@@ -33,7 +33,7 @@
 		<[PUT]> 
 		(resets logged in user's password) 
 		{id-token, user-password} 
-	/  
+	/delete  
 		<[DELETE]>  
 		(deletes logged in user) 
 		{id-token } 

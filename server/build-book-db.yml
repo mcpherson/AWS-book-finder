@@ -14,6 +14,7 @@ Parameters:
   ApiGatewayName:
     Type: String
     Default: bookfinder-api-gateway
+
   LambdaFunctionNameRekog:
     Type: String
     AllowedPattern: ^[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9]+$
@@ -46,31 +47,97 @@ Parameters:
 Resources:
   # Must create a new bucket. CFN can "import" existing resources but it's a pain.
   # You must use the console or the CLI.
-  
   # CDK seems to handle the problem of importing exting resources better.
-  # --------------------------------------------------- API GATEWAY
-  BookFinderGateway:
+
+  # ////////////////////////////////////////////////// COGNITO USER POOL 
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      UserPoolName: cognito-book-finder-user-pool
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: cognito-book-finder-client
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      UserPoolId: !Ref UserPool
+
+  # ////////////////////////////////////////////////// API GATEWAY 
+  BFAPI:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: !Ref ApiGatewayName
+  
+  # ! DEPENDENCY !
+  BFAPIDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - BFAPIUserSignupPOST
+      - BFAPIUserSignupOPTIONS
+      - BFAPIUserConfirmSignupPOST
+      - BFAPIUserConfirmSignupOPTIONS
+      - BFAPIUserLoginPOST
+      - BFAPIUserLoginOPTIONS
+      - BFAPIUserLogoutPOST
+      - BFAPIUserLogoutOPTIONS
+    Properties:
+      RestApiId: !Ref BFAPI
 
-  BookFinderUsersResource:
+  # Enable logging of all HTTP requests
+  BFAPIStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref BFAPIDeployment
+      #MethodSettings:
+      #  - HttpMethod: "*"
+      #    LoggingLevel: INFO
+      #    ResourcePath: /*
+      #    DataTraceEnabled: true
+      RestApiId: !Ref BFAPI
+      StageName: dev
+
+  # Cognito authorizer
+  BFAPIAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      IdentitySource: method.request.header.authorization
+      Name: CognitoAuthorizer
+      ProviderARNs:
+        - Fn::GetAtt:
+            - UserPool
+            - Arn
+      RestApiId: !Ref BFAPI
+      Type: COGNITO_USER_POOLS
+  # (thanks https://www.stephengream.com/http-gateway-with-cognito)
+
+  # ================================================== /user
+  BFAPIUserResource:
     Type: AWS::ApiGateway::Resource
     Properties:
-      ParentId: !GetAtt BookFinderGateway.RootResourceId
-      PathPart: "users"
-      RestApiId: !Ref BookFinderGateway
+      ParentId: !GetAtt BFAPI.RootResourceId
+      PathPart: "user"
+      RestApiId: !Ref BFAPI
 
-  BookFinderUsersSignupResource:
+  # ================================================== /user/signup
+  BFAPIUserSignupResource:
     Type: AWS::ApiGateway::Resource
     Properties:
-      ParentId: !Ref BookFinderUsersResource
+      ParentId: !Ref BFAPIUserResource
       PathPart: "signup"
-      RestApiId: !Ref BookFinderGateway
-
+      RestApiId: !Ref BFAPI
   # Don't understand why HttpMethod and IntegrationHttpMethod are specified?
   # Why not just one? What happens if they differ?
-  BookFinderUsersSignupPOST:
+
+  # ---------- POST (create new cognito user with user-provided email/password)
+  BFAPIUserSignupPOST:
     Type: AWS::ApiGateway::Method
     Properties:
       ApiKeyRequired: false
@@ -81,17 +148,73 @@ Resources:
         IntegrationHttpMethod: POST
         Uri: !Sub
           - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
-          - lambdaArn: !GetAtt BookFinderUsersSignupLambda.Arn
-      OperationName: "users/signup"
-      ResourceId: !Ref BookFinderUsersSignupResource
-      RestApiId: !Ref BookFinderGateway
+          - lambdaArn: !GetAtt BFAPIUserSignupLambda.Arn
+      OperationName: "user/signup"
+      ResourceId: !Ref BFAPIUserSignupResource
+      RestApiId: !Ref BFAPI
 
-  BookFinderUsersSignupOPTIONS:
+  # Lambda called by POST
+  BFAPIUserSignupLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: book-finder-user-signup
+      Role: !GetAtt BFAPIUserSignupLambdaRole.Arn
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+      Handler: signup.handler
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: !Ref ZipS3Key
+        S3ObjectVersion: !Ref ZipVersionId
+      MemorySize: 128
+      Timeout: 30
+
+  # Allow API Gateway to invoke this Lambda
+  BFAPILambdaInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt BFAPIUserSignupLambda.Arn
+      Principal: apigateway.amazonaws.com
+      # Specification of ARN allows only that endpoint to execute lambda? Check this out.
+      # note: if route *not* at API Gateway root, `SourceArn` would take the form of:
+      #               arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/${apiGatewayStageName}/${apiGatewayHTTPMethod}/PATH_PART
+      #SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${BFAPI}/${BFAPIStage}/${BFAPIUserSignupPOST}/
+
+  # IAM Role for this Lambda
+  BFAPIUserSignupLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      # So lambda can write logs
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+  # Log Group for this Lambda
+  BFAPIUserSignupLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPIUserSignupLambda]]
+      RetentionInDays: 3
+  # (Thanks https://ldoughty.com/2020/01/aws-http-api-gateway-cloudformation-setup/)
+
+  # ---------- OPTIONS (CORS)
+  BFAPIUserSignupOPTIONS:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
-      ResourceId: !Ref BookFinderUsersSignupResource
-      RestApiId: !Ref BookFinderGateway
+      ResourceId: !Ref BFAPIUserSignupResource
+      RestApiId: !Ref BFAPI
       HttpMethod: OPTIONS
       Integration:
         IntegrationResponses:
@@ -115,27 +238,59 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: false
             method.response.header.Access-Control-Allow-Origin: false
 
-  BookFinderDeployment:
-    Type: AWS::ApiGateway::Deployment
-    DependsOn:
-      - BookFinderUsersSignupPOST
+  # ================================================== /user/confirm-signup
+  BFAPIUserConfirmSignupResource:
+    Type: AWS::ApiGateway::Resource
     Properties:
-      RestApiId: !Ref BookFinderGateway
+      ParentId: !Ref BFAPIUserResource
+      PathPart: "confirm-signup"
+      RestApiId: !Ref BFAPI
 
-  # Enable logging of all HTTP requests
-  BookFinderStage:
-    Type: AWS::ApiGateway::Stage
+  # ---------- POST (email verification - user provides confirmation code (received via email) to cognito)
+  BFAPIUserConfirmSignupPOST:
+    Type: AWS::ApiGateway::Method
     Properties:
-      DeploymentId: !Ref BookFinderDeployment
-      #MethodSettings:
-      #  - HttpMethod: "*"
-      #    LoggingLevel: INFO
-      #    ResourcePath: /*
-      #    DataTraceEnabled: true
-      RestApiId: !Ref BookFinderGateway
-      StageName: dev
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt BFAPIUserConfirmSignupLambda.Arn
+      OperationName: "user/confirm-signup"
+      ResourceId: !Ref BFAPIUserConfirmSignupResource
+      RestApiId: !Ref BFAPI
 
-  BookFinderUsersSignupLambdaRole:
+  # Lambda called by POST
+  BFAPIUserConfirmSignupLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: book-finder-confirm-user-signup
+      Role: !GetAtt BFAPIUserConfirmSignupLambdaRole.Arn
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+      Handler: confirm-signup.handler
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: !Ref ZipS3Key
+        S3ObjectVersion: !Ref ZipVersionId
+      MemorySize: 128
+      Timeout: 30
+
+  # Allow API Gateway to invoke this Lambda
+  BFAPIUserConfirmSignupLambdaInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt BFAPIUserConfirmSignupLambda.Arn
+      Principal: apigateway.amazonaws.com
+
+  # IAM Role for this Lambda
+  BFAPIUserConfirmSignupLambdaRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -149,13 +304,81 @@ Resources:
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 
-  BookFinderUsersSignupLambda:
+  # Log Group for this Lambda
+  BFAPIUserConfirmSignupLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPIUserConfirmSignupLambda]]
+      RetentionInDays: 3
+
+  # ---------- OPTIONS (CORS)
+  BFAPIUserConfirmSignupOPTIONS:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      ResourceId: !Ref BFAPIUserConfirmSignupResource
+      RestApiId: !Ref BFAPI
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ""
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
+  # --------------------------------------------------- /user/login
+  BFAPIUserLoginResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref BFAPIUserResource
+      PathPart: "login"
+      RestApiId: !Ref BFAPI
+
+  # ---------- POST (allows user to "log in" to cognito by providing username/password - cognito returns tokens)
+  BFAPIUserLoginPOST:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt BFAPIUserLoginLambda.Arn
+      OperationName: "user/login"
+      ResourceId: !Ref BFAPIUserLoginResource
+      RestApiId: !Ref BFAPI
+
+  # Lambda called by POST
+  BFAPIUserLoginLambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: book-finder-users-signup
-      Role: !GetAtt BookFinderUsersSignupLambdaRole.Arn
+      FunctionName: book-finder-login
+      Role: !GetAtt BFAPIUserLoginLambdaRole.Arn
       Runtime: nodejs16.x
-      Handler: apigw.handler
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+      Handler: login.handler
       Code:
         S3Bucket: !Ref ZipBucketName
         S3Key: !Ref ZipS3Key
@@ -163,28 +386,185 @@ Resources:
       MemorySize: 128
       Timeout: 30
 
-  # Thanks https://ldoughty.com/2020/01/aws-http-api-gateway-cloudformation-setup/
-  BookFinderUserSignupLambdaLogGroup:
+  # Allow API Gateway to invoke this Lambda
+  BFAPIUserLoginLambdaInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt BFAPIUserLoginLambda.Arn
+      Principal: apigateway.amazonaws.com
+     
+  # IAM Role for this Lambda
+  BFAPIUserLoginLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      # So lambda can write logs
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+  # Log Group for this Lambda
+  BFAPIUserLoginLambdaLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      LogGroupName: !Join [/, ["/aws/lambda", !Ref BookFinderUsersSignupLambda]]
+      LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPIUserLoginLambda]]
       RetentionInDays: 3
 
-  BookFinderGatewayInvoke:
+  # ---------- OPTIONS (CORS)
+  BFAPIUserLoginOPTIONS:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      ResourceId: !Ref BFAPIUserLoginResource
+      RestApiId: !Ref BFAPI
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ""
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
+  # --------------------------------------------------- /user/logout
+  BFAPIUserLogoutResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref BFAPIUserResource
+      PathPart: "logout"
+      RestApiId: !Ref BFAPI
+
+  # ---------- POST ("logs out" authenticated user from cognito user pool (i.e. revokes their tokens))
+  BFAPIUserLogoutPOST:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref BFAPIAuthorizer
+      HttpMethod: POST
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt BFAPIUserLogoutLambda.Arn
+      OperationName: "user/logout"
+      ResourceId: !Ref BFAPIUserLogoutResource
+      RestApiId: !Ref BFAPI
+
+  # Lambda called by POST
+  BFAPIUserLogoutLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: book-finder-logout
+      Role: !GetAtt BFAPIUserLogoutLambdaRole.Arn
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+      Handler: logout.handler
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: !Ref ZipS3Key
+        S3ObjectVersion: !Ref ZipVersionId
+      MemorySize: 128
+      Timeout: 30
+
+  # Allow API Gateway to invoke this Lambda
+  BFAPIUserLogoutLambdaInvoke:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !GetAtt BookFinderUsersSignupLambda.Arn
+      FunctionName: !GetAtt BFAPIUserLogoutLambda.Arn
       Principal: apigateway.amazonaws.com
-      # Specification of ARN allows only that endpoint to execute lambda? Check this out.
-      # note: if route *not* at API Gateway root, `SourceArn` would take the form of:
-      #               arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/${apiGatewayStageName}/${apiGatewayHTTPMethod}/PATH_PART
-      #SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${BookFinderGateway}/${BookFinderStage}/${BookFinderUsersSignupPOST}/
+
+  # IAM Role for this Lambda
+  BFAPIUserLogoutLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      # So lambda can write logs
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+  # Log Group for this Lambda
+  BFAPIUserLogoutLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPIUserLogoutLambda]]
+      RetentionInDays: 3
+
+  # ---------- OPTIONS (CORS)
+  BFAPIUserLogoutOPTIONS:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      ResourceId: !Ref BFAPIUserLogoutResource
+      RestApiId: !Ref BFAPI
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ""
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
+  # --------------------------------------------------- /user/forgot-password
+
+  # --------------------------------------------------- /user/refresh
+
+  # --------------------------------------------------- /user/delete
+
+
+  
 
 # ---------------------------------------------------- DYNAMODB
-  BookFinderTable:
+  BFTable:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
@@ -321,7 +701,7 @@ Resources:
                   - dynamodb:PutItem
                   - dynamodb:GetItem
                 Resource:
-                  - !GetAtt BookFinderTable.Arn
+                  - !GetAtt BFTable.Arn
   # The following Resource specification didn't work even though it looks valid
   # in the error logs. A wildcard Resource ("*") worked OK. Had to use the !GetAttr
   # version above to get this policy to work???
@@ -356,3 +736,10 @@ Resources:
       MemorySize: 128
       Timeout: 30
   # END DB LAMBDA TEST RESOURCES
+
+Outputs:
+  UserPoolId:
+    Value: !Ref UserPool
+
+  UserPoolClientId:
+    Value: !Ref UserPoolClient

@@ -7,6 +7,10 @@ cfn_file = build-book-db.yml
 lambda_file_name-rekog = rekog.js
 apigw_lambda = apigw.js
 lambda_file_name-db-test = db-test.js
+lambda_file_name-signup = signup.js
+lambda_file_name-confirm-signup = confirm-signup.js
+lambda_file_name-login = login.js
+lambda_file_name-logout = logout.js
 
 # Bucket must exist and have versioning enabled
 lambda_bucket = losalamosal-udemy-uploads-3
@@ -38,7 +42,7 @@ deploy: lambda.zip
 # Need to use zip like this to avoid leaving deleted file in the ZIP archive
 # https://superuser.com/a/351020
 # zip -FSr -q ../lambda.zip $(rekog_lambda) $(apigw_lambda) node_modules
-lambda.zip: lambda/$(rekog_lambda) lambda/$(apigw_lambda)
+lambda.zip: lambda/$(rekog_lambda) lambda/$(apigw_lambda) lambda/$(lambda_file_name-signup) lambda/$(lambda_file_name-confirm-signup) lambda/$(lambda_file_name-login) lambda/$(lambda_file_name-logout)
 	@echo "Lambda modified. Zipping and uploading new version..."
-	@cd lambda; zip -FS -r -q ../lambda.zip $(rekog_lambda) $(apigw_lambda) node_modules
+	@cd lambda; zip -FS -r -q ../lambda.zip $(rekog_lambda) $(apigw_lambda) $(lambda_file_name-signup) $(lambda_file_name-confirm-signup) $(lambda_file_name-login) $(lambda_file_name-logout) node_modules
 	@aws s3 cp lambda.zip s3://$(lambda_bucket)
