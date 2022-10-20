@@ -1,5 +1,7 @@
 /* PREVENT FLASH OF UNSTYLED CONTENT */
 #fouc {
+    /* TEMPORARILY DISABLED */
+    display: none !important;
     position: absolute;
     top: 0;
     width: 100%;
