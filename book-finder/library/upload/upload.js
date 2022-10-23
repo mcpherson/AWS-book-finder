@@ -364,7 +364,7 @@ uploadButton.addEventListener('click', () => {
 
     urlReq.send(JSON.stringify(urlData));
     urlReq.onload = function() {
-        returnedURL = urlReq.response.body;
+        returnedURL = urlReq.response;
         console.log(urlReq.response);
         const bigReq = new XMLHttpRequest();
     
