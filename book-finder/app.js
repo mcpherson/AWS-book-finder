@@ -35,7 +35,7 @@ if (logoutNav != null) {
             accessToken : JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.AccessToken
         }
         const logoutReq = new XMLHttpRequest();
-        logoutReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/logout");
+        logoutReq.open("POST", `https://${apiEndpointID}.execute-api.us-west-2.amazonaws.com/dev/logout`);
         logoutReq.send(JSON.stringify(logoutData));
     
         logoutReq.onload = function() {

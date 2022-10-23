@@ -22,7 +22,7 @@ loginButton.addEventListener('click', (event) => {
     };
 
     const loginReq = new XMLHttpRequest();
-    loginReq.open("POST", "https://md4kiwaaya.execute-api.us-east-1.amazonaws.com/dev/user/login");
+    loginReq.open("POST", `https://${apiEndpointID}.execute-api.us-east-1.amazonaws.com/dev/user/login`);
     loginReq.send(JSON.stringify(loginData));
 
     loginReq.onload = function() {
