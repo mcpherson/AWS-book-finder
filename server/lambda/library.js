@@ -8,8 +8,8 @@ exports.handler = async (event) => {
     };
     const client = new S3Client(config);
     
-    // GET OBJECT KEYS FOR ALL OBJECTS IN BUCKET
-    const listObjects = new ListObjectsCommand({Bucket : `book-finder-${event.UserSub}`});
+    // GET OBJECT KEYS FOR ALL OBJECTS IN BUCKET 
+    const listObjects = new ListObjectsCommand({Bucket : `book-finder-uploads`, Prefix : `${event.UserSub}`});
     const bucketContents = await client.send(listObjects);
     console.log(bucketContents);
     console.log(event);

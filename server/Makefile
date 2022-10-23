@@ -12,7 +12,7 @@ lambda_file_name-confirm-signup = confirm-signup.js
 lambda_file_name-login = login.js
 lambda_file_name-logout = logout.js
 lambda_file_name-library = library.js
-lambda_file_name-library = library-upload.js
+lambda_file_name-library-upload = library-upload.js
 
 # Bucket must exist and have versioning enabled
 lambda_bucket = losalamosal-udemy-uploads-3
