@@ -357,13 +357,15 @@ uploadButton.addEventListener('click', () => {
 
     const urlReq = new XMLHttpRequest();
 
-    urlReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/get-s3-signed-url");
+    urlReq.open("POST", "https://md4kiwaaya.execute-api.us-east-1.amazonaws.com/dev/library/upload");
     urlReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
+
+    console.log(urlData);
 
     urlReq.send(JSON.stringify(urlData));
     urlReq.onload = function() {
-        returnedURL = JSON.parse(urlReq.response);
-        console.log(JSON.parse(urlReq.response));
+        returnedURL = urlReq.response.body;
+        console.log(urlReq.response);
         const bigReq = new XMLHttpRequest();
     
         bigReq.open("PUT", `${returnedURL}`);

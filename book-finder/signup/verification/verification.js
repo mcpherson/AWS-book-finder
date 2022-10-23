@@ -20,7 +20,7 @@ confirmButton.addEventListener('click', (event) => {
     };
 
     const confirmationReq = new XMLHttpRequest();
-    confirmationReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/signup/confirmation");
+    confirmationReq.open("POST", "https://md4kiwaaya.execute-api.us-east-1.amazonaws.com/dev/user/confirm-signup");
     confirmationReq.send(JSON.stringify(confirmationData));
 
     confirmationReq.onload = function() {

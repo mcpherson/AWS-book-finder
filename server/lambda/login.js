@@ -25,7 +25,13 @@ exports.handler = async (event) => {
       const userData = await client.send(getUser);
       res.UserSub = userData.Username;
       console.log('Login success. Result: ', res);
-      return(res);
+      let ret = {
+        isBase64Encoded: false,
+        statusCode: 200,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify(res)
+      };
+      return(ret);
     } catch (e) {
       console.log('Login fail. Error: ', e);
     }

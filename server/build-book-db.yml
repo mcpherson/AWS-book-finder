@@ -29,9 +29,13 @@ Parameters:
     Type: String
     Default: bookfinder-table-1
 
-  ImageBucketName:
+  UploadBucketName:
     Type: String
-    Default: losalamosal-udemy-images-2
+    Default: book-finder-uploads
+
+  ResultsBucketName:
+    Type: String
+    Default: book-finder-results
 
   ZipBucketName:
     Type: String
@@ -88,6 +92,10 @@ Resources:
       - BFAPIUserLoginOPTIONS
       - BFAPIUserLogoutPOST
       - BFAPIUserLogoutOPTIONS
+      - BFAPILibraryGET
+      - BFAPILibraryOPTIONS
+      - BFAPILibraryUploadPOST
+      - BFAPILibraryUploadOPTIONS
     Properties:
       RestApiId: !Ref BFAPI
 
@@ -96,13 +104,34 @@ Resources:
     Type: AWS::ApiGateway::Stage
     Properties:
       DeploymentId: !Ref BFAPIDeployment
-      #MethodSettings:
-      #  - HttpMethod: "*"
-      #    LoggingLevel: INFO
-      #    ResourcePath: /*
-      #    DataTraceEnabled: true
+      MethodSettings:
+       - HttpMethod: "*"
+         LoggingLevel: INFO
+         ResourcePath: /*
+         DataTraceEnabled: true
       RestApiId: !Ref BFAPI
       StageName: dev
+
+  # https://gist.github.com/villasv/4f5b62a772abe2c06525356f80299048
+  BookFinderGatewayAccountConfig:
+    Type: "AWS::ApiGateway::Account"
+    Properties:
+      CloudWatchRoleArn: !GetAtt "BookFinderGatewayLoggingRole.Arn"
+
+  BookFinderGatewayLoggingRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 
   # Cognito authorizer
   BFAPIAuthorizer:
@@ -560,6 +589,219 @@ Resources:
 
   # --------------------------------------------------- /user/delete
 
+  # --------------------------------------------------- /library
+  BFAPILibraryResource:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId: !GetAtt BFAPI.RootResourceId
+        PathPart: "library"
+        RestApiId: !Ref BFAPI
+
+  # ---------- GET (retrieves an authenticated user's uploaded images from S3 for display on the Library page)
+  BFAPILibraryGET:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref BFAPIAuthorizer
+      HttpMethod: GET
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: GET
+        Uri: !Sub
+          - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt BFAPILibraryLambda.Arn
+      OperationName: "library"
+      ResourceId: !Ref BFAPILibraryResource
+      RestApiId: !Ref BFAPI
+
+  # Lambda called by GET
+  BFAPILibraryLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: book-finder-library
+      Role: !GetAtt BFAPILibraryLambdaRole.Arn
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+      Handler: library.handler
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: !Ref ZipS3Key
+        S3ObjectVersion: !Ref ZipVersionId
+      MemorySize: 128
+      Timeout: 30
+
+  # Allow API Gateway to invoke this Lambda
+  BFAPILibraryLambdaInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt BFAPILibraryLambda.Arn
+      Principal: apigateway.amazonaws.com
+
+  # IAM Role for this Lambda
+  BFAPILibraryLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+
+  # Log Group for this Lambda
+  BFAPILibraryLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPILibraryLambda]]
+      RetentionInDays: 3
+
+  # ---------- OPTIONS (CORS)
+  BFAPILibraryOPTIONS:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      ResourceId: !Ref BFAPILibraryResource
+      RestApiId: !Ref BFAPI
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ""
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
+  # --------------------------------------------------- /library/upload
+  BFAPILibraryUploadResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref BFAPILibraryResource
+      PathPart: "upload"
+      RestApiId: !Ref BFAPI
+
+  # ---------- POST (generates a presigned S3 URL that allows an authenticated user to upload a single image to the S3 bucket)
+  BFAPILibraryUploadPOST:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref BFAPIAuthorizer
+      HttpMethod: POST
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt BFAPILibraryUploadLambda.Arn
+      OperationName: "library/upload"
+      ResourceId: !Ref BFAPILibraryUploadResource
+      RestApiId: !Ref BFAPI
+
+  # Lambda called by POST
+  BFAPILibraryUploadLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: book-finder-library-upload
+      Role: !GetAtt BFAPILibraryUploadLambdaRole.Arn
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+      Handler: library-upload.handler
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: !Ref ZipS3Key
+        S3ObjectVersion: !Ref ZipVersionId
+      MemorySize: 128
+      Timeout: 30
+
+  # Allow API Gateway to invoke this Lambda
+  BFAPILibraryUploadLambdaInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt BFAPILibraryUploadLambda.Arn
+      Principal: apigateway.amazonaws.com
+
+  # IAM Role for this Lambda
+  BFAPILibraryUploadLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+
+  # Log Group for this Lambda
+  BFAPILibraryUploadLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPILibraryUploadLambda]]
+      RetentionInDays: 3
+
+  # ---------- OPTIONS (CORS)
+  BFAPILibraryUploadOPTIONS:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      ResourceId: !Ref BFAPILibraryUploadResource
+      RestApiId: !Ref BFAPI
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ""
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
+  # --------------------------------------------------- /library/search
 
   
 
@@ -590,7 +832,7 @@ Resources:
       - S3TriggerLambdaPermission
     DeletionPolicy: Delete
     Properties:
-      BucketName: !Ref ImageBucketName
+      BucketName: !Ref UploadBucketName
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:*
@@ -603,13 +845,20 @@ Resources:
                   - Name: suffix
                     Value: .png
 
+  S3ResultsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Ref ResultsBucketName
+
   S3TriggerLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: "lambda:InvokeFunction"
       FunctionName: !Ref S3TriggerLambda
       Principal: s3.amazonaws.com
-      SourceArn: !Sub "arn:${AWS::Partition}:s3:::${ImageBucketName}"
+      SourceArn: !Sub "arn:${AWS::Partition}:s3:::${UploadBucketName}"
       SourceAccount: !Ref AWS::AccountId
 
   S3TriggerLambdaRole:
@@ -635,7 +884,7 @@ Resources:
                   - s3:PutObject
                   - s3:GetObject
                   - s3:DeleteObject
-                Resource: !Sub "arn:${AWS::Partition}:s3:::${ImageBucketName}/*"
+                Resource: !Sub "arn:${AWS::Partition}:s3:::${UploadBucketName}/*"
         - PolicyName: detectTextRek
           PolicyDocument:
             Version: "2012-10-17"

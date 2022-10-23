@@ -107,7 +107,7 @@ async function createUser(userData) {
     // });
 
     const signupReq = new XMLHttpRequest();
-    signupReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/signup");
+    signupReq.open("POST", "https://md4kiwaaya.execute-api.us-east-1.amazonaws.com/dev/user/signup");
     signupReq.send(JSON.stringify(userData));
 
     signupReq.onload = function() {

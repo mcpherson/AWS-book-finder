@@ -22,7 +22,7 @@ loginButton.addEventListener('click', (event) => {
     };
 
     const loginReq = new XMLHttpRequest();
-    loginReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/login");
+    loginReq.open("POST", "https://md4kiwaaya.execute-api.us-east-1.amazonaws.com/dev/user/login");
     loginReq.send(JSON.stringify(loginData));
 
     loginReq.onload = function() {
@@ -35,7 +35,7 @@ loginButton.addEventListener('click', (event) => {
             alertMessage.innerText = "Invalid login information. Please check your email address and re-type your password and try again. Make sure that your account has been verified. Reset password if necessary.";
             throw new Error("Login failed. Enter correct information or see console for details. Reset password if necessary.");
         } else {
-            // console.log(loginReq.response); // response is the server response
+            console.log(loginReq.response); // response is the server response
             localStorage.setItem('book-finder-login-data', loginReq.response);
             window.location.href = "../library/";
         }

@@ -4,6 +4,7 @@
     "@aws-sdk/client-dynamodb": "^3.180.0",
     "@aws-sdk/client-rekognition": "^3.131.0",
     "@aws-sdk/client-s3": "^3.131.0",
-    "@aws-sdk/client-sso": "^3.188.0"
+    "@aws-sdk/client-sso": "^3.188.0",
+    "@aws-sdk/s3-request-presigner": "^3.194.0"
   }
 }
