@@ -68,6 +68,13 @@ Resources:
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
+      AccessTokenValidity: 1
+      IdTokenValidity: 1
+      RefreshTokenValidity: 365
+      TokenValidityUnits: 
+        AccessToken: days
+        IdToken: days
+        RefreshToken: days
       ClientName: cognito-book-finder-client
       ExplicitAuthFlows:
         - ALLOW_USER_PASSWORD_AUTH
