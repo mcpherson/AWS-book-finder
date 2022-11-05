@@ -7,16 +7,35 @@ exports.handler = async (event) => {
         region : "us-east-1"
     };
     const client = new S3Client(config);
-    
+
     // GET OBJECT KEYS FOR ALL OBJECTS IN BUCKET 
-    const listObjects = new ListObjectsCommand({Bucket : `book-finder-uploads`, Prefix : `${event.UserSub}`});
-    const bucketContents = await client.send(listObjects);
-    console.log(bucketContents);
-    console.log(event);
-    let objKeys = [];
-    bucketContents.Contents.forEach((i) => {
-        objKeys.push(i.Key);
-    });
-    bucketContents.imageNames = objKeys;
-    return(bucketContents.imageNames);
+    const params = {
+        Bucket : `book-finder-uploads`,
+        Prefix : `${event.queryStringParameters.usersub}`
+    }
+
+    const listObjects = new ListObjectsCommand(params);
+    
+    try {
+        const bucketContents = await client.send(listObjects);
+
+        let objURLs = [];
+        bucketContents.Contents.forEach((i) => {
+            objURLs.push(`https://book-finder-uploads.s3.amazonaws.com/${i.Key}`);
+        });
+        bucketContents.imageNames = objURLs;
+
+        let ret = {
+            isBase64Encoded: false,
+            statusCode: 200,
+            headers: { "Access-Control-Allow-Origin": "*" },
+            body: JSON.stringify(bucketContents)
+        };
+        console.log(ret);
+        return(ret);
+        
+    } catch (e) {
+        console.log('Error: ', e);
+    }
+    
 };

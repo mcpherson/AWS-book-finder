@@ -54,7 +54,7 @@ const getImageURLs = function(event) {
     const reqData = {UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub}
     // TODO HANDLE ERROR IF NOT LOGGED IN
     const keysReq = new XMLHttpRequest();
-    keysReq.open("GET", `https://${apiEndpointID}.execute-api.us-east-1.amazonaws.com/dev/library`);
+    keysReq.open("GET", `https://${apiEndpointID}.execute-api.us-east-1.amazonaws.com/dev/library/${reqData.UserSub}`);
     keysReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
     keysReq.send(JSON.stringify(reqData));
     keysReq.onload = function() {
@@ -139,7 +139,7 @@ const deleteImage = function(selectedImageNumber) {
     // SEND DELETE REQUEST TO API GATEWAY
     const deleteReq = new XMLHttpRequest();
 
-    deleteReq.open("POST", "https://4y5tf8v53d.execute-api.us-west-2.amazonaws.com/dev/delete-object");
+    deleteReq.open("DELETE", `https://${apiEndpointID}.execute-api.us-west-2.amazonaws.com/dev/delete-object/${JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub}`);
     deleteReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
 
     deleteReq.send(JSON.stringify(deleteData));

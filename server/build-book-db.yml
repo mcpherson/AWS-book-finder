@@ -608,10 +608,14 @@ Resources:
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
+        RequestParameters:
+          integration.request.path.usersub : method.request.path.usersub
         Uri: !Sub
           - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
           - lambdaArn: !GetAtt BFAPILibraryLambda.Arn
       OperationName: "library"
+      RequestParameters:
+        method.request.path.usersub : true
       ResourceId: !Ref BFAPILibraryResource
       RestApiId: !Ref BFAPI
 
