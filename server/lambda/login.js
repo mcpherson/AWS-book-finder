@@ -27,13 +27,20 @@ exports.handler = async (event) => {
       console.log('Login success. Result: ', res);
       let ret = {
         isBase64Encoded: false,
-        statusCode: 200,
+        statusCode: res.$metadata.httpStatusCode,
         headers: { "Access-Control-Allow-Origin": "*" },
         body: JSON.stringify(res)
       };
       return(ret);
     } catch (e) {
       console.log('Login fail. Error: ', e);
+      let error = {
+        isBase64Encoded: false,
+        statusCode: e.$metadata.httpStatusCode,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify(e)
+      };
+      return(error);
     }
 
 };

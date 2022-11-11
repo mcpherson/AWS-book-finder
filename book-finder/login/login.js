@@ -11,6 +11,9 @@ const spinner = document.querySelector('.spinner');
 loginButton.addEventListener('click', (event) => {
     event.preventDefault();
 
+    // clear old login data
+    localStorage.removeItem('book-finder-login-data');
+
     formArea.style.visibility = "hidden";
     spinner.style.display = "block";
     spinner.style.left = `${(0.5*window.innerWidth)-100}px`;
@@ -21,31 +24,28 @@ loginButton.addEventListener('click', (event) => {
         password: passwordField.value
     };
 
-    // const loginReq = new XMLHttpRequest();
-    // loginReq.open("POST", `https://${apiEndpointID}.execute-api.us-east-1.amazonaws.com/dev/user/login`);
-    // loginReq.send(JSON.stringify(loginData));
-
     cognitoLogin(apiEndpoints.API_USER_LOGIN, loginData)
     .then((data) => {
-        console.log(data);
-
+        if(data.$metadata.httpStatusCode !== 200) {
+            console.log(data);
+            formArea.style.visibility = "visible";
+            spinner.style.display = "none";
+            alertArea.style.display = "block";
+            alertArea.style.backgroundColor = "lightcoral";
+            alertMessage.innerHTML = 'Login error. Check your email address/password and try again. Accounts must be <a href="../signup/verification">verified</a> after signup using the code sent to the email address you provided. Reset password if necessary.';
+        } else {
+            localStorage.setItem('book-finder-login-data', JSON.stringify(data));
+            window.location.href = "../library/";
+        }
+    })
+    .catch((error) => {
+        console.log(error);
+        formArea.style.visibility = "visible";
+        spinner.style.display = "none";
+        alertArea.style.display = "block";
+        alertArea.style.backgroundColor = "lightcoral";
+        alertMessage.innerHTML = 'Login error. Check your email address/password and try again. Accounts must be <a href="../signup/verification">verified</a> after signup using the code sent to the email address you provided. Reset password if necessary.';
     });
-
-    // loginReq.onload = function() {
-    //     if (loginReq.status != 200 || JSON.parse(loginReq.response).hasOwnProperty('__type')) { // analyze HTTP status of the response
-    //         formArea.style.visibility = "visible";
-    //         spinner.style.display = "none";
-    //         console.log(`Error ${loginReq.status}: ${loginReq.statusText} - AWS Error: ${loginReq.response}`);
-    //         alertArea.style.display = "block";
-    //         alertArea.style.backgroundColor = "lightcoral";
-    //         alertMessage.innerText = "Invalid login information. Please check your email address and re-type your password and try again. Make sure that your account has been verified. Reset password if necessary.";
-    //         throw new Error("Login failed. Enter correct information or see console for details. Reset password if necessary.");
-    //     } else {
-    //         console.log(loginReq.response); // response is the server response
-    //         localStorage.setItem('book-finder-login-data', loginReq.response);
-    //         window.location.href = "../library/";
-    //     }
-    // };
 });
 
 // fetch (POST) for Cognito login
@@ -66,9 +66,3 @@ async function cognitoLogin(url = '', data = {}) {
 
     return response.json();
 };
-
-// call fetch (POST) for Cognito login
-cognitoLogin(apiEndpoints.API_USER_LOGIN, loginData)
-    .then((data) => {
-        console.log(data);
-    });
