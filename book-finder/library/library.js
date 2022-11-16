@@ -28,12 +28,28 @@ window.onload = () => {
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
     
     // ONLY CALL S3 IF NECESSARY
-    if (!localStorage.getItem('imageURLs') || JSON.parse(localStorage.getItem('numUploads')) != JSON.parse(localStorage.getItem('imageURLs')).length) {
-        getImageURLs();
+    if (localStorage.getItem('hasUploaded') || !localStorage.getItem('book-finder-urls')) {
+        getS3URLs(`${apiEndpoints.API_LIBRARY}/?usersub=${JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub}`)
+        .then((data) => {
+            if(data.$metadata.httpStatusCode !== 200) {
+                // TODO error handling
+                console.log(data);
+            } else {
+                localStorage.setItem('book-finder-urls', JSON.stringify(data.imageNames));
+                localStorage.removeItem('hasUploaded'); // reset upload tracking (prevents unnecessary API calls)
+                displayImages();
+            }
+        })
+        .catch((error) => {
+            // TODO error handling
+            console.log(error);
+        });
+    } else {
+        // BYPASS S3 - DISPLAY EACH IMAGE AND KEY WITH LOCALSTORAGE DATA
+        displayImages(); 
     }
     
-    // DISPLAY EACH IMAGE AND KEY
-    displayImages(); 
+    
 }
 
 const resizeElements = function () {
@@ -62,28 +78,46 @@ const getImageURLs = function(event) {
             loadingSpinner.style.display = "none";
             alertArea.style.display = "block";
             alertArea.style.backgroundColor = "lightcoral";
-            alertMessage.innerHTML = 'No images found. <a href="/book-finder/dashboard/upload/">Upload some images</a> and they will appear here.';
+            alertMessage.innerHTML = 'No images found. <a href="./upload/">Upload some images</a> and they will appear here.';
         } else if (keysReq.status != 200 || JSON.parse(keysReq.response).hasOwnProperty('errorType')) { // error received
             // TODO error handling - invalid usersub, invalid img data, other AWS errors
             loadingSpinner.style.display = "none";
             throw new Error("Image request failed.");
         } else { // create and store URLs
             loadingSpinner.style.display = "none";
-            let objKeys = JSON.parse(keysReq.response);
-            localStorage.setItem('numUploads', JSON.stringify(objKeys.length)); // store number of uploaded images for comparison on pageload
+            
+            localStorage.removeItem('hasUploaded'); // reset upload tracking (prevents unnecessary API calls)
             let storedURLs = [];
-            objKeys.forEach((i, index) => {
-                let urlObj = {
-                    "Key" : JSON.parse(keysReq.response)[index],
-                    "imageURL" : `https://book-finder-uploads.s3.amazonaws.com/${JSON.parse(keysReq.response)[index]}`
-                };
-                storedURLs.push(urlObj);
-            });
+            
             localStorage.setItem('imageURLs', JSON.stringify(storedURLs));
         };
     };
+
+    
+
+
     // DISPLAY EACH IMAGE AND KEY
     displayImages(); 
+};
+
+// fetch (GET) to retrieve S3 URLs
+async function getS3URLs(url = '') {
+
+    const response = await fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'omit',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: null
+    });
+
+    return response.json();
 };
         
 // DISPLAY IMAGES ON PAGE
@@ -91,19 +125,19 @@ const displayImages = function() {
     // CLEAR EXISTING IMAGES
     libraryContainer.innerHTML = "";
 
-    JSON.parse(localStorage.getItem('imageURLs')).forEach((i, index) => {
+    JSON.parse(localStorage.getItem('book-finder-urls')).forEach((i, index) => {
         let newItem = document.createElement('div');
         newItem.classList.add('library-item');
         newItem.setAttribute('id', `library-item-${index}`)
         newItem.innerHTML = `
         <div class="library-image">
-        <img src="${i.imageURL}" alt="${i.Key}">
+        <img src="${i}" alt="${i}">
         </div>
         <div class="delete-area">
         <button id="delete-image-${index}" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
         </div>
         <div class="library-item-label-area">
-        <p class="library-item-label">${i.Key.slice(0, -4)}</p>
+        <p class="library-item-label">${i.split('/').pop().split('#')[0].split('?')[0]}</p>
         </div>
         <div class="details-area">
         <button id="image-details-${index}" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>

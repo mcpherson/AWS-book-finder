@@ -353,32 +353,24 @@ uploadButton.addEventListener('click', () => {
 
     const imageData = dataURItoBlob(finalImage);
 
-    
+    getSignedURL(apiEndpoints.API_LIBRARY_UPLOAD, urlData)
+    // .then((response) => response.text())
+    .then((text) => {
+        console.log(text);
+        useSignedURL(text, imageData)
+        .then((res) => {
+            console.log(res);
+            localStorage.setItem('hasUploaded', true); // set upload tracking (prevents unnecessary API calls on Library page)
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    })
+    .catch((error) => {
+        console.log(error);
+    });
 
-    const urlReq = new XMLHttpRequest();
 
-    urlReq.open("POST", `https://${apiEndpointID}.execute-api.us-east-1.amazonaws.com/dev/library/upload`);
-    urlReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
-
-    console.log(urlData);
-
-    urlReq.send(JSON.stringify(urlData));
-    urlReq.onload = function() {
-        returnedURL = urlReq.response;
-        console.log(urlReq.response);
-        const bigReq = new XMLHttpRequest();
-    
-        bigReq.open("PUT", `${returnedURL}`);
-        // bigReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken);
-        // bigReq.setRequestHeader('x-amz-acl', 'public-read');
-        bigReq.setRequestHeader('Content-Type', 'image/png');
-        bigReq.setRequestHeader('Content-Encoding', 'base64');
-
-        bigReq.send(imageData);
-        bigReq.onload = function() {
-        console.log(bigReq.response);
-        };
-    };
 
 function dataURItoBlob(dataURI) {
     var binary = atob(dataURI.split(',')[1]);
@@ -393,6 +385,39 @@ function dataURItoBlob(dataURI) {
 });
 
 
+// fetch (POST) for S3 signed URL
+async function getSignedURL(url = '', data = {}) {
 
+    const response = await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'omit',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(data)
+    });
+    return response.text();
+};
 
+async function useSignedURL(url = '', image = {}) {
 
+    const response = await fetch(url, {
+        method: 'PUT',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'omit',
+        headers: {
+            'Content-Type': 'image/png',
+            'Content-Encoding': 'base64'
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: image
+    });
+    return response;
+};

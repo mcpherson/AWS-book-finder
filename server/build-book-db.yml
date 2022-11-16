@@ -844,17 +844,29 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       BucketName: !Ref UploadBucketName
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Event: s3:ObjectCreated:*
-            Function: !GetAtt S3TriggerLambda.Arn
-            Filter:
-              S3Key:
-                Rules:
-                  - Name: prefix
-                    Value: originals/
-                  - Name: suffix
-                    Value: .png
+      AccessControl: PublicRead
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            AllowedOrigins:
+              - '*'
+      # NotificationConfiguration:
+      #   LambdaConfigurations:
+      #     - Event: s3:ObjectCreated:*
+      #       Function: !GetAtt S3TriggerLambda.Arn
+      #       Filter:
+      #         S3Key:
+      #           Rules:
+      #             - Name: prefix
+      #               Value: originals/
+      #             - Name: suffix
+      #               Value: .png
 
   S3ResultsBucket:
     Type: AWS::S3::Bucket

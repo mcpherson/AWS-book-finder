@@ -4,15 +4,16 @@
 
 stack_name = build-book-db
 cfn_file = build-book-db.yml
-lambda_file_name-rekog = rekog.js
-apigw_lambda = apigw.js
-lambda_file_name-db-test = db-test.js
-lambda_file_name-signup = signup.js
-lambda_file_name-confirm-signup = confirm-signup.js
-lambda_file_name-login = login.js
-lambda_file_name-logout = logout.js
-lambda_file_name-library = library.js
-lambda_file_name-library-upload = library-upload.js
+λ_rekog = rekog.js
+λ_apigw = apigw.js
+λ_db_test = db-test.js
+λ_signup = signup.js
+λ_confirm_signup = confirm-signup.js
+λ_login = login.js
+λ_logout = logout.js
+λ_library = library.js
+λ_library_upload = library-upload.js
+λ_dependencies = 
 
 # Bucket must exist and have versioning enabled
 lambda_bucket = losalamosal-udemy-uploads-3
@@ -44,7 +45,7 @@ deploy: lambda.zip
 # Need to use zip like this to avoid leaving deleted file in the ZIP archive
 # https://superuser.com/a/351020
 # zip -FSr -q ../lambda.zip $(rekog_lambda) $(apigw_lambda) node_modules
-lambda.zip: lambda/$(rekog_lambda) lambda/$(apigw_lambda) lambda/$(lambda_file_name-signup) lambda/$(lambda_file_name-confirm-signup) lambda/$(lambda_file_name-login) lambda/$(lambda_file_name-logout) lambda/$(lambda_file_name-library) lambda/$(lambda_file_name-library-upload)
+lambda.zip: lambda/$(λ_rekog) lambda/$(λ_apigw) lambda/$(λ_signup) lambda/$(λ_confirm_signup) lambda/$(λ_login) lambda/$(λ_logout) lambda/$(λ_library) lambda/$(λ_library_upload)
 	@echo "Lambda modified. Zipping and uploading new version..."
-	@cd lambda; zip -FS -r -q ../lambda.zip $(rekog_lambda) $(apigw_lambda) $(lambda_file_name-signup) $(lambda_file_name-confirm-signup) $(lambda_file_name-login) $(lambda_file_name-logout) $(lambda_file_name-library) $(lambda_file_name-library-upload) node_modules
+	@cd lambda; zip -FS -r -q ../lambda.zip $(λ_rekog) $(λ_apigw) $(λ_signup) $(λ_confirm_signup) $(λ_login) $(λ_logout) $(λ_library) $(λ_library_upload) node_modules
 	@aws s3 cp lambda.zip s3://$(lambda_bucket)
