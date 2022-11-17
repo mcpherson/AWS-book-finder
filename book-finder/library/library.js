@@ -145,7 +145,7 @@ const displayImages = function() {
         <div class="expand-area">
         <button id="expand-image-${index}" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
         </div>
-        `;
+        `; // https://stackoverflow.com/questions/511761/js-function-to-get-filename-from-url
         libraryContainer.appendChild(newItem);
     });
     // IMAGE CONTROLS - DELETE, VIEW DETAILS, ENLARGE

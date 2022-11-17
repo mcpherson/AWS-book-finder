@@ -6,7 +6,9 @@ const loginButton = document.getElementById('login-form-submit');
 const formArea = document.querySelector('.form');
 const spinner = document.querySelector('.spinner');
 
-
+window.onload = () => {
+    
+}
 
 loginButton.addEventListener('click', (event) => {
     event.preventDefault();

@@ -53,7 +53,8 @@ Resources:
   # You must use the console or the CLI.
   # CDK seems to handle the problem of importing exting resources better.
 
-  # ////////////////////////////////////////////////// COGNITO USER POOL 
+  # /////////////////////////////////////////////////////////////////////   COGNITO USER POOL   /////////////////////////////////////////////////////////////////////
+  
   UserPool:
     Type: AWS::Cognito::UserPool
     DeletionPolicy: Delete
@@ -81,7 +82,8 @@ Resources:
         - ALLOW_REFRESH_TOKEN_AUTH
       UserPoolId: !Ref UserPool
 
-  # ////////////////////////////////////////////////// API GATEWAY 
+  # /////////////////////////////////////////////////////////////////////   API GATEWAY   /////////////////////////////////////////////////////////////////////
+  
   BFAPI:
     Type: AWS::ApiGateway::RestApi
     Properties:
@@ -91,6 +93,8 @@ Resources:
   BFAPIDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
+      - BFAPIUserDELETE
+      - BFAPIUserOPTIONS
       - BFAPIUserSignupPOST
       - BFAPIUserSignupOPTIONS
       - BFAPIUserConfirmSignupPOST
@@ -99,7 +103,10 @@ Resources:
       - BFAPIUserLoginOPTIONS
       - BFAPIUserLogoutPOST
       - BFAPIUserLogoutOPTIONS
+      - BFAPIUserRefreshPOST
+      - BFAPIUserRefreshOPTIONS
       - BFAPILibraryGET
+      - BFAPILibraryDELETE
       - BFAPILibraryOPTIONS
       - BFAPILibraryUploadPOST
       - BFAPILibraryUploadOPTIONS
@@ -154,7 +161,8 @@ Resources:
       Type: COGNITO_USER_POOLS
   # (thanks https://www.stephengream.com/http-gateway-with-cognito)
 
-  # ================================================== /user
+  # ========================================================================================== /user
+  
   BFAPIUserResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -162,7 +170,108 @@ Resources:
       PathPart: "user"
       RestApiId: !Ref BFAPI
 
-  # ================================================== /user/signup
+  # ------------------------------   DELETE (allows an authenticated user to delete their own cognito userpool user and all of their S3 images)
+  
+  BFAPIUserDELETE:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref BFAPIAuthorizer
+      HttpMethod: DELETE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt BFAPIUserDELETELambda.Arn
+      OperationName: "user/delete"
+      ResourceId: !Ref BFAPIUserResource
+      RestApiId: !Ref BFAPI
+
+  # Lambda called by DELETE
+  BFAPIUserDELETELambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: book-finder-user-delete
+      Role: !GetAtt BFAPIUserDELETELambdaRole.Arn
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+      Handler: user-delete.handler
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: !Ref ZipS3Key
+        S3ObjectVersion: !Ref ZipVersionId
+      MemorySize: 128
+      Timeout: 30
+
+  # Allow API Gateway to invoke this Lambda
+  BFAPIUserDELETELambdaInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt BFAPIUserDELETELambda.Arn
+      Principal: apigateway.amazonaws.com
+
+  # IAM Role for this Lambda
+  BFAPIUserDELETELambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+
+  # Log Group for this Lambda
+  BFAPIUserDELETELambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPIUserDELETELambda]]
+      RetentionInDays: 3
+
+  # ------------------------------   OPTIONS (CORS)
+  
+  BFAPIUserOPTIONS:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      ResourceId: !Ref BFAPIUserResource
+      RestApiId: !Ref BFAPI
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ""
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
+  # ========================================================================================== /user/signup
+  
   BFAPIUserSignupResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -172,7 +281,8 @@ Resources:
   # Don't understand why HttpMethod and IntegrationHttpMethod are specified?
   # Why not just one? What happens if they differ?
 
-  # ---------- POST (create new cognito user with user-provided email/password)
+  # ------------------------------   POST (create new cognito user with user-provided email/password)
+  
   BFAPIUserSignupPOST:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -199,7 +309,7 @@ Resources:
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
-      Handler: signup.handler
+      Handler: user-signup.handler
       Code:
         S3Bucket: !Ref ZipBucketName
         S3Key: !Ref ZipS3Key
@@ -244,7 +354,8 @@ Resources:
       RetentionInDays: 3
   # (Thanks https://ldoughty.com/2020/01/aws-http-api-gateway-cloudformation-setup/)
 
-  # ---------- OPTIONS (CORS)
+  # ------------------------------   OPTIONS (CORS)
+  
   BFAPIUserSignupOPTIONS:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -274,7 +385,8 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: false
             method.response.header.Access-Control-Allow-Origin: false
 
-  # ================================================== /user/confirm-signup
+  # ========================================================================================== /user/confirm-signup
+  
   BFAPIUserConfirmSignupResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -282,7 +394,8 @@ Resources:
       PathPart: "confirm-signup"
       RestApiId: !Ref BFAPI
 
-  # ---------- POST (email verification - user provides confirmation code (received via email) to cognito)
+  # ------------------------------   POST (email verification - user provides confirmation code (received via email) to cognito)
+  
   BFAPIUserConfirmSignupPOST:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -309,7 +422,7 @@ Resources:
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
-      Handler: confirm-signup.handler
+      Handler: user-confirm-signup.handler
       Code:
         S3Bucket: !Ref ZipBucketName
         S3Key: !Ref ZipS3Key
@@ -349,7 +462,8 @@ Resources:
       LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPIUserConfirmSignupLambda]]
       RetentionInDays: 3
 
-  # ---------- OPTIONS (CORS)
+  # ------------------------------   OPTIONS (CORS)
+  
   BFAPIUserConfirmSignupOPTIONS:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -379,7 +493,8 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: false
             method.response.header.Access-Control-Allow-Origin: false
 
-  # --------------------------------------------------- /user/login
+  # ========================================================================================== /user/login
+  
   BFAPIUserLoginResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -387,7 +502,8 @@ Resources:
       PathPart: "login"
       RestApiId: !Ref BFAPI
 
-  # ---------- POST (allows user to "log in" to cognito by providing username/password - cognito returns tokens)
+  # ------------------------------   POST (allows user to "log in" to cognito by providing username/password - cognito returns tokens)
+  
   BFAPIUserLoginPOST:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -414,7 +530,7 @@ Resources:
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
-      Handler: login.handler
+      Handler: user-login.handler
       Code:
         S3Bucket: !Ref ZipBucketName
         S3Key: !Ref ZipS3Key
@@ -454,7 +570,8 @@ Resources:
       LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPIUserLoginLambda]]
       RetentionInDays: 3
 
-  # ---------- OPTIONS (CORS)
+  # ------------------------------   OPTIONS (CORS)
+  
   BFAPIUserLoginOPTIONS:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -484,7 +601,8 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: false
             method.response.header.Access-Control-Allow-Origin: false
 
-  # --------------------------------------------------- /user/logout
+  # ========================================================================================== /user/logout
+  
   BFAPIUserLogoutResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -492,7 +610,8 @@ Resources:
       PathPart: "logout"
       RestApiId: !Ref BFAPI
 
-  # ---------- POST ("logs out" authenticated user from cognito user pool (i.e. revokes their tokens))
+  # ------------------------------   POST ("logs out" authenticated user from cognito user pool (i.e. revokes their tokens))
+  
   BFAPIUserLogoutPOST:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -520,7 +639,7 @@ Resources:
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
-      Handler: logout.handler
+      Handler: user-logout.handler
       Code:
         S3Bucket: !Ref ZipBucketName
         S3Key: !Ref ZipS3Key
@@ -560,7 +679,8 @@ Resources:
       LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPIUserLogoutLambda]]
       RetentionInDays: 3
 
-  # ---------- OPTIONS (CORS)
+  # ------------------------------   OPTIONS (CORS)
+  
   BFAPIUserLogoutOPTIONS:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -590,13 +710,118 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: false
             method.response.header.Access-Control-Allow-Origin: false
 
-  # --------------------------------------------------- /user/forgot-password
+  # ========================================================================================== /user/forgot-password
 
-  # --------------------------------------------------- /user/refresh
+  # ========================================================================================== /user/refresh
+  
+  BFAPIUserRefreshResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref BFAPIUserResource
+      PathPart: "refresh"
+      RestApiId: !Ref BFAPI
 
-  # --------------------------------------------------- /user/delete
+  # ------------------------------   POST (refreshes a user's cognito tokens.)
+  
+  BFAPIUserRefreshPOST:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref BFAPIAuthorizer
+      HttpMethod: POST
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt BFAPIUserRefreshLambda.Arn
+      OperationName: "user/refresh"
+      ResourceId: !Ref BFAPIUserRefreshResource
+      RestApiId: !Ref BFAPI
 
-  # --------------------------------------------------- /library
+  # Lambda called by POST
+  BFAPIUserRefreshLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: book-finder-user-refresh
+      Role: !GetAtt BFAPIUserRefreshLambdaRole.Arn
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+      Handler: user-refresh.handler
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: !Ref ZipS3Key
+        S3ObjectVersion: !Ref ZipVersionId
+      MemorySize: 128
+      Timeout: 30
+
+  # Allow API Gateway to invoke this Lambda
+  BFAPIUserRefreshLambdaInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt BFAPIUserRefreshLambda.Arn
+      Principal: apigateway.amazonaws.com
+
+  # IAM Role for this Lambda
+  BFAPIUserRefreshLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+  # Log Group for this Lambda
+  BFAPIUserRefreshLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPIUserRefreshLambda]]
+      RetentionInDays: 3
+
+  # ------------------------------   OPTIONS (CORS)
+  
+  BFAPIUserRefreshOPTIONS:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      ResourceId: !Ref BFAPIUserRefreshResource
+      RestApiId: !Ref BFAPI
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ""
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
+  # ========================================================================================== /library
+  
   BFAPILibraryResource:
       Type: AWS::ApiGateway::Resource
       Properties:
@@ -604,7 +829,8 @@ Resources:
         PathPart: "library"
         RestApiId: !Ref BFAPI
 
-  # ---------- GET (retrieves an authenticated user's uploaded images from S3 for display on the Library page)
+  # ------------------------------   GET (retrieves an authenticated user's uploaded images from S3 for display on the Library page)
+  
   BFAPILibraryGET:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -636,7 +862,7 @@ Resources:
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
-      Handler: library.handler
+      Handler: library-get.handler
       Code:
         S3Bucket: !Ref ZipBucketName
         S3Key: !Ref ZipS3Key
@@ -676,7 +902,77 @@ Resources:
       LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPILibraryLambda]]
       RetentionInDays: 3
 
-  # ---------- OPTIONS (CORS)
+  # ------------------------------   DELETE (allows an authenticated user to delete their S3 images)
+  
+  BFAPILibraryDELETE:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref BFAPIAuthorizer
+      HttpMethod: DELETE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt BFAPILibraryDELETELambda.Arn
+      OperationName: "library/delete"
+      ResourceId: !Ref BFAPILibraryResource
+      RestApiId: !Ref BFAPI
+
+  # Lambda called by DELETE
+  BFAPILibraryDELETELambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: book-finder-library-delete
+      Role: !GetAtt BFAPILibraryDELETELambdaRole.Arn
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+      Handler: library-delete.handler
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: !Ref ZipS3Key
+        S3ObjectVersion: !Ref ZipVersionId
+      MemorySize: 128
+      Timeout: 30
+
+  # Allow API Gateway to invoke this Lambda
+  BFAPILibraryDELETELambdaInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt BFAPILibraryDELETELambda.Arn
+      Principal: apigateway.amazonaws.com
+
+  # IAM Role for this Lambda
+  BFAPILibraryDELETELambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+
+  # Log Group for this Lambda
+  BFAPILibraryDELETELambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPILibraryDELETELambda]]
+      RetentionInDays: 3
+
+  # ------------------------------   OPTIONS (CORS)
+  
   BFAPILibraryOPTIONS:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -689,7 +985,7 @@ Resources:
           - StatusCode: 200
             ResponseParameters:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,DELETE,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
             ResponseTemplates:
               application/json: ""
@@ -706,7 +1002,8 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: false
             method.response.header.Access-Control-Allow-Origin: false
 
-  # --------------------------------------------------- /library/upload
+  # ========================================================================================== /library/upload
+  
   BFAPILibraryUploadResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -714,7 +1011,8 @@ Resources:
       PathPart: "upload"
       RestApiId: !Ref BFAPI
 
-  # ---------- POST (generates a presigned S3 URL that allows an authenticated user to upload a single image to the S3 bucket)
+  # ------------------------------   POST (generates a presigned S3 URL that allows an authenticated user to upload a single image to the S3 bucket)
+  
   BFAPILibraryUploadPOST:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -782,7 +1080,8 @@ Resources:
       LogGroupName: !Join [/, ["/aws/lambda", !Ref BFAPILibraryUploadLambda]]
       RetentionInDays: 3
 
-  # ---------- OPTIONS (CORS)
+  # ------------------------------   OPTIONS (CORS)
+  
   BFAPILibraryUploadOPTIONS:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -812,11 +1111,10 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: false
             method.response.header.Access-Control-Allow-Origin: false
 
-  # --------------------------------------------------- /library/search
-
   
 
-# ---------------------------------------------------- DYNAMODB
+# /////////////////////////////////////////////////////////////////////   DYNAMODB   /////////////////////////////////////////////////////////////////////
+  
   BFTable:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Delete
@@ -836,6 +1134,8 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
+
+# /////////////////////////////////////////////////////////////////////   S3   /////////////////////////////////////////////////////////////////////
 
   S3ImageBucket:
     Type: AWS::S3::Bucket

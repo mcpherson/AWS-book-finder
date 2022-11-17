@@ -24,6 +24,7 @@ exports.handler = async (event) => {
       const getUser = new GetUserCommand({AccessToken : res.AuthenticationResult.AccessToken});
       const userData = await client.send(getUser);
       res.UserSub = userData.Username;
+      res.sessionStart = new Date(); // tracks token creation time for refreshes
       console.log('Login success. Result: ', res);
       let ret = {
         isBase64Encoded: false,

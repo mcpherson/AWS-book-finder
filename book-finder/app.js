@@ -1,7 +1,3 @@
-// CHECK USER STATUS, CHANGE INTERFACE
-const loginNav = document.getElementById('login-link');
-const logoutNav = document.getElementById('logout-link');
-
 // RUN WHEN PAGE LOADS
 window.onload = () => {
     
@@ -25,6 +21,36 @@ window.onload = () => {
     // REMOVE SPINNER OVERLAY TO PREVENT FLASH OF UNSTYLED CONTENT
     document.getElementById('fouc').style.display = "none";
 };
+
+// called when any page loads - checks for tokens in localstorage, refreshes them if needed. Changes UI state between logged in / logged out.
+function setUserState() {
+
+    const loginNav = document.getElementById('login-link');
+    const logoutNav = document.getElementById('logout-link');
+
+    if (!localStorage.getItem('book-finder-login-data')) { // user is not logged in
+        loginNav.style.display = "flex";
+        logoutNav.style.display = "none";
+        return;
+    } else { // user is logged in
+        loginNav.style.display = "none";
+        logoutNav.style.display = "flex";
+    }
+
+    let checkTime = new Date(); // compare current time with last login - refresh if necessary.
+    if (localStorage.getItem('book-finder-login-data') && checkTime - JSON.parse(localStorage.getItem('book-finder-login-data')).sessionStart > 86400000) {
+        
+    } else {
+
+    }
+};
+
+// refreshes Cognito tokens
+function refreshTokens() {
+
+}
+
+
 
 
 
