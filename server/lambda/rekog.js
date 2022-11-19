@@ -161,7 +161,7 @@ async function writeAllFound(bucket, key, found, uuid, imageName) {
 
   // Initially we thought the UI would only need LINEs. But, since the bounding
   // boxes on them are so "odd" we will probably keep LINEs in the output JSON.
-  found.TextDetections = found.TextDetections.filter((t) => t.Type == "LINE");
+  found.TextDetections = found.TextDetections.filter((t) => t.Type == "WORD");
 
   // FIXME: figure out where ParentId == undefined is coming from!?
   // TODO: write a simple test for this "bug"

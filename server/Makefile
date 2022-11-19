@@ -15,7 +15,6 @@ cfn_file = build-book-db.yml
 λ_library_upload = library-upload.js
 λ_library_delete = library-delete.js
 λ_rekog = rekog.js
-λ_db_test = db-test.js
 
 # Bucket must exist and have versioning enabled
 lambda_bucket = losalamosal-udemy-uploads-3

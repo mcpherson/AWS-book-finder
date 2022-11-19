@@ -28,14 +28,16 @@ window.onload = () => {
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
     
     // ONLY CALL S3 IF NECESSARY
-    if (localStorage.getItem('hasUploaded') || !localStorage.getItem('book-finder-urls')) {
+    if (localStorage.getItem('hasUploaded') || !localStorage.getItem('book-finder-data')) {
         getS3URLs(`${apiEndpoints.API_LIBRARY}/?usersub=${JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub}`)
         .then((data) => {
-            if(data.$metadata.httpStatusCode !== 200) {
+            // if (Object.keys(data.dynamoData)[0].$metadata.httpStatusCode !== 200) {
+            if (1===1) {
                 // TODO error handling
-                console.log(data);
+                console.log(Object.keys(data.dynamoData)[0]);
+                console.log(data.dynamoData);
             } else {
-                localStorage.setItem('book-finder-urls', JSON.stringify(data.imageNames));
+                localStorage.setItem('book-finder-data', JSON.stringify(data));
                 localStorage.removeItem('hasUploaded'); // reset upload tracking (prevents unnecessary API calls)
                 displayImages();
             }
@@ -125,7 +127,7 @@ const displayImages = function() {
     // CLEAR EXISTING IMAGES
     libraryContainer.innerHTML = "";
 
-    JSON.parse(localStorage.getItem('book-finder-urls')).forEach((i, index) => {
+    JSON.parse(localStorage.getItem('book-finder-data')).s3URLs.forEach((i, index) => {
         let newItem = document.createElement('div');
         newItem.classList.add('library-item');
         newItem.setAttribute('id', `library-item-${index}`)

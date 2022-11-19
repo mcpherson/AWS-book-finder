@@ -20,11 +20,6 @@ Parameters:
     AllowedPattern: ^[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9]+$
     Default: rekog-lambda
 
-  LambdaFunctionNameDBTest:
-    Type: String
-    AllowedPattern: ^[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9]+$
-    Default: aws-play-basic-table
-
   TableName:
     Type: String
     Default: bookfinder-table-1
@@ -862,6 +857,7 @@ Resources:
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+          DB_TABLE_NAME: !Ref TableName
       Handler: library-get.handler
       Code:
         S3Bucket: !Ref ZipBucketName
@@ -892,6 +888,16 @@ Resources:
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
         - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+      Policies:
+        - PolicyName: basicDynamoDBPermissions
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                Resource:
+                  - !GetAtt BFTable.Arn
 
   # Log Group for this Lambda
   BFAPILibraryLambdaLogGroup:
@@ -1156,17 +1162,15 @@ Resources:
               - DELETE
             AllowedOrigins:
               - '*'
-      # NotificationConfiguration:
-      #   LambdaConfigurations:
-      #     - Event: s3:ObjectCreated:*
-      #       Function: !GetAtt S3TriggerLambda.Arn
-      #       Filter:
-      #         S3Key:
-      #           Rules:
-      #             - Name: prefix
-      #               Value: originals/
-      #             - Name: suffix
-      #               Value: .png
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt S3TriggerLambda.Arn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .png
 
   S3ResultsBucket:
     Type: AWS::S3::Bucket
@@ -1215,6 +1219,25 @@ Resources:
               - Effect: Allow
                 Action: rekognition:DetectText
                 Resource: "*"
+        - PolicyName: getAndPutObjects
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                Resource: !Sub "arn:${AWS::Partition}:s3:::${ResultsBucketName}/*"
+        - PolicyName: genericDynamoDBPermissions
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                Resource:
+                  - !GetAtt BFTable.Arn
 
   # REKOG LAMBDA
   S3TriggerLambda:
@@ -1223,6 +1246,11 @@ Resources:
       FunctionName: !Ref LambdaFunctionNameRekog
       Role: !GetAtt S3TriggerLambdaRole.Arn
       Runtime: nodejs16.x
+      Environment:
+        Variables:
+          DB_TABLE_NAME: !Ref TableName
+          RESULTS_BUCKET_NAME: !Ref ResultsBucketName
+          UPLOADS_BUCKET_NAME: !Ref UploadBucketName
       Handler: rekog.handler
       Code:
         S3Bucket: !Ref ZipBucketName
@@ -1291,23 +1319,7 @@ Resources:
       #             - dynamodb:DescribeTable
       #           Resource: !Sub "arn:${AWS::Partition}:dynamodb:::table/${TableName}"
 
-  BasicTableLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Ref LambdaFunctionNameDBTest
-      Role: !GetAtt BasicTableLambdaRoleDBTest.Arn
-      Runtime: nodejs16.x
-      Environment:
-        Variables:
-          DB_TABLE_NAME: !Ref TableName
-      Handler: db-test.handler
-      Code:
-        S3Bucket: !Ref ZipBucketName
-        S3Key: !Ref ZipS3Key
-        S3ObjectVersion: !Ref ZipVersionId
-      MemorySize: 128
-      Timeout: 30
-  # END DB LAMBDA TEST RESOURCES
+
 
 Outputs:
   UserPoolId:
