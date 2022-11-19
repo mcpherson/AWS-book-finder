@@ -34,7 +34,10 @@ let imageScale = 1;
 
 let returnedURL;
 
-
+// RUN WHEN PAGE LOADS
+window.onload = () => {
+    setUserState(); // in global js file
+}
 
 // WINDOW RESIZE DETECTION TO PRESERVE SCALE
 window.addEventListener('resize', () => {

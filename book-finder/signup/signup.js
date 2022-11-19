@@ -4,6 +4,10 @@ const alertMessage = document.getElementById('sign-up-alert-message');
 const formArea = document.querySelector('.form');
 const spinner = document.querySelector('.spinner');
 
+// RUN WHEN PAGE LOADS
+window.onload = () => {
+    setUserState(); // in global js file
+}
 
 submitButton.addEventListener('click', (event) => {
     event.preventDefault();

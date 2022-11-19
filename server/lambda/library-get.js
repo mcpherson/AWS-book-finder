@@ -67,6 +67,7 @@ exports.handler = async (event) => {
             let getItemCommand = new GetItemCommand(dynamoGetParams);
             let rekogResults = await dynamoClient.send(getItemCommand);
             console.log(s3Keys[i]);
+            // improve
             let s3Key = s3Keys[i];
             dynamoData[s3Key] = rekogResults;
         }

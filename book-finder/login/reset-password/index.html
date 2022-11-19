@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../../resources/favicon.ico">
     <script src="https://kit.fontawesome.com/080cdc086c.js" crossorigin="anonymous"></script>
-    <title>Book Finder - Forgot Password</title>
+    <title>Book Finder - Reset Password</title>
 </head>
 <body>
     <div id="fouc"><img src="../../resources/spinner-light.gif" alt=""></div>
@@ -20,9 +20,8 @@
                 <span id="logo"><a href="/" id="logo-link">
                     <i class="fa-solid fa-book-bookmark"></i>
                     <i class="fa-solid fa-magnifying-glass"></i> 
-                    BOOK FINDER
                     <i class="fa-solid fa-angle-right"></i>
-                </a>&nbsp;<em>NEW PASSWORD</em>
+                </a>&nbsp;<em>RESET PASSWORD</em>
                 </span>
             </div>
         </div>
@@ -31,14 +30,11 @@
                 <a class="nav-item" href="/">
                     HOME
                 </a>
-                <a class="nav-item" href="">
-                    FAQ
+                <a class="nav-item" href="../../demo/">
+                    DEMO
                 </a>
-                <a class="nav-item" id="logout-link" href="javascript:void(0)">
-                    LOGOUT
-                </a>
-                <a class="nav-item" id="login-link" href="../../login/">
-                    LOG IN
+                <a class="nav-item" id="auth-link" href="">
+                    
                 </a>
                 <a class="nav-item" id="signup-link" href="../../signup/">
                     SIGN UP
@@ -49,7 +45,7 @@
     <div class="container" id="body">
         <div id="demo-container">
             <div class="form-area">
-                <p class="form-title">PASSWORD RECOVERY</p>
+                <p class="form-title">RESET YOUR PASSWORD</p>
                 <form class="" method="post">
                     <div class="form-group">
                         <label
@@ -63,16 +59,16 @@
                             name="email"
                             required>
                     </div>
-                    <button class="form-submit" id="forgot-password-form-submit" type="submit">RECOVER PASSWORD</button>
+                    <button class="form-submit" id="forgot-password-form-submit" type="submit">SUBMIT</button>
                 </form>
                 <div class="backup-message">
-                    <p>Enter your email address to receive a password recovery email.</p>
+                    <p>Enter your email address to receive a password reset email.</p>
                 </div>
             </div>
         </div>
     </div>
     <script type="text/javascript" src="../../config.js"></script>
-    <script type="text/javascript" src="../../app.js"></script>
-    <script type="text/javascript" src="./forgot-password.js"></script>
+    <script type="text/javascript" src="../../global.js"></script>
+    <script type="text/javascript" src="./reset-password.js"></script>
 </body>
 </html>

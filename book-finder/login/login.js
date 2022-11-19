@@ -6,8 +6,10 @@ const loginButton = document.getElementById('login-form-submit');
 const formArea = document.querySelector('.form');
 const spinner = document.querySelector('.spinner');
 
+// RUN WHEN PAGE LOADS
 window.onload = () => {
-    
+    emailField.value = localStorage.getItem('bookFinderUsername');
+    setUserState(); // in global js file
 }
 
 loginButton.addEventListener('click', (event) => {
@@ -22,7 +24,7 @@ loginButton.addEventListener('click', (event) => {
     spinner.style.top = `${(formArea.getBoundingClientRect().top)+(0.5*formArea.offsetHeight)-100}px`;
 
     const loginData = {
-        username: emailField.value || localStorage.getItem('bookFinderUsername'),
+        username: emailField.value,
         password: passwordField.value
     };
 

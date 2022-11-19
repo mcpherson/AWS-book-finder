@@ -10,14 +10,8 @@ const refreshButton = document.getElementById('refresh-images-button');
 const searchInput = document.getElementById('search-input');
 
 window.onload = () => {
-    // CHANGE UI BASED ON LOGGED IN STATE
-    if (localStorage.getItem('book-finder-login-data')) {
-        loginNav.style.display = "none";
-        logoutNav.style.display = "flex";
-    } else {
-        loginNav.style.display = "flex";
-        logoutNav.style.display = "none";
-    }
+    
+    setUserState(); // in global js file
     
     // RESIZE ELEMENTS BASED ON WINDOW WIDTH
     // resizeElements();

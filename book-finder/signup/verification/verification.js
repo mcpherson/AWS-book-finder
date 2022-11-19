@@ -6,6 +6,12 @@ const confirmButton = document.getElementById('cofirmation-form-submit');
 const formArea = document.querySelector('.form');
 const spinner = document.querySelector('.spinner');
 
+// RUN WHEN PAGE LOADS
+window.onload = () => {
+    emailField.value = localStorage.getItem('bookFinderUsername');
+    setUserState();  // in global js file
+}
+
 confirmButton.addEventListener('click', (event) => {
     event.preventDefault();
 
@@ -36,6 +42,4 @@ confirmButton.addEventListener('click', (event) => {
             window.location.href = "../../login/";
         }
     };
-
-
 });
