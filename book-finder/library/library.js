@@ -26,10 +26,10 @@ window.onload = () => {
         getS3URLs(`${apiEndpoints.API_LIBRARY}/?usersub=${JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub}`)
         .then((data) => {
             // if (Object.keys(data.dynamoData)[0].$metadata.httpStatusCode !== 200) {
-            if (1===1) {
+            if (JSON.stringify(data).includes('error')) {
                 // TODO error handling
-                console.log(Object.keys(data.dynamoData)[0]);
-                console.log(data.dynamoData);
+                // console.log(Object.keys(data.dynamoData)[0]);
+                console.log(data);
             } else {
                 localStorage.setItem('book-finder-data', JSON.stringify(data));
                 localStorage.removeItem('hasUploaded'); // reset upload tracking (prevents unnecessary API calls)

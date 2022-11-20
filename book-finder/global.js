@@ -6,14 +6,15 @@ function setUserState() {
     if (authNav === undefined) { // user is on a page without a login/logout link
         return;
     } else if (!localStorage.getItem('book-finder-login-data')) { // user is not logged in
-        authNav.setAttribute('href', '/login/');
+        authNav.setAttribute('href', '/book-finder/login/');
         authNav.innerText = 'LOGIN';
         return;
     } else { // user is logged in
-        authNav.setAttribute('href', '/login/');
+        authNav.setAttribute('href', 'javascript:void(0);');
         authNav.innerText = 'LOGOUT';
         // add logout function to nav button
-        authNav.addEventListener('click', cognitoLogout(apiEndpoints.API_USER_LOGOUT)
+        authNav.addEventListener('click', () => {
+            cognitoLogout(apiEndpoints.API_USER_LOGOUT)
             .then((data) => {
                 console.log(data);
                 if(data.status !== 200) {
@@ -29,7 +30,7 @@ function setUserState() {
                 console.log('Logout error: ', error);
                 throw new Error("Logout failed. See console for details.");
             })
-        );
+        });
     }
 
     // compare current time with last login - refresh if necessary.
