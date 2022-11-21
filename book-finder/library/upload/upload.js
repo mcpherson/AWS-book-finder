@@ -51,7 +51,7 @@ window.addEventListener('resize', () => {
 
 
 
-// UPLOAD IMAGE, ADD TO IMAGE CANVAS
+// UPLOAD IMAGE FROM FILESYSTEM, ADD TO IMAGE CANVAS
 function handleImage(e) {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -179,41 +179,44 @@ drawCanvas.addEventListener('mouseleave', (event) =>{
 
 // CLEAR ALL CANVASES AND RESET PAGE TO STARTING STATE
 const clearImages = function () {
-    // RESET CANVASES 
-    imageCanvas.style.display = "block";
-    context.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-    imageCanvas.height = 0;
-    imageCanvas.width = 0;
-    drawCanvas.style.display = "block";
-    drawContext.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-    drawCanvas.height = 0;
-    drawCanvas.width = 0;
-    finalCanvas.style.display = "none";
-    finalContext.clearRect(0, 0, cropRect.width, cropRect.height);
-    finalCanvas.height = 0;
-    finalCanvas.width = 0;
-    // RESET CONTROLS AND DATA 
-    fileName.innerText = "";
-    newFileNameField.value = "";
-    newFileName = "";
-    imageInputLabel.style.display = "inline";
-    fileName.style.visibility = "hidden";
-    clearButton.style.visibility = "hidden";
-    clearButton.innerHTML = `<i class="fa-solid fa-trash-can"></i> &nbsp;CLEAR IMAGE`;
-    cropButton.style.display = "inline";
-    cropButton.style.backgroundColor = "white";
-    cropButton.style.visibility = "hidden";
-    cropButton.disabled = true;
-    newFileNameField.style.visibility = "hidden";
-    uploadButton.style.display = "none";
-    uploadButton.style.backgroundColor = "white";
-    uploadButton.disabled = true;
-    alertArea.style.display = "none";
-    userImage = undefined;
-    Object.keys(cropRect).forEach((i) => {
-        cropRect[i] = 0
-    });
-    imageScale = 1;
+    // There's no real reason not to just reload the page here.
+    window.location.reload();
+    
+    // // RESET CANVASES 
+    // imageCanvas.style.display = "block";
+    // context.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+    // imageCanvas.height = 0;
+    // imageCanvas.width = 0;
+    // drawCanvas.style.display = "block";
+    // drawContext.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+    // drawCanvas.height = 0;
+    // drawCanvas.width = 0;
+    // finalCanvas.style.display = "none";
+    // finalContext.clearRect(0, 0, cropRect.width, cropRect.height);
+    // finalCanvas.height = 0;
+    // finalCanvas.width = 0;
+    // // RESET CONTROLS AND DATA 
+    // fileName.innerText = "";
+    // newFileNameField.value = "";
+    // newFileName = "";
+    // imageInputLabel.style.display = "inline";
+    // fileName.style.visibility = "hidden";
+    // clearButton.style.visibility = "hidden";
+    // clearButton.innerHTML = `<i class="fa-solid fa-trash-can"></i> &nbsp;CLEAR IMAGE`;
+    // cropButton.style.display = "inline";
+    // cropButton.style.backgroundColor = "white";
+    // cropButton.style.visibility = "hidden";
+    // cropButton.disabled = true;
+    // newFileNameField.style.visibility = "hidden";
+    // uploadButton.style.display = "none";
+    // uploadButton.style.backgroundColor = "white";
+    // uploadButton.disabled = true;
+    // alertArea.style.display = "none";
+    // userImage = undefined;
+    // Object.keys(cropRect).forEach((i) => {
+    //     cropRect[i] = 0
+    // });
+    // imageScale = 1;
 }
 
 clearButton.addEventListener('click', clearImages);
@@ -364,13 +367,26 @@ uploadButton.addEventListener('click', () => {
         .then((res) => {
             console.log(res);
             localStorage.setItem('hasUploaded', true); // set upload tracking (prevents unnecessary API calls on Library page)
+            uploadSpinner.style.display = "none"; // CHANGE UI STATE
+            alertArea.style.display = "block";
+            alertArea.style.backgroundColor = "#bbff00";
+            alertMessage.innerHTML = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your <a href="../../library/">Library</a> to view the status of your upload or continue uploading images.`;
+            clearButton.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
+            clearButton.style.display = "inline";
         })
         .catch((error) => {
-            console.log(error);
+            // TODO error handling
+            console.log('Upload error: ', error);
+            uploadSpinner.style.display = "none"; // CHANGE UI STATE
+            alertArea.style.display = "block";
+            alertArea.style.backgroundColor = "lightcoral";
+            alertMessage.innerText = `Image upload failed. ${JSON.parse(uploadReq.response).errorMessage}`;
+            throw new Error("Image upload failed.");
         });
     })
     .catch((error) => {
-        console.log(error);
+        // TODO error handling
+        console.log('Error getting signed URL: ', error);
     });
 
 

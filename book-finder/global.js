@@ -18,10 +18,15 @@ function setUserState() {
             .then((data) => {
                 console.log(data);
                 if(data.status !== 200) {
-                    // TODO ERROR HANDLING
+                    // TODO ERROR HANDLING ////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    localStorage.removeItem('book-finder-login-data'); // TEMP FIX WHILE REWRITING LOGOUT
+                    localStorage.removeItem('book-finder-data');
+                    window.location.href = "/";
+                    // TODO ERROR HANDLING ////////////////////////////////////////////////////////////////////////////////////////////////////////
                     console.log('Logout error: ', data);
                 } else { // reset everything and send 'em home
-                    localStorage.clear();
+                    localStorage.removeItem('book-finder-login-data');
+                    localStorage.removeItem('book-finder-data');
                     window.location.href = "/";
                 }
             })
