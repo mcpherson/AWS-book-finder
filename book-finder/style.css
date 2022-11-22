@@ -493,7 +493,7 @@ html, body {
     left: 50%; 
     transform: translate(-50%, -50%);
     z-index: 99;
-    background-color: rgba(48, 48, 48, 0.9);
+    background-color: rgba(20, 20, 20, 0.95);
 }
 
 #expanded-image, #expanded-image-canvas {

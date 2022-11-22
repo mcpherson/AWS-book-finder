@@ -8,6 +8,8 @@ const searchButton = document.getElementById('search-button')
 const searchForm = document.getElementById('search-form')
 const userSub = JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub
 
+let rekogData = JSON.parse(localStorage.getItem('book-finder-data')).dynamoData
+
 let firstLayout = [] // store the first library items displayed for resets
 
 let searchLayout = [] // store the library layout post-search
@@ -128,13 +130,12 @@ function addListeners() {
     // ADD LISTENERS TO DELETE BUTTONS
     let deleteButtons = Array.from(document.getElementsByClassName('delete-image-button'))
     deleteButtons.forEach((i) => {
-        i.addEventListener('click', (e) => {
+        i.addEventListener('click', (event) => {
             if (window.confirm(`Permanently delete ${clickedImageName}?`) = false) { // Confirmation
                 console.log('yo')
             }
-            console.log(e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1])
-            // get ID from clicked delete button and grab corresponding image name
-            let clickedID = e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1]
+            // get ID from clicked image delete button and grab corresponding image name
+            let clickedID = event.currentTarget.id.split('-')[event.currentTarget.id.split('-').length-1]
             let clickedImage = document.getElementById(`library-image-${clickedID}`)
             let clickedImageName = clickedImage.getAttribute('src').split('/')[4]
             // DELETE IMAGE
@@ -166,25 +167,47 @@ function addListeners() {
     // ADD LISTENERS TO DETAILS BUTTONS
     let detailsButtons = Array.from(document.getElementsByClassName('image-details-button'))
     detailsButtons.forEach((i) => {
-        i.addEventListener('click', (e) => {
-            console.log(e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1])
-            // get ID from clicked delete button and grab corresponding image name
-            let clickedID = e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1]
+        i.addEventListener('click', (event) => {
+            // get ID from clicked image details button and grab corresponding image name
+            let clickedID = event.currentTarget.id.split('-')[event.currentTarget.id.split('-').length-1]
             let clickedImage = document.getElementById(`library-image-${clickedID}`)
-            let clickedImageName = clickedImage.getAttribute('src').split('/')[4]
+            let clickedImageURL = clickedImage.getAttribute('src')
+            expandImage(clickedImageURL, 'details')
+        })
+    })
+
+    // ADD LISTENERS TO IMAGES (DETAILS)
+    let images = Array.from(document.getElementsByClassName('library-image'))
+    images.forEach((item, index) => {
+        item.addEventListener('contextmenu', (event) => {
+            event.preventDefault()
+            // get ID from right-clicked image and grab corresponding image name
+            let clickedID = event.currentTarget.id.split('-')[event.currentTarget.id.split('-').length-1]
+            let clickedImage = document.getElementById(`library-image-${clickedID}`)
+            let clickedImageURL = clickedImage.getAttribute('src')
+            expandImage(clickedImageURL, 'details')
         })
     })
 
     // ADD LISTENERS TO EXPAND BUTTONS
     let expandButtons = Array.from(document.getElementsByClassName('expand-image-button'))
     expandButtons.forEach((item, index) => {
-        item.addEventListener('click', (e) => {
-            console.log(e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1])
-            // get ID from clicked delete button and grab corresponding image name
-            let clickedID = e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1]
+        item.addEventListener('click', (event) => {
+            // get ID from clicked image expand button and grab corresponding image name
+            let clickedID = event.currentTarget.id.split('-')[event.currentTarget.id.split('-').length-1]
             let clickedImage = document.getElementById(`library-image-${clickedID}`)
             let clickedImageURL = clickedImage.getAttribute('src')
-            let clickedImageName = clickedImageURL.split('/')[4]
+            expandImage(clickedImageURL)
+        })
+    })
+
+    // ADD LISTENERS TO IMAGES (EXPAND)
+    images.forEach((item, index) => {
+        item.addEventListener('click', (event) => {
+            // get ID from clicked image and grab corresponding image name
+            let clickedID = event.currentTarget.id.split('-')[event.currentTarget.id.split('-').length-1]
+            let clickedImage = document.getElementById(`library-image-${clickedID}`)
+            let clickedImageURL = clickedImage.getAttribute('src')
             expandImage(clickedImageURL)
         })
     })
@@ -315,7 +338,9 @@ function displayResults(results = []) {
 
 
 // view image full-screen
-function expandImage(clickedImageURL = '') {
+function expandImage(clickedImageURL = '', details = '') {
+
+    if (details) {console.log('details')}
     let displayArea = document.createElement('div') // create image and canvas 
     displayArea.id = 'expand-container'
     displayArea.innerHTML = `
@@ -330,15 +355,21 @@ function expandImage(clickedImageURL = '') {
         document.getElementById('expand-container').remove()
     })
 
+    displayArea.addEventListener('contextmenu', (event) => {
+        event.preventDefault()
+        console.log('right click')
+        return false
+    })
+
     if (searchResults !== []) { // if search data is present, draw detected text polygons on expanded image canvas
-        drawResults(clickedImageURL)
+        drawResults(`${userSub}/${clickedImageURL.split('/')[4]}`)
     }
 }
 
 
 
 // draw detected text polygons on expanded image canvas
-function drawResults(clickedImageURL = '') {
+function drawResults(clickedImageKey = '') {
     let image = document.getElementById('expanded-image')
     let imageWidth = image.width
     let imageHeight = image.height
@@ -354,7 +385,7 @@ function drawResults(clickedImageURL = '') {
     ]
 
     searchResults.forEach((item, index) => {
-        if (item.image === `${userSub}/${image.getAttribute('src').split('/')[4]}`) {
+        if (item.image === clickedImageKey) {
             let poly = item.data.Geometry.Polygon
             // draw a line around detected word
             strokes.forEach((itemX, indexX) => {
@@ -376,3 +407,7 @@ function drawResults(clickedImageURL = '') {
         }
     })
 }
+
+
+
+// show full-screen image and all detected text side-by-side, hovering over items will draw the corresponding polygons
