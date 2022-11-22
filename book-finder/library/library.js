@@ -4,14 +4,31 @@ const loadingSpinner = document.getElementById('fouc')
 const libraryContainer = document.getElementById('library-container')
 const refreshButton = document.getElementById('refresh-images-button')
 const searchInput = document.getElementById('search-input')
+const searchButton = document.getElementById('search-button')
+const searchForm = document.getElementById('search-form')
 const userSub = JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub
+
+let firstLayout = [] // store the first library items displayed for resets
+
+let searchLayout = [] // store the library layout post-search
+
+let searchResults = [] // store search results
 
 window.onload = () => {
     
     setUserState() // in global js file
+
+    // scale UI
+    searchInput.style.height = searchButton.offsetHeight
     
     // CLEAR LOADING SPINNER
-    loadingSpinner.style.display = "none";
+    loadingSpinner.style.display = "none"
+
+    // Search event listener
+    searchForm.addEventListener('submit', (event) => {
+        event.preventDefault()
+        searchLibrary()
+    })
 
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
     
@@ -38,54 +55,14 @@ window.onload = () => {
         })
         .catch((error) => {
             // TODO error handling
-            console.log(error);
+            console.log(error)
         });
-    } else {
-        // BYPASS S3 - DISPLAY EACH IMAGE AND KEY WITH LOCALSTORAGE DATA
-        displayImages(); 
+    } else { // BYPASS S3 - DISPLAY EACH IMAGE AND KEY WITH LOCALSTORAGE DATA
+        displayImages()
     }
 }
 
 
-
-const getImageURLs = function(event) {
-    // CLEAR AND RESET LOCALSTORAGE FOR MANUAL REFRESH
-    if (event) {
-        localStorage.removeItem('numUploads');
-        localStorage.removeItem('imageURLs');
-        localStorage.setItem('numUploads', JSON.stringify(0));
-        let imageURLs = [];
-        localStorage.setItem('imageURLs', JSON.stringify(imageURLs));
-    }
-    // GET IMAGE KEYS FROM USER'S S3 BUCKET
-    const reqData = {UserSub: userSub}
-    // TODO HANDLE ERROR IF NOT LOGGED IN
-    const keysReq = new XMLHttpRequest();
-    keysReq.open("GET", `https://${apiEndpointID}.execute-api.us-east-1.amazonaws.com/dev/library/${reqData.UserSub}`);
-    keysReq.setRequestHeader('Authorization', 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken)
-    keysReq.send(JSON.stringify(reqData))
-    keysReq.onload = function() {
-        if (JSON.parse(keysReq.response).length === 0) { // no keys returned
-            loadingSpinner.style.display = "none"
-            alertArea.style.display = "block"
-            alertArea.style.backgroundColor = "lightcoral"
-            alertMessage.innerHTML = 'No images found. <a href="./upload/">Upload some images</a> and they will appear here.'
-        } else if (keysReq.status != 200 || JSON.parse(keysReq.response).hasOwnProperty('errorType')) { // error received
-            // TODO error handling - invalid usersub, invalid img data, other AWS errors
-            loadingSpinner.style.display = "none"
-            throw new Error("Image request failed.")
-        } else { // create and store URLs
-            loadingSpinner.style.display = "none"
-            
-            localStorage.removeItem('hasUploaded') // reset upload tracking (prevents unnecessary API calls)
-            let storedURLs = []
-            
-            localStorage.setItem('imageURLs', JSON.stringify(storedURLs))
-        }
-    }
-    // DISPLAY EACH IMAGE AND KEY
-    displayImages()
-}
 
 // fetch (GET) to retrieve S3 URLs
 async function getS3URLs(url = '') {
@@ -111,20 +88,21 @@ const displayImages = function() {
     // CLEAR EXISTING IMAGES
     libraryContainer.innerHTML = ""
 
-    JSON.parse(localStorage.getItem('book-finder-data')).s3URLs.forEach((i, index) => {
-        let imageName = i.split('/')[4]
+    JSON.parse(localStorage.getItem('book-finder-data')).s3URLs.forEach((item, index) => {
+        let imageName = item.split('/')[4]
         let newItem = document.createElement('div')
         newItem.classList.add('library-item')
         newItem.setAttribute('id', `library-item-${index}`)
         newItem.innerHTML = `
-        <div class="library-image">
-        <img id="library-image-${index}" src="${i}" alt="${i}">
+        <div id="library-image-container-${index}" class="library-image-container">
+        <div id="library-overlay-${index}" class="library-overlay"></div>
+        <img id="library-image-${index}" class="library-image" src="${item}" alt="${item}">
         </div>
         <div class="delete-area">
         <button id="delete-image-${index}" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
         </div>
         <div class="library-item-label-area">
-        <p id="library-item-label-${index}" class="library-item-label">${i.split('/').pop().split('#')[0].split('?')[0]}</p>
+        <p id="library-item-label-${index}" class="library-item-label">${item.split('/').pop().split('#')[0].split('?')[0].split('.')[0]}</p>
         </div>
         <div class="details-area">
         <button id="image-details-${index}" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -133,14 +111,27 @@ const displayImages = function() {
         <button id="expand-image-${index}" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
         </div>
         `; // https://stackoverflow.com/questions/511761/js-function-to-get-filename-from-url
-        libraryContainer.appendChild(newItem)
+
+        libraryContainer.appendChild(newItem) // add to DOM
     });
-    // IMAGE CONTROLS - DELETE, VIEW DETAILS, ENLARGE
+    
+    addListeners() // add listeners to buttons
+    
+    firstLayout = libraryContainer.innerHTML // set firstLayout for resets
+}
+
+
+
+// IMAGE CONTROLS - DELETE, VIEW DETAILS, EXPAND
+function addListeners() {
 
     // ADD LISTENERS TO DELETE BUTTONS
     let deleteButtons = Array.from(document.getElementsByClassName('delete-image-button'))
     deleteButtons.forEach((i) => {
         i.addEventListener('click', (e) => {
+            if (window.confirm(`Permanently delete ${clickedImageName}?`) = false) { // Confirmation
+                console.log('yo')
+            }
             console.log(e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1])
             // get ID from clicked delete button and grab corresponding image name
             let clickedID = e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1]
@@ -169,6 +160,32 @@ const displayImages = function() {
                 // TODO error handling
                 console.log(error)
             })
+        })
+    })
+
+    // ADD LISTENERS TO DETAILS BUTTONS
+    let detailsButtons = Array.from(document.getElementsByClassName('image-details-button'))
+    detailsButtons.forEach((i) => {
+        i.addEventListener('click', (e) => {
+            console.log(e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1])
+            // get ID from clicked delete button and grab corresponding image name
+            let clickedID = e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1]
+            let clickedImage = document.getElementById(`library-image-${clickedID}`)
+            let clickedImageName = clickedImage.getAttribute('src').split('/')[4]
+        })
+    })
+
+    // ADD LISTENERS TO EXPAND BUTTONS
+    let expandButtons = Array.from(document.getElementsByClassName('expand-image-button'))
+    expandButtons.forEach((item, index) => {
+        item.addEventListener('click', (e) => {
+            console.log(e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1])
+            // get ID from clicked delete button and grab corresponding image name
+            let clickedID = e.currentTarget.id.split('-')[e.currentTarget.id.split('-').length-1]
+            let clickedImage = document.getElementById(`library-image-${clickedID}`)
+            let clickedImageURL = clickedImage.getAttribute('src')
+            let clickedImageName = clickedImageURL.split('/')[4]
+            expandImage(clickedImageURL)
         })
     })
 }
@@ -222,11 +239,9 @@ function searchLibrary() {
     const results = [];
     const query = searchInput.value.toLowerCase()
     const terms = query.split(/[, ]+/) // Thanks https://bobbyhadz.com/blog/javascript-split-by-space-or-comma
-    dataArray.forEach((itemI, i) => {
-        // const detectedText = item[1].TextDetections
-        itemI[1].TextDetections.forEach((itemX, x) => {
-            terms.forEach((itemY, y) => {
-                // console.log(itemX)
+    dataArray.forEach((itemI, indexI) => {
+        itemI[1].TextDetections.forEach((itemX, indexX) => {
+            terms.forEach((itemY, indexY) => {
                 if (itemX.DetectedText.toLowerCase().includes(`${itemY}`)) {
                     let result = {
                         image: itemI[0],
@@ -237,14 +252,127 @@ function searchLibrary() {
             })
         })
     })
-    console.log(results)
-    highlightItems(results)
+    searchResults = results
+    displayResults(results)
 }
 
-function highlightItems() {
 
+
+// overlay or highlight items based on search results
+function displayResults(results = []) {
+
+    // no results found
+    if (results.length === 0) {
+        console.log('shit son')
+    }
+
+    // reset UI for sequential searches
+    libraryContainer.innerHTML = firstLayout
+
+    let libraryItems = Array.from(document.getElementsByClassName('library-item')) // library item containers
+    let libraryOverlays = Array.from(document.getElementsByClassName('library-overlay')) // library item overlays
+    let libraryImages = Array.from(document.getElementsByClassName('library-image')) // image tags
+    let libraryKeys = [] // image filenames
+
+    results.forEach((item, index) => {
+        libraryKeys.push(item.image.split('/')[1])
+    })
+
+    let resultsImages = {
+        positiveImages: [],
+        negativeImages: []
+    }
+
+    libraryImages.forEach((item, index) => {
+        if (libraryKeys.includes(`${item.getAttribute('src').split('/')[4]}`)) {
+            resultsImages.positiveImages.push(libraryItems[index])
+        } else {
+            resultsImages.negativeImages.push(libraryItems[index])
+        }
+    })
+
+    // reorganize images - TODO refactor for resizing issues
+    libraryContainer.innerHTML = "" // reset container
+
+    resultsImages.positiveImages.forEach((item, index) => { // HANDLE POSITIVE RESULTS
+        libraryContainer.appendChild(item) // append positive images
+        item.style.outline = '3px solid #bbff00' // highlight images containing results
+    })
+
+    resultsImages.negativeImages.forEach((item, index) => { // HANDLE NEGATIVE RESULTS
+        let currentID = item.id.split('-')[2] // grab id # of current item
+        libraryContainer.appendChild(item) // append negative images
+        let currentItem = document.getElementById(`library-image-container-${currentID}`) // grab new item from DOM
+        let currentOverlay = libraryOverlays[currentID] // grab associated overlay
+        currentOverlay.style.width = `${currentItem.offsetWidth + 1}px` // set overlay style (add 1 to dimensions because of image width rounding weirdness)
+        currentOverlay.style.height = `${currentItem.offsetHeight + 1}px`
+        currentOverlay.style.backgroundColor = 'rgba(44, 44, 44, .9)'
+    })
+
+    addListeners() // add event listeners
 }
 
-function displayResults() {
 
+
+// view image full-screen
+function expandImage(clickedImageURL = '') {
+    let displayArea = document.createElement('div') // create image and canvas 
+    displayArea.id = 'expand-container'
+    displayArea.innerHTML = `
+    <div id="expanded-image-container">
+    <img id="expanded-image" src="${clickedImageURL}">
+    <canvas id="expanded-image-canvas"></canvas>
+    </div>
+    `
+    document.getElementById('body').appendChild(displayArea) // add image and canvas to the DOM
+
+    displayArea.addEventListener('click', () => {
+        document.getElementById('expand-container').remove()
+    })
+
+    if (searchResults !== []) { // if search data is present, draw detected text polygons on expanded image canvas
+        drawResults(clickedImageURL)
+    }
+}
+
+
+
+// draw detected text polygons on expanded image canvas
+function drawResults(clickedImageURL = '') {
+    let image = document.getElementById('expanded-image')
+    let imageWidth = image.width
+    let imageHeight = image.height
+    let drawCanvas = document.getElementById('expanded-image-canvas')
+    drawCanvas.height = image.height // set canvas size to image size
+    drawCanvas.width = image.width
+    let drawContext = drawCanvas.getContext('2d')
+
+    let strokes = [
+        [8, "rgba(187,255,0,.5)"],
+        [5, "#bbff00"],
+        [2, "#000000"]
+    ]
+
+    searchResults.forEach((item, index) => {
+        if (item.image === `${userSub}/${image.getAttribute('src').split('/')[4]}`) {
+            let poly = item.data.Geometry.Polygon
+            // draw a line around detected word
+            strokes.forEach((itemX, indexX) => {
+                drawContext.lineWidth = strokes[indexX][0]
+                drawContext.strokeStyle = strokes[indexX][1]
+                drawContext.beginPath()
+                let first = true
+                poly.forEach((itemY, indexY) => {
+                    if (first) {
+                        drawContext.moveTo(imageWidth * itemY.X, imageHeight * itemY.Y)
+                        first = false;
+                    } else {
+                        drawContext.lineTo(imageWidth * itemY.X, imageHeight * itemY.Y)
+                    }
+                })
+                drawContext.closePath()
+                drawContext.stroke()
+            })
+        }
+    })
 }
