@@ -179,7 +179,6 @@ function addListeners() {
             // DELETE IMAGE
             deleteImage(clickedImageName) 
             .then((data) => {
-                console.log(data)
                 // Remove data from localStorage
                 let currentURLs = JSON.parse(localStorage.getItem('book-finder-data')).s3URLs
                 let currentData = JSON.parse(localStorage.getItem('book-finder-data')).dynamoData
@@ -193,7 +192,7 @@ function addListeners() {
                 localStorage.setItem('book-finder-data', JSON.stringify(newData))   // update localstorage data
                 storedData = JSON.parse(localStorage.getItem('book-finder-data'))   // record for global use
                 // Remove image from UI
-                let deletedImage = document.getElementById(`library-image-${clickedID}`)
+                let deletedImage = document.getElementById(`library-item-${clickedID}`)
                 libraryContainer.removeChild(deletedImage)
                 baseLayout.innerHTML = libraryContainer.innerHTML                  // set a new base layout
             })
