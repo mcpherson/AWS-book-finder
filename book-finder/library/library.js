@@ -2,9 +2,10 @@ const alertArea = document.getElementById('alert-area')
 const alertMessage = document.getElementById('alert-message')
 const loadingSpinner = document.getElementById('fouc')
 const libraryContainer = document.getElementById('library-container')
-const refreshButton = document.getElementById('refresh-images-button')
+const messageContainer = document.getElementById('message-container')
+const messageText = document.getElementById('message-text')
 const searchInput = document.getElementById('search-input')
-const searchButton = document.getElementById('search-button')
+const resetButton = document.getElementById('reset-button')
 const searchForm = document.getElementById('search-form')
 const userSub = JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub
 
@@ -20,22 +21,30 @@ window.onload = () => {
     
     setUserState() // in global js file
 
+    searchInput.innerText = '' // clear search field
+    searchLibrary() // "search" - returns immediately, just here to trigger listeners
+
     // scale UI
-    searchInput.style.height = searchButton.offsetHeight
+    searchInput.style.height = resetButton.offsetHeight
     
     // CLEAR LOADING SPINNER
     loadingSpinner.style.display = "none"
 
-    // Search event listener
-    searchForm.addEventListener('submit', (event) => {
+    // Search event listener - fires on key up
+    searchForm.addEventListener('keyup', (event) => {
         event.preventDefault()
         searchLibrary()
+    })
+
+    // prevent submit events on search form
+    searchForm.addEventListener('submit', (event) => {
+        event.preventDefault()
     })
 
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
     
     // ONLY CALL S3 IF NECESSARY
-    if (localStorage.getItem('hasUploaded') || !localStorage.getItem('book-finder-data')) {
+    if (localStorage.getItem('hasUploaded') || !localStorage.getItem('book-finder-data')) { // what if they upload on another device? TODO
         getS3URLs(`${apiEndpoints.API_LIBRARY}/?usersub=${userSub}`)
         .then((data) => {
             // if (Object.keys(data.dynamoData)[0].$metadata.httpStatusCode !== 200) {
@@ -234,34 +243,29 @@ async function deleteImage(clickedImageName = "") {
     return response.json()
 }
 
-// REFRESH IMAGES MANUALLY
-refreshButton.addEventListener('click', () => {
-    getS3URLs(`${apiEndpoints.API_LIBRARY}/?usersub=${userSub}`)
-    .then((data) => {
-        // if (Object.keys(data.dynamoData)[0].$metadata.httpStatusCode !== 200) {
-        if (JSON.stringify(data).includes('error')) {
-            // TODO error handling
-            // console.log(Object.keys(data.dynamoData)[0]);
-            console.log(data)
-        } else {
-            localStorage.setItem('book-finder-data', JSON.stringify(data))
-            localStorage.removeItem('hasUploaded'); // reset upload tracking (prevents unnecessary API calls)
-            displayImages()
-        }
-    })
-    .catch((error) => {
-        // TODO error handling
-        console.log(error)
-    });
-})
+
 
 /////////////////////////////////////////////////////////////////////   SEARCH   /////////////////////////////////////////////////////////////////////
 
 function searchLibrary() {
-    const dataArray = Object.entries(JSON.parse(localStorage.getItem('book-finder-data')).dynamoData) // only works as const - why?
+    
     const results = [];
+
     const query = searchInput.value.toLowerCase()
     const terms = query.split(/[, ]+/) // Thanks https://bobbyhadz.com/blog/javascript-split-by-space-or-comma
+    const dataArray = Object.entries(JSON.parse(localStorage.getItem('book-finder-data')).dynamoData) // only works as const - why?
+
+    if (query === '') {                             // empty search form -> account for pageload/reset/delete: reset layout, add listeners, return 
+        libraryContainer.innerHTML = firstLayout
+        messageText.innerText = ''
+        searchResults = dataArray
+        if (document.getElementById('expanded-image-canvas')) {
+            document.getElementById('expanded-image-canvas').remove()        // remove canvas if it exists
+        }
+        addListeners()
+        return
+    }
+
     dataArray.forEach((itemI, indexI) => {
         itemI[1].TextDetections.forEach((itemX, indexX) => {
             terms.forEach((itemY, indexY) => {
@@ -275,6 +279,7 @@ function searchLibrary() {
             })
         })
     })
+
     searchResults = results
     displayResults(results)
 }
@@ -317,20 +322,27 @@ function displayResults(results = []) {
     // reorganize images - TODO refactor for resizing issues
     libraryContainer.innerHTML = "" // reset container
 
-    resultsImages.positiveImages.forEach((item, index) => { // HANDLE POSITIVE RESULTS
-        libraryContainer.appendChild(item) // append positive images
-        item.style.outline = '3px solid #bbff00' // highlight images containing results
+    resultsImages.positiveImages.forEach((item, index) => {                                 // HANDLE POSITIVE RESULTS
+        libraryContainer.appendChild(item)                                                  // append positive images
+        item.style.outline = '3px solid #bbff00'                                            // highlight images containing results
     })
 
-    resultsImages.negativeImages.forEach((item, index) => { // HANDLE NEGATIVE RESULTS
-        let currentID = item.id.split('-')[2] // grab id # of current item
-        libraryContainer.appendChild(item) // append negative images
-        let currentItem = document.getElementById(`library-image-container-${currentID}`) // grab new item from DOM
-        let currentOverlay = libraryOverlays[currentID] // grab associated overlay
-        currentOverlay.style.width = `${currentItem.offsetWidth + 1}px` // set overlay style (add 1 to dimensions because of image width rounding weirdness)
+    resultsImages.negativeImages.forEach((item, index) => {                                 // HANDLE NEGATIVE RESULTS
+        let currentID = item.id.split('-')[2]                                               // grab id # of current item
+        libraryContainer.appendChild(item)                                                  // append negative images
+        let currentItem = document.getElementById(`library-image-container-${currentID}`)   // grab new item from DOM
+        let currentOverlay = libraryOverlays[currentID]                                     // grab associated overlay
+        currentOverlay.style.width = `${currentItem.offsetWidth + 1}px`    // set overlay style (add 1 to dimensions because of image width rounding weirdness)
         currentOverlay.style.height = `${currentItem.offsetHeight + 1}px`
         currentOverlay.style.backgroundColor = 'rgba(44, 44, 44, .9)'
     })
+
+    let numResults = resultsImages.positiveImages.length
+    if (numResults === 1) {
+        messageText.innerText = `${numResults} image matched.`     // display number of images containing search terms
+    } else {
+        messageText.innerText = `${numResults} images matched.`
+    }
 
     addListeners() // add event listeners
 }
@@ -340,8 +352,7 @@ function displayResults(results = []) {
 // view image full-screen
 function expandImage(clickedImageURL = '', details = '') {
 
-    if (details) {console.log('details')}
-    let displayArea = document.createElement('div') // create image and canvas 
+    let displayArea = document.createElement('div')                 // create image and canvas 
     displayArea.id = 'expand-container'
     displayArea.innerHTML = `
     <div id="expanded-image-container">
@@ -349,19 +360,23 @@ function expandImage(clickedImageURL = '', details = '') {
     <canvas id="expanded-image-canvas"></canvas>
     </div>
     `
-    document.getElementById('body').appendChild(displayArea) // add image and canvas to the DOM
+    document.getElementById('body').appendChild(displayArea)        // add image and canvas to the DOM
 
-    displayArea.addEventListener('click', () => {
-        document.getElementById('expand-container').remove()
+    if (details) {                                                  // display image details when requested
+        console.log('details')
+    }
+
+    displayArea.addEventListener('click', () => {                   // remove the expanded image from the DOM on left-click
+        document.getElementById('expand-container').remove()    
     })
 
-    displayArea.addEventListener('contextmenu', (event) => {
+    displayArea.addEventListener('contextmenu', (event) => {        // display image details on right-click
         event.preventDefault()
         console.log('right click')
         return false
     })
 
-    if (searchResults !== []) { // if search data is present, draw detected text polygons on expanded image canvas
+    if (searchResults !== []) {                                     // if search data is present, draw detected text polygons on expanded image canvas
         drawResults(`${userSub}/${clickedImageURL.split('/')[4]}`)
     }
 }
@@ -374,11 +389,11 @@ function drawResults(clickedImageKey = '') {
     let imageWidth = image.width
     let imageHeight = image.height
     let drawCanvas = document.getElementById('expanded-image-canvas')
-    drawCanvas.height = image.height // set canvas size to image size
+    drawCanvas.height = image.height                                    // set canvas size to image size
     drawCanvas.width = image.width
     let drawContext = drawCanvas.getContext('2d')
 
-    let strokes = [
+    let strokes = [                                                     // different strokes used to highlight items on the canvas
         [8, "rgba(187,255,0,.5)"],
         [5, "#bbff00"],
         [2, "#000000"]

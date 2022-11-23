@@ -38,6 +38,7 @@ html, body {
     /* border-bottom: 3px solid black; */
     width: 100vw;
     box-shadow: 0px 3px 7px rgb(13, 13, 13);
+    /* position: fixed; */
 }
 
 #logo-container {
@@ -329,7 +330,7 @@ html, body {
 }
 
 #upload-alert-message {
-    
+    font-size: 1rem;
 }
 
 /* LIBRARY */
@@ -360,14 +361,14 @@ html, body {
     outline: 2px solid #bbff00;
 }
 
-#refresh-images-container {
-    float: right;
+#message-container {
+    float: left;
 }
 
-#refresh-images-button, #search-button {
+#reset-button {
     font-family: 'Kanit', sans-serif;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1rem;
     border: unset;
     border-radius: 5px;
     display: inline;
@@ -380,14 +381,14 @@ html, body {
     transition-duration: .4s;
 }
 
-#refresh-images-button:hover, #search-button:hover {
+#reset-button:hover {
     background-color: #bbff00;
 }
 
-#refresh-images-label {
+#message-text {
     font-family: 'Kanit', sans-serif;
     font-weight: 500;
-    font-size: 1.1rem;
+    font-size: 1.6rem;
     color: white;
     display: inline;
 }
@@ -488,7 +489,7 @@ html, body {
 #expand-container {
     width: 100vw;
     height: 100vh;
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%; 
     transform: translate(-50%, -50%);
