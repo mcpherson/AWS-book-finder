@@ -34,7 +34,7 @@ exports.handler = async (event) => {
         isBase64Encoded: false,
         statusCode: 200,
         headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify(responseBody)
+        body: ''
     }
 
     const s3DeleteCommand = new DeleteObjectCommand(s3Params)
@@ -47,6 +47,7 @@ exports.handler = async (event) => {
         console.log(error)
         response.statusCode = error.$metadata.httpStatusCode
         responseBody.s3Response = error
+        response.body = JSON.stringify(responseBody)
         return(response)
     }
 
@@ -65,11 +66,13 @@ exports.handler = async (event) => {
         console.log(res)
         response.statusCode = 200
         responseBody.dynamoResponse = res
+        response.body = JSON.stringify(responseBody)
         return(response)
     } catch (error) {
         console.log(error)
         response.statusCode = error.$metadata.httpStatusCode
         responseBody.dynamoResponse = error
+        response.body = JSON.stringify(responseBody)
         return(response)
     }
     

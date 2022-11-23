@@ -179,6 +179,7 @@ function addListeners() {
             // DELETE IMAGE
             deleteImage(clickedImageName) 
             .then((data) => {
+                console.log(data)
                 // Remove data from localStorage
                 let currentURLs = JSON.parse(localStorage.getItem('book-finder-data')).s3URLs
                 let currentData = JSON.parse(localStorage.getItem('book-finder-data')).dynamoData
