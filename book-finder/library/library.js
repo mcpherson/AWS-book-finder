@@ -7,11 +7,12 @@ const messageText = document.getElementById('message-text')
 const searchInput = document.getElementById('search-input')
 const resetButton = document.getElementById('reset-button')
 const searchForm = document.getElementById('search-form')
+
+let storedData  // current localstorage data
+
 const userSub = JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub
 
-let rekogData = JSON.parse(localStorage.getItem('book-finder-data')).dynamoData
-
-let firstLayout = [] // store the first library items displayed for resets
+let baseLayout = [] // store current library items displayed for reset/delete
 
 let searchLayout = [] // store the library layout post-search
 
@@ -32,12 +33,22 @@ window.onload = () => {
 
     // Search event listener - fires on key up
     searchForm.addEventListener('keyup', (event) => {
+        if (searchInput.value === '') {
+
+        }
         event.preventDefault()
         searchLibrary()
     })
 
     // prevent submit events on search form
     searchForm.addEventListener('submit', (event) => {
+        event.preventDefault()
+        return false
+    })
+
+    // Reset the search form and layout 
+    resetButton.addEventListener('click', (event) => {
+        resetUI()
         event.preventDefault()
     })
 
@@ -60,6 +71,7 @@ window.onload = () => {
                     data.dynamoData[dataArray[i][0]] = JSON.parse(JSON.parse(dataArray[i][1].Item.RekogResults.S))
                 }
                 localStorage.setItem('book-finder-data', JSON.stringify(data))
+                storedData = JSON.parse(localStorage.getItem('book-finder-data')) // record for global use
                 localStorage.removeItem('hasUploaded'); // reset upload tracking (prevents unnecessary API calls)
                 displayImages();
             }
@@ -71,6 +83,23 @@ window.onload = () => {
     } else { // BYPASS S3 - DISPLAY EACH IMAGE AND KEY WITH LOCALSTORAGE DATA
         displayImages()
     }
+
+    searchInput.focus() // focus the search input (must do this last)
+}
+
+
+
+// reset the UI (called by onload, click on reset button, and empty search form after keyup (backspace))
+function resetUI() {   
+    if (document.getElementById('expanded-image-canvas')) {         // remove canvas if it exists
+        document.getElementById('expanded-image-canvas').remove()        
+    }
+    messageText.innerText = ''                  // reset the UI
+    libraryContainer.innerHTML = baseLayout
+    addListeners()
+    searchInput.value = ''
+    searchInput.focus()
+    searchResults = [] // reset results so expands after resets don't draw previous results
 }
 
 
@@ -128,7 +157,7 @@ const displayImages = function() {
     
     addListeners() // add listeners to buttons
     
-    firstLayout = libraryContainer.innerHTML // set firstLayout for resets
+    baseLayout = libraryContainer.innerHTML // set baseLayout for resets
 }
 
 
@@ -140,13 +169,13 @@ function addListeners() {
     let deleteButtons = Array.from(document.getElementsByClassName('delete-image-button'))
     deleteButtons.forEach((i) => {
         i.addEventListener('click', (event) => {
-            if (window.confirm(`Permanently delete ${clickedImageName}?`) = false) { // Confirmation
-                console.log('yo')
-            }
             // get ID from clicked image delete button and grab corresponding image name
             let clickedID = event.currentTarget.id.split('-')[event.currentTarget.id.split('-').length-1]
             let clickedImage = document.getElementById(`library-image-${clickedID}`)
             let clickedImageName = clickedImage.getAttribute('src').split('/')[4]
+            if (window.confirm(`Permanently delete ${clickedImageName.split('.')[0]}?`) === false) { // Confirmation
+                return
+            }
             // DELETE IMAGE
             deleteImage(clickedImageName) 
             .then((data) => {
@@ -155,16 +184,18 @@ function addListeners() {
                 let currentURLs = JSON.parse(localStorage.getItem('book-finder-data')).s3URLs
                 let currentData = JSON.parse(localStorage.getItem('book-finder-data')).dynamoData
                 currentURLs.splice(clickedID, 1)
-                let imageKey = `${userSub}/${clickedImageName}.png`
+                let imageKey = `${userSub}/${clickedImageName}`
                 delete currentData[imageKey]
                 let newData = {
                     s3URLs: currentURLs,
                     dynamoData: currentData
                 }
-                localStorage.setItem('book-finder-data', newData)
+                localStorage.setItem('book-finder-data', JSON.stringify(newData))   // update localstorage data
+                storedData = JSON.parse(localStorage.getItem('book-finder-data'))   // record for global use
                 // Remove image from UI
                 let deletedImage = document.getElementById(`library-image-${clickedID}`)
                 libraryContainer.removeChild(deletedImage)
+                baseLayout.innerHTML = libraryContainer.innerHTML                  // set a new base layout
             })
             .catch((error) => {
                 // TODO error handling
@@ -222,9 +253,12 @@ function addListeners() {
     })
 }
 
-// DELETE AN IMAGE
-async function deleteImage(clickedImageName = "") {
 
+
+/////////////////////////////////////////////////////////////////////   DELETE   /////////////////////////////////////////////////////////////////////
+
+async function deleteImage(clickedImageName = "") {
+    console.log(clickedImageName)
     // Delete image from S3. Also deletes associated data from DynamoDB.
     const response = await fetch(`${apiEndpoints.API_LIBRARY}/?usersub=${userSub}&key=${clickedImageName}`, {
         method: 'DELETE',
@@ -248,23 +282,17 @@ async function deleteImage(clickedImageName = "") {
 /////////////////////////////////////////////////////////////////////   SEARCH   /////////////////////////////////////////////////////////////////////
 
 function searchLibrary() {
-    
+
     const results = [];
-
-    const query = searchInput.value.toLowerCase()
+    const query = searchInput.value.trim().toLowerCase()
     const terms = query.split(/[, ]+/) // Thanks https://bobbyhadz.com/blog/javascript-split-by-space-or-comma
-    const dataArray = Object.entries(JSON.parse(localStorage.getItem('book-finder-data')).dynamoData) // only works as const - why?
-
-    if (query === '') {                             // empty search form -> account for pageload/reset/delete: reset layout, add listeners, return 
-        libraryContainer.innerHTML = firstLayout
-        messageText.innerText = ''
-        searchResults = dataArray
-        if (document.getElementById('expanded-image-canvas')) {
-            document.getElementById('expanded-image-canvas').remove()        // remove canvas if it exists
-        }
-        addListeners()
+    
+    if (query === '') {       // empty search form (pageload + backspace) -> reset layout
+        resetUI()
         return
     }
+
+    const dataArray = Object.entries(JSON.parse(localStorage.getItem('book-finder-data')).dynamoData) // only works as const - why?
 
     dataArray.forEach((itemI, indexI) => {
         itemI[1].TextDetections.forEach((itemX, indexX) => {
@@ -295,12 +323,12 @@ function displayResults(results = []) {
     }
 
     // reset UI for sequential searches
-    libraryContainer.innerHTML = firstLayout
+    libraryContainer.innerHTML = baseLayout
 
-    let libraryItems = Array.from(document.getElementsByClassName('library-item')) // library item containers
-    let libraryOverlays = Array.from(document.getElementsByClassName('library-overlay')) // library item overlays
-    let libraryImages = Array.from(document.getElementsByClassName('library-image')) // image tags
-    let libraryKeys = [] // image filenames
+    let libraryItems = Array.from(document.getElementsByClassName('library-item'))          // library item containers
+    let libraryOverlays = Array.from(document.getElementsByClassName('library-overlay'))    // library item overlays
+    let libraryImages = Array.from(document.getElementsByClassName('library-image'))        // image tags
+    let libraryKeys = []                                                                    // image filenames
 
     results.forEach((item, index) => {
         libraryKeys.push(item.image.split('/')[1])
@@ -393,7 +421,7 @@ function drawResults(clickedImageKey = '') {
     drawCanvas.width = image.width
     let drawContext = drawCanvas.getContext('2d')
 
-    let strokes = [                                                     // different strokes used to highlight items on the canvas
+    let strokes = [                                                     // different strokes (heh) used to highlight items on the canvas
         [8, "rgba(187,255,0,.5)"],
         [5, "#bbff00"],
         [2, "#000000"]

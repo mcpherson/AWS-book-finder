@@ -29,6 +29,17 @@ exports.handler = async (event) => {
         const bucketContents = await s3client.send(listObjects);
 
         console.log(bucketContents);
+
+        if (!bucketContents.Contents) {
+            console.log('no images found')
+            let results = {
+                isBase64Encoded: false,
+                statusCode: 200,
+                headers: { "Access-Control-Allow-Origin": "*" },
+                body: JSON.stringify(bucketContents)
+            }
+            return(results)
+        }
         
         bucketContents.Contents.forEach((i) => {
             s3URLs.push(`https://book-finder-uploads.s3.amazonaws.com/${i.Key}`);

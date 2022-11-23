@@ -936,6 +936,8 @@ Resources:
       Runtime: nodejs16.x
       Environment:
         Variables:
+          DB_TABLE_NAME: !Ref TableName
+          UPLOADS_BUCKET_NAME: !Ref UploadBucketName
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
       Handler: library-delete.handler
       Code:
@@ -967,6 +969,7 @@ Resources:
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
         - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+        - "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
 
   # Log Group for this Lambda
   BFAPILibraryDELETELambdaLogGroup:
