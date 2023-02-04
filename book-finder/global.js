@@ -2,6 +2,7 @@
 function setUserState() {
 
     const authNav = document.getElementById('auth-link');
+    const signupNav = document.getElementById('signup-link');
 
     if (authNav === undefined) { // user is on a page without a login/logout link
         return;
@@ -10,6 +11,7 @@ function setUserState() {
         authNav.innerText = 'LOGIN';
         return;
     } else { // user is logged in
+        signupNav.innerText = '';
         authNav.setAttribute('href', 'javascript:void(0);');
         authNav.innerText = 'LOGOUT';
         // add logout function to nav button
