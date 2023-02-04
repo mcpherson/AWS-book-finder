@@ -107,11 +107,7 @@ html, body {
     transition-duration: .3s;
 }
 
-#signup-link {
-    color: #bbff00;
-}
-
-.nav-item:hover, #signup-link:hover {
+.nav-item:hover {
     background-color: #bbff00;
     color: black;
     text-shadow: 0 0 0px rgba(0,0,0,0);
