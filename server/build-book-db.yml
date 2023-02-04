@@ -156,6 +156,20 @@ Resources:
       Type: COGNITO_USER_POOLS
   # (thanks https://www.stephengream.com/http-gateway-with-cognito)
 
+  # Usage plan (API throttling for security - basic fix for basic needs.)
+  BookFinderUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      ApiStages:
+        - ApiId: !Ref BFAPI
+          Stage: !Ref BFAPIStage
+      Quota:
+        Limit: 50
+        Period: DAY
+      Throttle:
+        BurstLimit: 2
+        RateLimit: 1
+
   # ========================================================================================== /user
   
   BFAPIUserResource:
@@ -1181,6 +1195,11 @@ Resources:
     UpdateReplacePolicy: Retain
     Properties:
       BucketName: !Ref ResultsBucketName
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireRule
+            Status: Enabled
+            ExpirationInDays: 1
 
   S3TriggerLambdaPermission:
     Type: AWS::Lambda::Permission

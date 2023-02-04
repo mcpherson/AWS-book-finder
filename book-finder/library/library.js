@@ -192,6 +192,9 @@ function addListeners() {
                 }
                 localStorage.setItem('book-finder-data', JSON.stringify(newData))   // update localstorage data
                 storedData = JSON.parse(localStorage.getItem('book-finder-data'))   // record for global use
+                if (storedData === []) {                                            // remove book-finder-data from localstorage if it's empty after delete
+                    localStorage.removeItem('book-finder-data')
+                }
                 // Remove image from UI
                 let deletedImage = document.getElementById(`library-item-${clickedID}`)
                 libraryContainer.removeChild(deletedImage)
