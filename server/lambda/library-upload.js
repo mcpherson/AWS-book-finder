@@ -11,8 +11,8 @@ exports.handler = async (event) => {
         Bucket: 'book-finder-uploads', 
         Key: `${uploadData.UserSub}/${uploadData.fileName}`, 
         ContentEncoding: 'base64',
-        ContentType: 'image/png',
-        ACL: 'public-read'
+        ContentType: 'image/png'
+        // ACL: 'public-read'
     };
     
     const putObj = new PutObjectCommand(params)
