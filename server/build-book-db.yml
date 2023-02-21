@@ -1191,8 +1191,8 @@ Resources:
 
   S3ResultsBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
     Properties:
       BucketName: !Ref ResultsBucketName
       LifecycleConfiguration:
