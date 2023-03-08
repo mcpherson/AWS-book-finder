@@ -137,8 +137,8 @@ drawCanvas.addEventListener('mouseup', (event) => {
         }
     }
     isMouseDown = false;
-    cropButton.disabled = false;
-    cropButton.style.backgroundColor = "#bbff00";
+    // cropButton.disabled = false;
+    // cropButton.style.backgroundColor = "#bbff00";
 });
 
 
@@ -225,6 +225,10 @@ clearButton.addEventListener('click', clearImages);
 
 // DRAW CROPPED IMAGE TO FINAL CANVAS 
 cropButton.addEventListener('click', () => {
+    if (cropRect.startX === 0 && cropRect.startY === 0) {
+        cropRect.height = imageCanvas.height * imageScale
+        cropRect.width = imageCanvas.width * imageScale
+    }
     finalCanvas.style.display = "block";
     finalCanvas.width = cropRect.width/imageScale;
     finalCanvas.height = cropRect.height/imageScale;
@@ -244,7 +248,7 @@ cropButton.addEventListener('click', () => {
     drawCanvas.style.display = "none";
     cropButton.style.display = "none";
     cropButton.style.backgroundColor = "white";
-    cropButton.disabled = "true";
+    // cropButton.disabled = "true";
     uploadButton.style.display = "inline"
     uploadButton.style.visibility = "visible"
 
@@ -370,7 +374,7 @@ uploadButton.addEventListener('click', () => {
             uploadSpinner.style.display = "none"; // CHANGE UI STATE
             alertArea.style.display = "block";
             alertArea.style.backgroundColor = "#bbff00";
-            alertMessage.innerHTML = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your <a href="../../library/">Library</a> to view the status of your upload or continue uploading images.`;
+            alertMessage.innerHTML = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your <a href="/">Library</a> to view the status of your upload or continue uploading images.`;
             clearButton.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
             clearButton.style.display = "inline";
         })

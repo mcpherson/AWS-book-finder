@@ -204,7 +204,7 @@ Resources:
     Properties:
       FunctionName: book-finder-user-delete
       Role: !GetAtt BFAPIUserDELETELambdaRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
@@ -314,7 +314,7 @@ Resources:
     Properties:
       FunctionName: book-finder-user-signup
       Role: !GetAtt BFAPIUserSignupLambdaRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
@@ -427,7 +427,7 @@ Resources:
     Properties:
       FunctionName: book-finder-confirm-user-signup
       Role: !GetAtt BFAPIUserConfirmSignupLambdaRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
@@ -535,7 +535,7 @@ Resources:
     Properties:
       FunctionName: book-finder-login
       Role: !GetAtt BFAPIUserLoginLambdaRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
@@ -644,7 +644,7 @@ Resources:
     Properties:
       FunctionName: book-finder-logout
       Role: !GetAtt BFAPIUserLogoutLambdaRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
@@ -755,7 +755,7 @@ Resources:
     Properties:
       FunctionName: book-finder-user-refresh
       Role: !GetAtt BFAPIUserRefreshLambdaRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
@@ -867,7 +867,7 @@ Resources:
     Properties:
       FunctionName: book-finder-library
       Role: !GetAtt BFAPILibraryLambdaRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
@@ -947,7 +947,7 @@ Resources:
     Properties:
       FunctionName: book-finder-library-delete
       Role: !GetAtt BFAPILibraryDELETELambdaRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Environment:
         Variables:
           DB_TABLE_NAME: !Ref TableName
@@ -1059,7 +1059,7 @@ Resources:
     Properties:
       FunctionName: book-finder-library-upload
       Role: !GetAtt BFAPILibraryUploadLambdaRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
@@ -1267,7 +1267,7 @@ Resources:
     Properties:
       FunctionName: !Ref LambdaFunctionNameRekog
       Role: !GetAtt S3TriggerLambdaRole.Arn
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Environment:
         Variables:
           DB_TABLE_NAME: !Ref TableName
