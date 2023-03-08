@@ -10,7 +10,12 @@ const searchForm = document.getElementById('search-form')
 
 let storedData  // current localstorage data
 
-const userSub = JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub
+let userSub;
+if (localStorage.getItem('book-finder-login-data') !== null) {
+  userSub = JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub
+} else {
+  userSub = "demo-user"
+}
 
 let baseLayout = [] // store current library items displayed for reset/delete
 

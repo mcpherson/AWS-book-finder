@@ -4,7 +4,7 @@ function setUserState() {
     const authNav = document.getElementById('auth-link');
     const signupNav = document.getElementById('signup-link');
 
-    if (authNav === undefined) { // user is on a page without a login/logout link
+    if (authNav === undefined || authNav === null) { // user is on a page without a login/logout link
         return;
     } else if (!localStorage.getItem('book-finder-login-data')) { // user is not logged in
         authNav.setAttribute('href', '/book-finder/login/');
