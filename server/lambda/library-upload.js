@@ -18,7 +18,7 @@ exports.handler = async (event) => {
     const putObj = new PutObjectCommand(params)
 
     try {
-        let res = await getSignedUrl(client, putObj, { expiresIn: 600 });
+        let res = await getSignedUrl(client, putObj, { expiresIn: 60 });
         console.log(res);
         let ret = {
             isBase64Encoded: false,

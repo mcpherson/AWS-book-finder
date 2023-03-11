@@ -60,34 +60,33 @@ window.onload = () => {
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
     
     // ONLY CALL S3 IF NECESSARY
-    if (localStorage.getItem('hasUploaded') || !localStorage.getItem('book-finder-data')) { // what if they upload on another device? TODO
-        getS3URLs(`${apiEndpoints.API_LIBRARY}/?usersub=${userSub}`)
-        .then((data) => {
-            // if (Object.keys(data.dynamoData)[0].$metadata.httpStatusCode !== 200) {
-            if (JSON.stringify(data).includes('error')) {
-                // TODO error handling
-                // console.log(Object.keys(data.dynamoData)[0]);
-                console.log(data);
-            } else {
-                // TODO fix rekog lambda
-                let dataArray = Object.entries(data.dynamoData)
-                // double parse rekog data
-                for (i=0; i<dataArray.length; i++) {
-                    data.dynamoData[dataArray[i][0]] = JSON.parse(JSON.parse(dataArray[i][1].Item.RekogResults.S))
-                }
-                localStorage.setItem('book-finder-data', JSON.stringify(data))
-                storedData = JSON.parse(localStorage.getItem('book-finder-data')) // record for global use
-                localStorage.removeItem('hasUploaded'); // reset upload tracking (prevents unnecessary API calls)
-                displayImages();
-            }
-        })
-        .catch((error) => {
+
+    getS3URLs(`${apiEndpoints.API_LIBRARY}/?usersub=${userSub}`)
+    .then((data) => {
+        console.log(JSON.stringify(data))
+        // if (Object.keys(data.dynamoData)[0].$metadata.httpStatusCode !== 200) {
+        if (JSON.stringify(data).includes('error')) {
             // TODO error handling
-            console.log(error)
-        });
-    } else { // BYPASS S3 - DISPLAY EACH IMAGE AND KEY WITH LOCALSTORAGE DATA
-        displayImages()
-    }
+            // console.log(Object.keys(data.dynamoData)[0]);
+            console.log(data);
+        } else {
+            // TODO fix rekog lambda
+            let dataArray = Object.entries(data.dynamoData)
+            // double parse rekog data
+            for (i=0; i<dataArray.length; i++) {
+                data.dynamoData[dataArray[i][0]] = JSON.parse(JSON.parse(dataArray[i][1].Item.RekogResults.S))
+            }
+            localStorage.setItem('book-finder-data', JSON.stringify(data))
+            storedData = JSON.parse(localStorage.getItem('book-finder-data')) // record for global use
+            localStorage.removeItem('hasUploaded'); // reset upload tracking (prevents unnecessary API calls)
+            displayImages(data.signedURLs);
+        }
+    })
+    .catch((error) => {
+        // TODO error handling
+        console.log(error)
+    });
+
 
     searchInput.focus() // focus the search input (must do this last)
 }
@@ -129,11 +128,13 @@ async function getS3URLs(url = '') {
 }
         
 // DISPLAY IMAGES ON PAGE
-const displayImages = function() {
+const displayImages = function(signedURLs = []) {
     // CLEAR EXISTING IMAGES
     libraryContainer.innerHTML = ""
+    console.log(signedURLs)
 
-    JSON.parse(localStorage.getItem('book-finder-data')).s3URLs.forEach((item, index) => {
+    signedURLs.forEach((item, index) => {
+        console.log(item)
         let imageName = item.split('/')[4]
         let newItem = document.createElement('div')
         newItem.classList.add('library-item')
@@ -301,7 +302,7 @@ function searchLibrary() {
     }
 
     const dataArray = Object.entries(JSON.parse(localStorage.getItem('book-finder-data')).dynamoData) // only works as const - why?
-
+    
     dataArray.forEach((itemI, indexI) => {
         itemI[1].TextDetections.forEach((itemX, indexX) => {
             terms.forEach((itemY, indexY) => {
@@ -348,7 +349,7 @@ function displayResults(results = []) {
     }
 
     libraryImages.forEach((item, index) => {
-        if (libraryKeys.includes(`${item.getAttribute('src').split('/')[4]}`)) {
+        if (libraryKeys.includes(`${item.getAttribute('src').split('/')[4].split('?')[0]}`)) {
             resultsImages.positiveImages.push(libraryItems[index])
         } else {
             resultsImages.negativeImages.push(libraryItems[index])
@@ -436,7 +437,7 @@ function drawResults(clickedImageKey = '') {
     ]
 
     searchResults.forEach((item, index) => {
-        if (item.image === clickedImageKey) {
+        if (item.image === clickedImageKey.split('?')[0]) {
             let poly = item.data.Geometry.Polygon
             // draw a line around detected word
             strokes.forEach((itemX, indexX) => {

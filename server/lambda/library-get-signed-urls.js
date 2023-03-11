@@ -3,12 +3,12 @@ const { DynamoDBClient, GetItemCommand } = require("@aws-sdk/client-dynamodb");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 exports.handler = async (event) => {
-
+    
     // CONFIGURE CLIENTS
     const config = {
         region : "us-east-1"
     }
-    
+
     // S3
     const s3client = new S3Client(config);
     
@@ -17,20 +17,19 @@ exports.handler = async (event) => {
         Bucket : `book-finder-uploads`,
         Prefix : `${event.queryStringParameters.usersub}`
     }
-     
+
     let s3Keys = [];
-    let s3URLs = [];
     let signedURLs = [];
     let dynamoData = {};
     let finalData = {};
-    
+
     const listObjects = new ListObjectsCommand(params);
     
     try { // get arrays of image keys and urls from S3
         
         const bucketContents = await s3client.send(listObjects);
 
-        console.log(`bucket contents: ${bucketContents}`);
+        console.log(bucketContents);
 
         if (!bucketContents.Contents) {
             console.log('no images found')
@@ -44,10 +43,8 @@ exports.handler = async (event) => {
         }
         
         bucketContents.Contents.forEach((i) => {
-            s3URLs.push(`https://book-finder-uploads.s3.amazonaws.com/${i.Key}`);
             s3Keys.push(i.Key);
-            console.log(s3URLs);
-            console.log(`s3 keys: ${s3Keys}`);
+            console.log(s3Keys);
         })
         
     } catch (e) {
@@ -62,71 +59,29 @@ exports.handler = async (event) => {
         return(err);
     }
 
-    for (const i in s3Keys) {
+    
+    
+    
+
+    s3Keys.forEach(async (index, i) => {
 
         let getParams = {
             Bucket: 'book-finder-uploads', 
-            Key: s3Keys[i]
+            Key: i
         };
 
         let getObj = new GetObjectCommand(getParams)
 
         try {
-            let res = await getSignedUrl(s3client, getObj, { expiresIn: 15 });
-            console.log(`Signed URL: ${res}`);
+            let res = await getSignedUrl(client, getObj, { expiresIn: 600 });
+            console.log(res);
             signedURLs.push(res);
         } catch (e) {
             console.log(e);
             return e;
         }
-    }
 
-    // DYNAMO
-    const dynamoClient = new DynamoDBClient(config);
+    })
 
-    const dynamoGetParams = {
-        TableName: process.env.DB_TABLE_NAME,
-        Key: {
-            Id: { S: `${event.queryStringParameters.usersub}` },
-            Image: { }
-        }
-    }
-
-    try { // return object with rekog results from dynamo + s3 data from s3Get
-
-        for (var i=0; i<s3Keys.length; i++) {
-            dynamoGetParams.Key.Image = { S: (s3Keys[i]).split("/")[1] };
-            let getItemCommand = new GetItemCommand(dynamoGetParams);
-            let rekogResults = await dynamoClient.send(getItemCommand);
-            console.log(s3Keys[i]);
-            // improve
-            let s3Key = s3Keys[i];
-            dynamoData[s3Key] = rekogResults;
-        }
-
-    } catch (e) {
-        let err = {
-            isBase64Encoded: false,
-            statusCode: 500,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify(e)
-        }
-        console.log('Error: ', err);
-        return(err);
-    }
-
-    finalData.s3URLs = s3URLs;
-    finalData.signedURLs = signedURLs;
-    finalData.dynamoData = dynamoData;
-
-    let results = {
-        isBase64Encoded: false,
-        statusCode: 200,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify(finalData)
-    }
-
-    console.log(process.env.DB_TABLE_NAME);
-    return(results);
-    
 }
+
