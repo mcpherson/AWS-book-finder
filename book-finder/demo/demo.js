@@ -301,13 +301,13 @@ function drawResults(clickedImageKey = '') {
         [2, "#000000"]
     ]
 
-    console.log(clickedImageKey)
     console.log(searchResults)
 
     searchResults.forEach((item, index) => {
-        console.log(item.image)
+        if (item.data.Type === 'LINE') {
+            return
+        }
         if (item.image.split('/')[1].split('.')[0] === clickedImageKey.split('.')[0]) {
-            
             let poly = item.data.Geometry.Polygon
             // draw a line around detected word
             strokes.forEach((itemX, indexX) => {

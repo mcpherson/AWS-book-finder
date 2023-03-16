@@ -435,6 +435,9 @@ function drawResults(clickedImageKey = '') {
     ]
 
     searchResults.forEach((item, index) => {
+        if (item.data.Type === 'LINE') {
+            return
+        }
         if (item.image === clickedImageKey.split('?')[0]) {
             let poly = item.data.Geometry.Polygon
             // draw a line around detected word
