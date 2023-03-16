@@ -3,7 +3,6 @@ const alertMessage = document.getElementById('alert-message')
 const loadingSpinner = document.getElementById('fouc')
 const libraryContainer = document.getElementById('library-container')
 const messageContainer = document.getElementById('message-container')
-const messageText = document.getElementById('message-text')
 const searchInput = document.getElementById('search-input')
 const resetButton = document.getElementById('reset-button')
 const searchForm = document.getElementById('search-form')
@@ -142,9 +141,6 @@ function searchLibrary() {
 
     const results = [];
     const query = searchInput.value.trim().toLowerCase()
-    const terms = query.split(/[, ]+/) // Thanks https://bobbyhadz.com/blog/javascript-split-by-space-or-comma
-
-    
     
     if (query === '') {       // empty search form (pageload + backspace) -> reset layout
         resetUI()
@@ -155,15 +151,14 @@ function searchLibrary() {
     
     dataArray.forEach((itemI, indexI) => {
         itemI[1].TextDetections.forEach((itemX, indexX) => {
-            terms.forEach((itemY, indexY) => {
-                if (itemX.DetectedText.toLowerCase().includes(`${itemY}`)) {
-                    let result = {
-                        image: itemI[0],
-                        data: itemX
-                    }
-                    results.push(result)
+            if (itemX.Type === 'LINE') return
+            if (itemX.DetectedText.toLowerCase().includes(query)) {
+                let result = {
+                    image: itemI[0],
+                    data: itemX
                 }
-            })
+                results.push(result)
+            }
         })
     })
     searchResults = results
@@ -227,13 +222,6 @@ function displayResults(results = []) {
         currentOverlay.style.backgroundColor = 'rgba(44, 44, 44, .9)'
     })
 
-    let numResults = resultsImages.positiveImages.length
-    if (numResults === 1) {
-        messageText.innerText = `${numResults} image matched.`     // display number of images containing search terms
-    } else {
-        messageText.innerText = `${numResults} images matched.`
-    }
-
     addListeners() // add event listeners
 }
 
@@ -242,7 +230,6 @@ function resetUI() {
     if (document.getElementById('expanded-image-canvas')) {         // remove canvas if it exists
         document.getElementById('expanded-image-canvas').remove()        
     }
-    messageText.innerText = ''                  // reset the UI
     libraryContainer.innerHTML = baseLayout
     addListeners()
     searchInput.value = ''
