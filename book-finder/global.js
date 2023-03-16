@@ -7,11 +7,11 @@ function setUserState() {
     if (authNav === undefined || authNav === null) { // user is on a page without a login/logout link
         return;
     } else if (!localStorage.getItem('book-finder-login-data')) { // user is not logged in
-        authNav.setAttribute('href', '/book-finder/login/');
+        authNav.setAttribute('href', '/login/');
         authNav.innerText = 'LOGIN';
         return;
     } else { // user is logged in
-        signupNav.innerText = '';
+        signupNav.style.display = 'none';
         authNav.setAttribute('href', 'javascript:void(0);');
         authNav.innerText = 'LOGOUT';
         // add logout function to nav button
