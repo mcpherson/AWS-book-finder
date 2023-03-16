@@ -63,7 +63,6 @@ window.onload = () => {
 
     getS3URLs(`${apiEndpoints.API_LIBRARY}/?usersub=${userSub}`)
     .then((data) => {
-        console.log(JSON.stringify(data))
         // if (Object.keys(data.dynamoData)[0].$metadata.httpStatusCode !== 200) {
         if (JSON.stringify(data).includes('error')) {
             // TODO error handling
@@ -131,10 +130,7 @@ async function getS3URLs(url = '') {
 const displayImages = function(signedURLs = []) {
     // CLEAR EXISTING IMAGES
     libraryContainer.innerHTML = ""
-    console.log(signedURLs)
-
     signedURLs.forEach((item, index) => {
-        console.log(item)
         let imageName = item.split('/')[4]
         let newItem = document.createElement('div')
         newItem.classList.add('library-item')
@@ -178,19 +174,21 @@ function addListeners() {
             // get ID from clicked image delete button and grab corresponding image name
             let clickedID = event.currentTarget.id.split('-')[event.currentTarget.id.split('-').length-1]
             let clickedImage = document.getElementById(`library-image-${clickedID}`)
-            let clickedImageName = clickedImage.getAttribute('src').split('/')[4]
-            if (window.confirm(`Permanently delete ${clickedImageName.split('.')[0]}?`) === false) { // Confirmation
+            let clickedImageName = clickedImage.getAttribute('src').split('/')[4].split('?')[0]
+            if (window.confirm(`Permanently delete ${clickedImageName}?`) === false) { // Confirmation
                 return
             }
             // DELETE IMAGE
             deleteImage(clickedImageName) 
             .then((data) => {
                 console.log(data)
+                console.log(clickedImageName.split('.')[0])
                 // Remove data from localStorage
-                let currentURLs = JSON.parse(localStorage.getItem('book-finder-data')).s3URLs
+                let currentURLs = JSON.parse(localStorage.getItem('book-finder-data')).signedURLs
                 let currentData = JSON.parse(localStorage.getItem('book-finder-data')).dynamoData
                 currentURLs.splice(clickedID, 1)
                 let imageKey = `${userSub}/${clickedImageName}`
+                console.log(imageKey)
                 delete currentData[imageKey]
                 let newData = {
                     s3URLs: currentURLs,
