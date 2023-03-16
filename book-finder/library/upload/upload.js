@@ -374,7 +374,7 @@ uploadButton.addEventListener('click', () => {
             uploadSpinner.style.display = "none"; // CHANGE UI STATE
             alertArea.style.display = "block";
             alertArea.style.backgroundColor = "#bbff00";
-            alertMessage.innerHTML = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your <a href="/">Library</a> to view the status of your upload or continue uploading images.`;
+            alertMessage.innerHTML = `Image upload successful. Book Finder will now process your image to identify and catalogue text. Depending on the amount of text in your image, this process may take up to several minutes. You can check your <a href="../">Library</a> to view the status of your upload or continue uploading images.`;
             clearButton.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> &nbsp;UPLOAD ANOTHER IMAGE`;
             clearButton.style.display = "inline";
         })
