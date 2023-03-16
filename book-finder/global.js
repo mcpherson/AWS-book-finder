@@ -3,17 +3,20 @@ function setUserState() {
 
     const authNav = document.getElementById('auth-link');
     const signupNav = document.getElementById('signup-link');
+    const libraryNav = document.getElementById('library-link');
 
     if (authNav === undefined || authNav === null) { // user is on a page without a login/logout link
         return;
     } else if (!localStorage.getItem('book-finder-login-data')) { // user is not logged in
         authNav.setAttribute('href', '/login/');
         authNav.innerText = 'LOGIN';
+        libraryNav.style.display = 'none';
         return;
     } else { // user is logged in
         signupNav.style.display = 'none';
         authNav.setAttribute('href', 'javascript:void(0);');
         authNav.innerText = 'LOGOUT';
+        console.log('hello')
         // add logout function to nav button
         authNav.addEventListener('click', () => {
             cognitoLogout(apiEndpoints.API_USER_LOGOUT)
