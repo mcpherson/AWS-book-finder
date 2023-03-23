@@ -53,7 +53,7 @@ function setUserState() {
                 // TODO ERROR HANDLING
                 console.log('Token refresh error: ', error);
             } else {
-                localStorage.clear();
+                localStorage.setItem('book-finder-login-data', data)
                 window.location.href = "/";
             }
         })

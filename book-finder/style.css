@@ -18,6 +18,7 @@
 }
 
 html {
+    visibility: hidden; /* FOUC */
     background-color: rgb(56, 56, 56);
 }
 
@@ -550,3 +551,62 @@ html, body {
     }
 
 /* Thanks https://codepen.io/LukeAskew/pen/gabgom */
+
+/* homepage style */
+
+#home-container {
+    width: 95vw;
+    margin: 2vh auto 0 auto;
+}
+
+#home-title-area-container {
+    text-align: center;
+}
+
+#home-title {
+    color: white;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 600;
+    font-size: 2.5rem;
+}
+
+#home-tagline {
+    color: white;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 400;
+    font-size: 1.5rem;
+}
+
+#home-options-container {
+    width: 95vw;
+    margin: 3vh auto 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: 30px;
+    grid-row-gap: 0px; 
+    text-align: center;
+}
+
+.home-option {
+    display: inline;
+}
+
+.home-option-button {
+    background-color: rgb(48, 48, 48);
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px black;
+}
+
+.home-options-button:hover {
+    transition: color .4s, box-shadow .4s, ;
+}
+
+.home-option-title {
+    color: #bf0;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 600;
+    font-size: 2rem;
+}
+
+
