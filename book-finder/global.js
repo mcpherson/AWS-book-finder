@@ -52,7 +52,7 @@ const refreshTokens = function () {
     
     let checkTime = new Date();
     console.log(checkTime.getTime())
-    if (checkTime.getTime() > JSON.parse(localStorage.getItem('book-finder-token-expiration')) || true) {
+    if (checkTime.getTime() > JSON.parse(localStorage.getItem('book-finder-token-expiration'))) {
         cognitoRefresh(apiEndpoints.API_USER_REFRESH)
         .then((data) => {
             console.log(data);
@@ -86,12 +86,11 @@ async function cognitoRefresh(url = '') {
         cache: 'no-cache',
         credentials: 'omit',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.IdToken
+            'Content-Type': 'application/json'
         },
         redirect: 'follow',
         referrerPolicy: 'no-referrer',
-        body: JSON.stringify({refreshToken : JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.RefreshToken})
+        body: JSON.stringify({refreshToken : localStorage.getItem('book-finder-refresh-token')})
     });
 
 

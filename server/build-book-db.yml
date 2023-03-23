@@ -64,12 +64,12 @@ Resources:
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      AccessTokenValidity: 1
-      IdTokenValidity: 1
+      AccessTokenValidity: 10
+      IdTokenValidity: 10
       RefreshTokenValidity: 365
       TokenValidityUnits: 
-        AccessToken: days
-        IdToken: days
+        AccessToken: minutes
+        IdToken: minutes
         RefreshToken: days
       ClientName: cognito-book-finder-client
       ExplicitAuthFlows:
@@ -736,8 +736,7 @@ Resources:
     Type: AWS::ApiGateway::Method
     Properties:
       ApiKeyRequired: false
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref BFAPIAuthorizer
+      AuthorizationType: NONE
       HttpMethod: POST
       Integration:
         Type: AWS_PROXY

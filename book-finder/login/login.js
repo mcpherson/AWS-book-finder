@@ -39,11 +39,12 @@ loginButton.addEventListener('click', (event) => {
             alertMessage.innerHTML = 'Login error. Check your email address/password and try again. Accounts must be <a href="../signup/verification">verified</a> after signup using the code sent to the email address you provided. Reset password if necessary.';
         } else {
             localStorage.setItem('book-finder-login-data', JSON.stringify(data))
+            localStorage.setItem('book-finder-refresh-token', data.AuthenticationResult.RefreshToken)
             const sessionStart = new Date
             const sessionExpire = JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.ExpiresIn
             data.sessionStart = sessionStart.getTime() + sessionExpire
             localStorage.setItem('book-finder-token-expiration', JSON.stringify(sessionExpire))
-            window.location.href = "/library/";
+            // window.location.href = "/library/";
         }
     })
     .catch((error) => {
