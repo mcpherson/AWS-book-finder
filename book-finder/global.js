@@ -43,18 +43,29 @@ function setUserState() {
         });
     }
 
-    // compare current time with last login - refresh if necessary.
+    
+}
+
+
+// compare current time with last login - refresh if necessary.
+const refreshTokens = function () {
+    
     let checkTime = new Date();
-    if (checkTime - JSON.parse(localStorage.getItem('book-finder-login-data')).sessionStart > 86400000) {
-        cognitoRefresh(apiEndpoints.API_USER_LOGOUT)
+    console.log(checkTime.getTime())
+    if (checkTime.getTime() > JSON.parse(localStorage.getItem('book-finder-token-expiration')) || true) {
+        cognitoRefresh(apiEndpoints.API_USER_REFRESH)
         .then((data) => {
             console.log(data);
-            if(data.status !== 200) {
+            if(data.$metadata.httpStatusCode !== 200) {
                 // TODO ERROR HANDLING
-                console.log('Token refresh error: ', error);
+                console.log('Token refresh error - status code: ', data.$metadata.httpStatusCode);
             } else {
-                localStorage.setItem('book-finder-login-data', data)
-                window.location.href = "/";
+                console.log('success')
+                localStorage.setItem('book-finder-login-data', JSON.stringify(data))
+                const sessionExpire = JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.ExpiresIn
+                data.sessionStart = checkTime.getTime() + sessionExpire
+                localStorage.setItem('book-finder-token-expiration', JSON.stringify(sessionExpire))
+                // window.location.href = "/";
             }
         })
         .catch((error) => {
@@ -64,6 +75,7 @@ function setUserState() {
         })
     }
 }
+
 
 // refreshes Cognito tokens
 async function cognitoRefresh(url = '') {
@@ -81,6 +93,7 @@ async function cognitoRefresh(url = '') {
         referrerPolicy: 'no-referrer',
         body: JSON.stringify({refreshToken : JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.RefreshToken})
     });
+
 
     return response.json();
 }

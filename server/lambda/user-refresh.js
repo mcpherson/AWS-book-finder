@@ -1,4 +1,4 @@
-const { CognitoIdentityProviderClient, InitiateAuthCommand } = require("@aws-sdk/client-cognito-identity-provider"); // CommonJS import
+const { CognitoIdentityProviderClient, InitiateAuthCommand, GetUserCommand } = require("@aws-sdk/client-cognito-identity-provider"); // CommonJS import
  
 exports.handler = async (event) => {
 
@@ -20,6 +20,9 @@ exports.handler = async (event) => {
     
     try {
         const res = await client.send(command);
+        const getUser = new GetUserCommand({AccessToken : res.AuthenticationResult.AccessToken});
+        const userData = await client.send(getUser);
+        res.UserSub = userData.Username;
         console.log('Refresh success. Result: ', res);
         let ret = {
             isBase64Encoded: false,
