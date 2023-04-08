@@ -16,7 +16,6 @@ function setUserState() {
         signupNav.style.display = 'none';
         authNav.setAttribute('href', 'javascript:void(0);');
         authNav.innerText = 'LOGOUT';
-        console.log('hello')
         // add logout function to nav button
         authNav.addEventListener('click', () => {
             cognitoLogout(apiEndpoints.API_USER_LOGOUT)
