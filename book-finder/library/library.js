@@ -391,9 +391,9 @@ function expandImage(clickedImageURL = '', details = '') {
         console.log('details')
     }
 
-    displayArea.addEventListener('click', () => {                   // remove the expanded image from the DOM on left-click
-        document.getElementById('expand-container').remove()    
-    })
+    window.addEventListener('keydown', closeExpandedImage)          // remove expanded image via ESC or click
+
+    displayArea.addEventListener('click', closeExpandedImage)
 
     displayArea.addEventListener('contextmenu', (event) => {        // display image details on right-click
         event.preventDefault()
@@ -403,6 +403,13 @@ function expandImage(clickedImageURL = '', details = '') {
 
     if (searchResults !== []) {                                     // if search data is present, draw detected text polygons on expanded image canvas
         drawResults(`${userSub}/${clickedImageURL.split('/')[4]}`)
+    }
+}
+
+function closeExpandedImage(event) {                                // remove expanded image + listener
+    if (event.code === "Escape" || event.type === "click") {
+        document.getElementById('expand-container').remove()
+        window.removeEventListener('keydown', closeExpandedImage)
     }
 }
 

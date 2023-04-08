@@ -44,7 +44,7 @@ loginButton.addEventListener('click', (event) => {
             const sessionExpire = JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.ExpiresIn
             data.sessionStart = sessionStart.getTime() + sessionExpire
             localStorage.setItem('book-finder-token-expiration', JSON.stringify(sessionExpire))
-            // window.location.href = "/library/";
+            window.location.href = "/library/";
         }
     })
     .catch((error) => {

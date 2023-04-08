@@ -14,13 +14,13 @@ let baseLayout = `
     <img id="library-image-0" class="library-image" src="../resources/demo-1.JPEG" alt="Demo image">
 </div>
 <div class="delete-area">
-    <button id="delete-image-0" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
+    
 </div>
 <div class="library-item-label-area">
     <p id="library-item-label-0" class="library-item-label">demo-1</p>
 </div>
 <div class="details-area">
-    <button id="image-details-0" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
+    
 </div>
 <div class="expand-area">
     <button id="expand-image-0" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
@@ -32,13 +32,13 @@ let baseLayout = `
     <img id="library-image-1" class="library-image" src="../resources/demo-2.JPEG" alt="Demo image">
 </div>
 <div class="delete-area">
-    <button id="delete-image-1" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
+    
 </div>
 <div class="library-item-label-area">
     <p id="library-item-label-1" class="library-item-label">demo-2</p>
 </div>
 <div class="details-area">
-    <button id="image-details-1" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
+    
 </div>
 <div class="expand-area">
     <button id="expand-image-1" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
@@ -50,13 +50,13 @@ let baseLayout = `
     <img id="library-image-2" class="library-image" src="../resources/demo-3.JPEG" alt="Demo image">
 </div>
 <div class="delete-area">
-    <button id="delete-image-2" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
+    
 </div>
 <div class="library-item-label-area">
     <p id="library-item-label-2" class="library-item-label">demo-3</p>
 </div>
 <div class="details-area">
-    <button id="image-details-2" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
+    
 </div>
 <div class="expand-area">
     <button id="expand-image-2" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
@@ -68,13 +68,13 @@ let baseLayout = `
     <img id="library-image-3" class="library-image" src="../resources/demo-4.JPEG" alt="Demo image">
 </div>
 <div class="delete-area">
-    <button id="delete-image-3" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
+    
 </div>
 <div class="library-item-label-area">
     <p id="library-item-label-3" class="library-item-label">demo-4</p>
 </div>
 <div class="details-area">
-    <button id="image-details-3" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
+    
 </div>
 <div class="expand-area">
     <button id="expand-image-3" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
@@ -86,13 +86,13 @@ let baseLayout = `
     <img id="library-image-4" class="library-image" src="../resources/demo-5.JPEG" alt="Demo image">
 </div>
 <div class="delete-area">
-    <button id="delete-image-4" class="delete-image-button" title="Delete image."><i class="fa-solid fa-trash-can"></i></button>
+    
 </div>
 <div class="library-item-label-area">
     <p id="library-item-label-4" class="library-item-label">demo-5</p>
 </div>
 <div class="details-area">
-    <button id="image-details-4" class="image-details-button" title="View text retrieved from image."><i class="fa-solid fa-magnifying-glass"></i></button>
+    
 </div>
 <div class="expand-area">
     <button id="expand-image-4" class="expand-image-button" title="View full image."><i class="fa-solid fa-maximize"></i></button>
@@ -105,6 +105,8 @@ let searchLayout = [] // store the library layout post-search
 let searchResults = [] // store search results
 
 window.onload = () => {
+
+    resetUI()
 
     searchInput.innerText = '' // clear search field
     // searchLibrary() // "search" - returns immediately, just here to trigger listeners

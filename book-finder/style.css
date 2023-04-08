@@ -410,6 +410,10 @@ html, body {
     max-height: 700px;
 }
 
+.library-image:hover {
+    cursor: zoom-in;
+}
+
 .library-overlay {
     background-color: rgba(0, 0, 0, 0);
     position: absolute;
@@ -556,7 +560,7 @@ html, body {
 
 #home-container {
     width: 95vw;
-    margin: 2vh auto 0 auto;
+    margin: 4vh auto 0 auto;
 }
 
 #home-title-area-container {
