@@ -564,34 +564,39 @@ html, body {
 
 #home-container {
     width: 95vw;
-    margin: 4vh auto 0 auto;
+    margin: 0 auto;
 }
 
 #home-title-area-container {
     text-align: center;
 }
 
+#home-logo {
+    font-size: 5.7rem;
+    color: #bf0;
+}
+
 #home-title {
     color: white;
     font-family: 'Kanit', sans-serif;
     font-weight: 600;
-    font-size: 2.5rem;
+    font-size: 6.6rem;
 }
 
 #home-tagline {
     color: white;
     font-family: 'Kanit', sans-serif;
     font-weight: 400;
-    font-size: 1.5rem;
+    font-size: 3.02rem;
 }
 
 #home-options-container {
-    width: 95vw;
-    margin: 5vh auto 0 auto;
+    width: 90vw;
+    margin: 7vh auto 0 auto;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: 1fr;
-    grid-column-gap: 30px;
+    grid-column-gap: 50px;
     grid-row-gap: 0px; 
     text-align: center;
 }
@@ -603,19 +608,28 @@ html, body {
 .home-option-button {
     background-color: rgb(48, 48, 48);
     border-radius: 12px;
-    box-shadow: 0px 0px 10px black;
+    box-shadow: 0px 0px 7px black;
     text-decoration: unset;
     color: #bf0;
     font-family: 'Kanit', sans-serif;
     font-weight: 600;
-    font-size: 2rem;
+    font-size: 3rem;
     width: 100%;
     display: inline-block;
+    padding: 10px 0;
+    -webkit-transition: color .3s ease-out;
+    -moz-transition: color .3s ease-out;
+    -o-transition: color .3s ease-out;
+    -ms-transition: color .3s ease-out;
+    transition: color .3s ease-out;
 }
 
 .home-option-button:hover {
-    transition-property: color;
-    transition-duration: .4s;
+    -webkit-transition: color .3s ease-in;
+    -moz-transition: color .3s ease-in;
+    -o-transition: color .3s ease-in;
+    -ms-transition: color .3s ease-in;
+    transition: color .3s ease-in;
     color: white;
     cursor: pointer;
 }
@@ -624,7 +638,7 @@ html, body {
     color: white;
     font-family: 'Kanit', sans-serif;
     font-weight: 400;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     padding: 5px;
 }
 
