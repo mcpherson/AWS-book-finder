@@ -255,10 +255,10 @@ function expandImage(clickedImageURL = '', details = '') {
     if (details) {                                                  // display image details when requested
         console.log('details')
     }
+    // remove expanded image via ESC or click
+    window.addEventListener('keydown', closeExpandedImage)
 
-    displayArea.addEventListener('click', () => {                   // remove the expanded image from the DOM on left-click
-        document.getElementById('expand-container').remove()    
-    })
+    displayArea.addEventListener('click', closeExpandedImage)
 
     displayArea.addEventListener('contextmenu', (event) => {        // display image details on right-click
         event.preventDefault()
@@ -344,4 +344,13 @@ function addListeners() {
             expandImage(clickedImageURL)
         })
     })
+}
+
+// remove expanded image + listener
+function closeExpandedImage(event) {
+
+    if (event.code === "Escape" || event.type === "click") {
+        document.getElementById('expand-container').remove()
+        window.removeEventListener('keydown', closeExpandedImage)
+    }
 }

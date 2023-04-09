@@ -436,6 +436,7 @@ html, body {
     color: white;
     text-align: center;
     margin: 0 auto;
+    cursor: default;
 }
 
 .library-image-container img {
@@ -498,6 +499,7 @@ html, body {
     transform: translate(-50%, -50%);
     z-index: 99;
     background-color: rgba(20, 20, 20, 0.95);
+    cursor: zoom-out;
 }
 
 #expanded-image, #expanded-image-canvas {
