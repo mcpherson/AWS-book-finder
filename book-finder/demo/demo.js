@@ -119,11 +119,12 @@ window.onload = () => {
 
     // Search event listener - fires on key up
     searchForm.addEventListener('keyup', (event) => {
-        if (searchInput.value === '') {
-
+        if (event.code === 'Escape') {
+            resetUI()
+        } else {
+            event.preventDefault()
+            searchLibrary()
         }
-        event.preventDefault()
-        searchLibrary()
     })
 
     // prevent submit events on search form

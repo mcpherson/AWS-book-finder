@@ -1,5 +1,9 @@
 // called when any page loads - checks for tokens in localstorage, refreshes them if needed. Changes UI state between logged in / logged out.
 function setUserState() {
+    // HANDLE FOUC
+    window.setTimeout(() => {
+        document.getElementById('fouc').style.display = "none"
+    }, 40)
 
     const authNav = document.getElementById('auth-link');
     const signupNav = document.getElementById('signup-link');
@@ -43,6 +47,7 @@ function setUserState() {
     }
 
     
+    
 }
 
 
@@ -54,7 +59,6 @@ const refreshTokens = function () {
     if (checkTime.getTime() > JSON.parse(localStorage.getItem('book-finder-token-expiration'))) {
         cognitoRefresh(apiEndpoints.API_USER_REFRESH)
         .then((data) => {
-            console.log(data);
             if(data.$metadata.httpStatusCode !== 200) {
                 // TODO ERROR HANDLING
                 console.log('Token refresh error - status code: ', data.$metadata.httpStatusCode);

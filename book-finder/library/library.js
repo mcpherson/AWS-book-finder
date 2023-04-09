@@ -3,6 +3,7 @@ const alertMessage = document.getElementById('alert-message')
 const loadingSpinner = document.getElementById('fouc')
 const libraryContainer = document.getElementById('library-container')
 const messageContainer = document.getElementById('message-container')
+const messageText = document.getElementById('message-text')
 const searchInput = document.getElementById('search-input')
 const resetButton = document.getElementById('reset-button')
 const searchForm = document.getElementById('search-form')
@@ -22,7 +23,7 @@ let searchLayout = [] // store the library layout post-search
 
 let searchResults = [] // store search results
 
-window.onload = () => {
+window.onload = async () => {
     
     setUserState() // in global js file
 
@@ -37,11 +38,12 @@ window.onload = () => {
 
     // Search event listener - fires on key up
     searchForm.addEventListener('keyup', (event) => {
-        if (searchInput.value === '') {
-
+        if (event.code === 'Escape') {
+            resetUI()
+        } else {
+            event.preventDefault()
+            searchLibrary()
         }
-        event.preventDefault()
-        searchLibrary()
     })
 
     // prevent submit events on search form
@@ -59,6 +61,8 @@ window.onload = () => {
     // LOAD IMAGES AND KEYS FROM S3 VIA API CALL OR URLS IN LOCALSTORAGE
     
     // ONLY CALL S3 IF NECESSARY
+
+    await refreshTokens()
 
     getImagesAndData(`${apiEndpoints.API_LIBRARY}/?usersub=${userSub}`)
     .then((data) => {
@@ -85,7 +89,6 @@ window.onload = () => {
         console.log(error)
     });
 
-
     searchInput.focus() // focus the search input (must do this last)
 }
 
@@ -108,7 +111,7 @@ function resetUI() {
 // fetch (GET) to retrieve S3 URLs
 async function getImagesAndData(url = '') {
 
-    await refreshTokens()
+    // await refreshTokens()
 
     const response = await fetch(url, {
         method: 'GET',
@@ -130,6 +133,7 @@ async function getImagesAndData(url = '') {
 const displayImages = function(signedURLs = []) {
     // CLEAR EXISTING IMAGES
     libraryContainer.innerHTML = ""
+    let lastImage
     signedURLs.forEach((item, index) => {
         let imageName = item.split('/')[4]
         let newItem = document.createElement('div')
@@ -155,7 +159,15 @@ const displayImages = function(signedURLs = []) {
         `; // https://stackoverflow.com/questions/511761/js-function-to-get-filename-from-url
 
         libraryContainer.appendChild(newItem) // add to DOM
+
+        if (index + 1 === signedURLs.length) { // track last image to change 'loading' message
+            lastImage = document.getElementById(`library-image-${index}`)
+        }
     });
+
+    lastImage.onload = () => {
+        messageText.innerText = 'Enter a single term. Click a highlighted image to see results.'
+    }
     
     addListeners() // add listeners to buttons
     
