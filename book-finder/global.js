@@ -50,7 +50,7 @@ function setUserState() {
 const refreshTokens = function () {
     
     let checkTime = new Date();
-    console.log(checkTime.getTime())
+
     if (checkTime.getTime() > JSON.parse(localStorage.getItem('book-finder-token-expiration'))) {
         cognitoRefresh(apiEndpoints.API_USER_REFRESH)
         .then((data) => {

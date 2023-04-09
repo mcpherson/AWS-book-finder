@@ -290,8 +290,6 @@ function drawResults(clickedImageKey = '') {
         [2, "#000000"]
     ]
 
-    console.log(searchResults)
-
     searchResults.forEach((item, index) => {
         if (item.data.Type === 'LINE') {
             return

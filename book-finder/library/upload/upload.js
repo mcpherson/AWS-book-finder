@@ -395,14 +395,14 @@ uploadButton.addEventListener('click', () => {
 
 
 
-function dataURItoBlob(dataURI) {
-    var binary = atob(dataURI.split(',')[1]);
-    var array = [];
-    for(var i = 0; i < binary.length; i++) {
-        array.push(binary.charCodeAt(i));
+    function dataURItoBlob(dataURI) {
+        var binary = atob(dataURI.split(',')[1]);
+        var array = [];
+        for(var i = 0; i < binary.length; i++) {
+            array.push(binary.charCodeAt(i));
+        }
+        return new Blob([new Uint8Array(array)], {type: 'image/png'});
     }
-    return new Blob([new Uint8Array(array)], {type: 'image/png'});
-}
 
     
 });
@@ -410,6 +410,8 @@ function dataURItoBlob(dataURI) {
 
 // fetch (POST) for S3 signed URL
 async function getSignedURL(url = '', data = {}) {
+
+    await refreshTokens()
 
     const response = await fetch(url, {
         method: 'POST',
@@ -428,6 +430,8 @@ async function getSignedURL(url = '', data = {}) {
 };
 
 async function useSignedURL(url = '', image = {}) {
+
+    await refreshTokens()
 
     const response = await fetch(url, {
         method: 'PUT',

@@ -60,7 +60,7 @@ window.onload = () => {
     
     // ONLY CALL S3 IF NECESSARY
 
-    getS3URLs(`${apiEndpoints.API_LIBRARY}/?usersub=${userSub}`)
+    getImagesAndData(`${apiEndpoints.API_LIBRARY}/?usersub=${userSub}`)
     .then((data) => {
         // if (Object.keys(data.dynamoData)[0].$metadata.httpStatusCode !== 200) {
         if (JSON.stringify(data).includes('error')) {
@@ -106,7 +106,9 @@ function resetUI() {
 
 
 // fetch (GET) to retrieve S3 URLs
-async function getS3URLs(url = '') {
+async function getImagesAndData(url = '') {
+
+    await refreshTokens()
 
     const response = await fetch(url, {
         method: 'GET',
@@ -263,7 +265,9 @@ function addListeners() {
 /////////////////////////////////////////////////////////////////////   DELETE   /////////////////////////////////////////////////////////////////////
 
 async function deleteImage(clickedImageName = "") {
-    console.log(clickedImageName)
+    
+    await refreshTokens()
+
     // Delete image from S3. Also deletes associated data from DynamoDB.
     const response = await fetch(`${apiEndpoints.API_LIBRARY}/?usersub=${userSub}&key=${clickedImageName}`, {
         method: 'DELETE',
@@ -460,4 +464,4 @@ function drawResults(clickedImageKey = '') {
 
 
 
-// show full-screen image and all detected text side-by-side, hovering over items will draw the corresponding polygons
+// FEATURE: show full-screen image and all detected text side-by-side, hovering over items will draw the corresponding polygons

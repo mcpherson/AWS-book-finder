@@ -514,6 +514,10 @@ html, body {
     box-shadow: 0px 0px 15px black;
 }
 
+#expanded-image:hover {
+    cursor: zoom-out;
+}
+
 /* Thanks https://codepen.io/LukeAskew/pen/gabgom */
 
 #expanded-image-canvas {

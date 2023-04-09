@@ -8,6 +8,8 @@ document.getElementById('forgot-password-form-submit').addEventListener('submit'
 // Cognito password reset
 async function cognitoNewPassword(url = '', data = {}) {
 
+    await refreshTokens()
+
     const response = await fetch(url, {
         method: 'POST',
         mode: 'cors',
