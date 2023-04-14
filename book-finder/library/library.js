@@ -25,8 +25,13 @@ let searchResults = [] // store search results
 
 window.onload = async () => {
     
+    
     setUserState() // in global js file
-
+    if (!localStorage.getItem('book-finder-login-data')) {
+        console.log('ayy')
+        messageText.innerText = "You are not currently logged in."
+        return
+    }
     searchInput.innerText = '' // clear search field
     searchLibrary() // "search" - returns immediately, just here to trigger listeners
 

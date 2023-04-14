@@ -12,38 +12,42 @@ function setUserState() {
     if (authNav === undefined || authNav === null) { // user is on a page without a login/logout link
         return;
     } else if (!localStorage.getItem('book-finder-login-data')) { // user is not logged in
-        authNav.setAttribute('href', '/login/');
-        authNav.innerText = 'LOGIN';
-        libraryNav.style.display = 'none';
+        if (authNav !== null) {
+            authNav.setAttribute('href', '/login/');
+            authNav.innerText = 'LOGIN';
+        }
+        if (libraryNav !== null) { libraryNav.style.display = 'none'; }
         return;
     } else { // user is logged in
-        signupNav.style.display = 'none';
-        authNav.setAttribute('href', 'javascript:void(0);');
-        authNav.innerText = 'LOGOUT';
-        // add logout function to nav button
-        authNav.addEventListener('click', () => {
-            cognitoLogout(apiEndpoints.API_USER_LOGOUT)
-            .then((data) => {
-                console.log(data);
-                if(data.status !== 200) {
-                    // TODO ERROR HANDLING ////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    localStorage.removeItem('book-finder-login-data'); // TEMP FIX WHILE REWRITING LOGOUT
-                    localStorage.removeItem('book-finder-data');
-                    window.location.href = "/";
-                    // TODO ERROR HANDLING ////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    console.log('Logout error: ', data);
-                } else { // reset everything and send 'em home
-                    localStorage.removeItem('book-finder-login-data');
-                    localStorage.removeItem('book-finder-data');
-                    window.location.href = "/";
-                }
-            })
-            .catch((error) => {
-                // TODO ERROR HANDLING
-                console.log('Logout error: ', error);
-                throw new Error("Logout failed. See console for details.");
-            })
-        });
+        if (signupNav !== null) { signupNav.style.display = 'none' }
+        if (authNav !== null) {
+            authNav.setAttribute('href', 'javascript:void(0);');
+            authNav.innerText = 'LOGOUT';
+            // add logout function to nav button
+            authNav.addEventListener('click', () => {
+                cognitoLogout(apiEndpoints.API_USER_LOGOUT)
+                .then((data) => {
+                    console.log(data);
+                    if(data.status !== 200) {
+                        // TODO ERROR HANDLING ////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        localStorage.removeItem('book-finder-login-data'); // TEMP FIX WHILE REWRITING LOGOUT
+                        localStorage.removeItem('book-finder-data');
+                        window.location.href = "/";
+                        // TODO ERROR HANDLING ////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        console.log('Logout error: ', data);
+                    } else { // reset everything and send 'em home
+                        localStorage.removeItem('book-finder-login-data');
+                        localStorage.removeItem('book-finder-data');
+                        // window.location.href = "/";
+                    }
+                })
+                .catch((error) => {
+                    // TODO ERROR HANDLING
+                    console.log('Logout error: ', error);
+                    throw new Error("Logout failed. See console for details.");
+                })
+            });
+        }
     }
 
     
@@ -63,7 +67,6 @@ const refreshTokens = function () {
                 // TODO ERROR HANDLING
                 console.log('Token refresh error - status code: ', data.$metadata.httpStatusCode);
             } else {
-                console.log('success')
                 localStorage.setItem('book-finder-login-data', JSON.stringify(data))
                 const sessionExpire = JSON.parse(localStorage.getItem('book-finder-login-data')).AuthenticationResult.ExpiresIn
                 data.sessionStart = checkTime.getTime() + sessionExpire

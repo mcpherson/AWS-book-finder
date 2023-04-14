@@ -53,6 +53,12 @@ window.addEventListener('resize', () => {
 
 // UPLOAD IMAGE FROM FILESYSTEM, ADD TO IMAGE CANVAS
 function handleImage(e) {
+    // prevent uploads larger than 10MB
+    if (e.target.files[0].size > 20000000) {
+        alertMessage.innerText = `Maximum file size: 20MB. Please choose a smaller image.`
+        alertArea.style.display = 'block'
+        return
+    }
     const reader = new FileReader();
     reader.onload = (event) => {
         const uploadedImage = new Image();
@@ -77,6 +83,7 @@ function handleImage(e) {
     imageInputLabel.style.display = "none";
     cropButton.style.visibility = "visible";
     clearButton.style.visibility = "visible";
+    alertArea.style.display = 'none'
 };
 
 
