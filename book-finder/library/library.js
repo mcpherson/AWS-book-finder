@@ -452,6 +452,10 @@ function drawResults(clickedImageKey = '') {
         [2, "#000000"]
     ]
 
+    if (searchResults.length > 0) {                                     // only flash grayscale if results
+        image.classList.add('grayscale-flash')
+    }
+
     searchResults.forEach((item, index) => {
         if (item.data.Type === 'LINE') {
             return

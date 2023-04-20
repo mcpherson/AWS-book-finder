@@ -560,6 +560,29 @@ html, body {
         }
     }
 
+.grayscale-flash {
+    animation-name: grayscale-flash;
+    animation-duration: 5.2s;
+    animation-iteration-count: infinite;
+}
+    @keyframes grayscale-flash {
+        0% {
+            filter: grayscale(0);
+        }
+        10% {
+            filter: grayscale(1);
+        }
+        40% {
+            filter: grayscale(1);
+        }
+        50% {
+            filter: grayscale(0);
+        }
+        100% {
+            filter: grayscale(0);
+        }
+    }
+
 /* Thanks https://codepen.io/LukeAskew/pen/gabgom */
 
 /* homepage style */
