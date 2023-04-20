@@ -5,20 +5,44 @@ function setUserState() {
         document.getElementById('fouc').style.display = "none"
     }, 40)
 
-    const authNav = document.getElementById('auth-link');
-    const signupNav = document.getElementById('signup-link');
-    const libraryNav = document.getElementById('library-link');
+    const authNav = document.getElementById('auth-link')
+    const signupNav = document.getElementById('signup-link')
+    const libraryNav = document.getElementById('library-link')
+    const homeSignup = document.getElementById('home-option-signup')
+    const homeLogin = document.getElementById('home-option-login')
+    const homeLibraryLayout = 
+        `<a href="./library">
+        <div id="home-library-option-button" class="home-option-button">
+            <span id="home-library-option-title" class="home-option-title">
+            <i class="fa-solid fa-book-open"></i>&nbsp;&nbsp;LIBRARY
+            </span>
+        </div>
+        </a>
+        <div id="home-library-option-description-container" class="home-option-description-container">
+            <span id="home-library-option-description" class="home-option-description">View, search, and curate your library.</span>
+        </div>`
+        const homeLogoutLayout = 
+        `<a href="javascript:void(0);" id="home-logout-link">
+        <div id="home-logout-option-button" class="home-option-button">
+            <span id="home-logout-option-title" class="home-option-title">
+            <i class="fa-solid fa-hand-peace"></i>&nbsp;&nbsp;LOGOUT
+            </span>
+        </div>
+        </a>
+        <div id="home-logout-option-description-container" class="home-option-description-container">
+            <span id="home-logout-option-description" class="home-option-description">See you next time.</span>
+        </div>`
 
-    if (authNav === undefined || authNav === null) { // user is on a page without a login/logout link
-        return;
-    } else if (!localStorage.getItem('book-finder-login-data')) { // user is not logged in
+    if (!localStorage.getItem('book-finder-login-data')) { // user is not logged in
         if (authNav !== null) {
             authNav.setAttribute('href', '/login/');
             authNav.innerText = 'LOGIN';
         }
-        if (libraryNav !== null) { libraryNav.style.display = 'none'; }
+        if (libraryNav !== null) { libraryNav.style.display = 'none' }
         return;
     } else { // user is logged in
+        if (homeSignup !== null) { homeSignup.innerHTML = homeLibraryLayout } // home page, change signup option
+        if (homeLogin !== null) { homeLogin.innerHTML = homeLogoutLayout } // home page, change login option
         if (signupNav !== null) { signupNav.style.display = 'none' }
         if (authNav !== null) {
             authNav.setAttribute('href', 'javascript:void(0);');
@@ -38,7 +62,7 @@ function setUserState() {
                     } else { // reset everything and send 'em home
                         localStorage.removeItem('book-finder-login-data');
                         localStorage.removeItem('book-finder-data');
-                        // window.location.href = "/";
+                        window.location.href = "/";
                     }
                 })
                 .catch((error) => {
@@ -47,6 +71,31 @@ function setUserState() {
                     throw new Error("Logout failed. See console for details.");
                 })
             });
+        } else { // home
+            let homeLogout = document.getElementById('home-logout-link')
+            homeLogout.addEventListener('click', () => {
+                cognitoLogout(apiEndpoints.API_USER_LOGOUT)
+                .then((data) => {
+                    console.log(data);
+                    if(data.status !== 200) {
+                        // TODO ERROR HANDLING ////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        localStorage.removeItem('book-finder-login-data'); // TEMP FIX WHILE REWRITING LOGOUT
+                        localStorage.removeItem('book-finder-data');
+                        window.location.href = "/";
+                        // TODO ERROR HANDLING ////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        console.log('Logout error: ', data);
+                    } else { // reset everything and send 'em home
+                        localStorage.removeItem('book-finder-login-data');
+                        localStorage.removeItem('book-finder-data');
+                        window.location.href = "/";
+                    }
+                })
+                .catch((error) => {
+                    // TODO ERROR HANDLING
+                    console.log('Logout error: ', error);
+                    throw new Error("Logout failed. See console for details.");
+                })
+            })
         }
     }
 
