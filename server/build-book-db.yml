@@ -60,6 +60,8 @@ Resources:
       UsernameAttributes:
         - email
       UserPoolName: cognito-book-finder-user-pool
+      VerificationMessageTemplate: 
+        EmailSubject: "Your Book Finder verification code"
 
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
