@@ -8,7 +8,7 @@ const spinner = document.querySelector('.spinner');
 
 // RUN WHEN PAGE LOADS
 window.onload = () => {
-    emailField.value = localStorage.getItem('bookFinderUsername');
+    // emailField.value = localStorage.getItem('bookFinderUsername')
     setUserState(); // in global js file
 }
 
