@@ -362,7 +362,7 @@ html, body {
     float: left;
 }
 
-#no-images {
+.library-error {
     color:#bbff00;
 }
 
@@ -392,6 +392,17 @@ html, body {
     font-size: 1.6rem;
     color: white;
     display: inline;
+}
+
+#error-area {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 500;
+    font-size: 1.6rem;
+    color: white;
+    display: block;
+    max-width: 50vw;
+    text-align: center;
+    margin: 0 auto;
 }
 
 #library-container {

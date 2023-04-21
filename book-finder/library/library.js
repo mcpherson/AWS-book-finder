@@ -4,6 +4,7 @@ const loadingSpinner = document.getElementById('fouc')
 const libraryContainer = document.getElementById('library-container')
 const messageContainer = document.getElementById('message-container')
 const messageText = document.getElementById('message-text')
+const errorArea = document.getElementById('error-area')
 const searchInput = document.getElementById('search-input')
 const resetButton = document.getElementById('reset-button')
 const searchForm = document.getElementById('search-form')
@@ -90,10 +91,26 @@ window.onload = async () => {
         }
     })
     .catch((error) => {
-        // TODO error handling
+        // error handling
         console.log(error)
-        if (error.message === 'Cannot convert undefined or null to object') {
-            messageText.innerHTML = 'No images found. <a id="no-images" href="/library/upload">Click here to upload.</a>'
+        if (error.message === 'Cannot convert undefined or null to object') {   
+            // no images returned (new acct or all deleted)
+            messageText.innerHTML = 'No images found. <a class="library-error" href="./upload">Click here to upload.</a>'
+        } else if (error.message === "Cannot read properties of undefined (reading 'RekogResults')") {
+            // no results from rekog (user visited Library too soon after upload, image still processing)
+            messageText.innerText = ''
+            errorArea.innerHTML = '<p>Your image is being processed. This can take several minutes for large or text-rich images. Cropping your images into smaller pieces will speed this up significantly. This page will automatically reload until processing is complete. <br>&nbsp;<br>Reloading in <span id="reload-counter">10</span> seconds.</p>'
+            setTimeout(() => {window.location.reload()}, 10000)
+            let i = 9
+            setInterval(() => {
+                document.getElementById('reload-counter').innerText = `${i}`
+                i--
+                console.log(i)
+            }, 1000)
+        } else {
+            // generic error
+            messageText.innerHTML = ''
+            errorArea.innerHTML = '<p>Something went wrong. If this error persists, please <a class="library-error" target="_blank" href="https://github.com/mcpherson/AWS-book-finder/issues/new">submit an issue</a>. In the meantime, you may <a class="library-error" href="../signup">create a new account</a>.</p>'
         }
     });
 
@@ -222,7 +239,7 @@ function addListeners() {
                 // Remove image from UI
                 let deletedImage = document.getElementById(`library-item-${clickedID}`)
                 libraryContainer.removeChild(deletedImage)
-                baseLayout.innerHTML = libraryContainer.innerHTML                  // set a new base layout
+                baseLayout = libraryContainer.innerHTML                  // set a new base layout
             })
             .catch((error) => {
                 // TODO error handling
