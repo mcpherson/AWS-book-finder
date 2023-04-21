@@ -92,6 +92,9 @@ window.onload = async () => {
     .catch((error) => {
         // TODO error handling
         console.log(error)
+        if (error.message === 'Cannot convert undefined or null to object') {
+            messageText.innerHTML = 'No images found. <a id="no-images" href="/library/upload">Click here to upload.</a>'
+        }
     });
 
     searchInput.focus() // focus the search input (must do this last)

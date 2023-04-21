@@ -362,6 +362,10 @@ html, body {
     float: left;
 }
 
+#no-images {
+    color:#bbff00;
+}
+
 #reset-button {
     font-family: 'Kanit', sans-serif;
     font-weight: 600;
