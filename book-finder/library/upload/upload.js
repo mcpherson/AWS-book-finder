@@ -53,7 +53,7 @@ window.addEventListener('resize', () => {
 
 // UPLOAD IMAGE FROM FILESYSTEM, ADD TO IMAGE CANVAS
 function handleImage(e) {
-    // prevent uploads larger than 10MB
+    // prevent uploads larger than 20MB
     if (e.target.files[0].size > 20000000) {
         alertMessage.innerText = `Maximum file size: 20MB. Please choose a smaller image.`
         alertArea.style.display = 'block'
@@ -363,17 +363,22 @@ uploadButton.addEventListener('click', () => {
     //         localStorage.setItem('imageURLs', JSON.stringify(imageURLStorage));
     //     }
     // };
+    
+    const imageData = dataURItoBlob(finalImage);
+    
     const urlData = {
         UserSub: JSON.parse(localStorage.getItem('book-finder-login-data')).UserSub,
-        fileName: fileName.innerHTML
+        fileName: fileName.innerHTML,
+        fileSize: imageData.size
     };
-
-    const imageData = dataURItoBlob(finalImage);
 
     getSignedURL(apiEndpoints.API_LIBRARY_UPLOAD, urlData)
     // .then((response) => response.text())
     .then((text) => {
-        console.log(text);
+        console.log(text)
+        if (text.slice(0,1) === "U") { // catch error
+            throw new Error(text)
+        }
         useSignedURL(text, imageData)
         .then((res) => {
             console.log(res);
@@ -397,7 +402,11 @@ uploadButton.addEventListener('click', () => {
     })
     .catch((error) => {
         // TODO error handling
-        console.log('Error getting signed URL: ', error);
+        console.log(error)
+        uploadSpinner.style.display = "none"; // CHANGE UI STATE
+        alertArea.style.display = "block";
+        alertArea.style.backgroundColor = "lightcoral";
+        alertMessage.innerText = error;
     });
 
 
@@ -432,8 +441,9 @@ async function getSignedURL(url = '', data = {}) {
         redirect: 'follow',
         referrerPolicy: 'no-referrer',
         body: JSON.stringify(data)
-    });
-    return response.text();
+    })
+
+    return response.text()
 };
 
 async function useSignedURL(url = '', image = {}) {
