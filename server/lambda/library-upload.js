@@ -26,14 +26,16 @@ exports.handler = async (event) => {
         
         const bucketContents = await client.send(listObjects);
 
-        // console.log(`bucket contents: ${JSON.stringify(bucketContents)}`)
+        console.log(`bucket contents: ${JSON.stringify(bucketContents)}`)
         
         let currentFileSize = uploadData.fileSize // start with size of file passed in
         let currentStorage = 0
 
-        bucketContents.Contents.forEach((i) => { // add up total filesize of existing images
-            currentStorage += i.Size
-        })
+        if (bucketContents.Contents) {
+            bucketContents.Contents.forEach((i) => { // add up total filesize of existing images
+                currentStorage += i.Size
+            })
+        }
 
         if (currentFileSize + currentStorage > 50000000) {
 
