@@ -1,6 +1,6 @@
-const apiEndpointID = "eupite5f5d";
-const apiStage = "dev";
-const awsRegion = "us-east-1";
+const apiEndpointID = "eupite5f5d"
+const apiStage = "dev"
+const awsRegion = "us-east-1"
 const apiEndpoints = {
     API_USER                    : `https://${apiEndpointID}.execute-api.${awsRegion}.amazonaws.com/${apiStage}/user`,
     API_USER_SIGNUP             : `https://${apiEndpointID}.execute-api.${awsRegion}.amazonaws.com/${apiStage}/user/signup`,
@@ -12,4 +12,4 @@ const apiEndpoints = {
     API_LIBRARY                 : `https://${apiEndpointID}.execute-api.${awsRegion}.amazonaws.com/${apiStage}/library`,
     API_LIBRARY_UPLOAD          : `https://${apiEndpointID}.execute-api.${awsRegion}.amazonaws.com/${apiStage}/library/upload`,
     API_LIBRARY_SEARCH          : `https://${apiEndpointID}.execute-api.${awsRegion}.amazonaws.com/${apiStage}/library/search`,
-};
+}

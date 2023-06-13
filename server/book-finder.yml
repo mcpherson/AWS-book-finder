@@ -1,14 +1,5 @@
-# create-stack --stack-name s3-trigger-lambda --template-body file://s3-trigger-lambda.yml --capabilities CAPABILITY_NAMED_IAM
-# ...wait a while...
-# aws cloudformation list-stacks
-# ...to see if it's been created...
-# aws lambda invoke --invocation-type RequestResponse --function-name s3-trigger-lambda out.txt
-# cat out.txt
-# rm out.txt
-# ...explore stack, lambda, role in the console if so inclined...
-# aws cloudformation delete-stack --stack-name s3-trigger-lambda
 AWSTemplateFormatVersion: 2010-09-09
-Description: Offline portion of Book Finder App
+Description: AWS backend of Book Finder App
 
 Parameters:
   ApiGatewayName:
@@ -32,9 +23,9 @@ Parameters:
     Type: String
     Default: book-finder-results
 
-  ZipBucketName:
+  LambdaBucketName:
     Type: String
-    Default: losalamosal-udemy-uploads-3
+    Default: book-finder-lambda-bucket-001
 
   ZipVersionId:
     Type: String
@@ -212,7 +203,7 @@ Resources:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
       Handler: user-delete.handler
       Code:
-        S3Bucket: !Ref ZipBucketName
+        S3Bucket: !Ref LambdaBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
       MemorySize: 128
@@ -322,7 +313,7 @@ Resources:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
       Handler: user-signup.handler
       Code:
-        S3Bucket: !Ref ZipBucketName
+        S3Bucket: !Ref LambdaBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
       MemorySize: 128
@@ -435,7 +426,7 @@ Resources:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
       Handler: user-confirm-signup.handler
       Code:
-        S3Bucket: !Ref ZipBucketName
+        S3Bucket: !Ref LambdaBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
       MemorySize: 128
@@ -543,7 +534,7 @@ Resources:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
       Handler: user-login.handler
       Code:
-        S3Bucket: !Ref ZipBucketName
+        S3Bucket: !Ref LambdaBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
       MemorySize: 128
@@ -652,7 +643,7 @@ Resources:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
       Handler: user-logout.handler
       Code:
-        S3Bucket: !Ref ZipBucketName
+        S3Bucket: !Ref LambdaBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
       MemorySize: 128
@@ -762,7 +753,7 @@ Resources:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
       Handler: user-refresh.handler
       Code:
-        S3Bucket: !Ref ZipBucketName
+        S3Bucket: !Ref LambdaBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
       MemorySize: 128
@@ -875,7 +866,7 @@ Resources:
           DB_TABLE_NAME: !Ref TableName
       Handler: library-get.handler
       Code:
-        S3Bucket: !Ref ZipBucketName
+        S3Bucket: !Ref LambdaBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
       MemorySize: 128
@@ -956,7 +947,7 @@ Resources:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
       Handler: library-delete.handler
       Code:
-        S3Bucket: !Ref ZipBucketName
+        S3Bucket: !Ref LambdaBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
       MemorySize: 128
@@ -1066,7 +1057,7 @@ Resources:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
       Handler: library-upload.handler
       Code:
-        S3Bucket: !Ref ZipBucketName
+        S3Bucket: !Ref LambdaBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
       MemorySize: 128
@@ -1276,7 +1267,7 @@ Resources:
           UPLOADS_BUCKET_NAME: !Ref UploadBucketName
       Handler: rekog.handler
       Code:
-        S3Bucket: !Ref ZipBucketName
+        S3Bucket: !Ref LambdaBucketName
         S3Key: !Ref ZipS3Key
         S3ObjectVersion: !Ref ZipVersionId
       # https://github.com/charoitel/lambda-layer-canvas-nodejs/wiki

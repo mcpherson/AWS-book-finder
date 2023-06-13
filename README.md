@@ -1,88 +1,70 @@
-## Book Finder: Offline Processing
+# Book Finder
 
-`cat results/IMG_1241.json| jq '.TextDetections[].DetectedText'`
-`cat results/IMG_1241.json| jq '. | fromjson'`
+Book Finder is a simple OCR app powered by AWS Serverless. It allows a user to upload images and search for text contained in them.
 
-### S3 Requirements
+[Try the app](https://bookfinder.mcpherson.dev)
 
-#### Lambda Upload Bucket
+[Read about the app's development](https://mcpherson.dev/projects/AWS-book-finder)
 
-This section describes how we use a Makefile and a version-enabled S3 bucket to
-handle lambda ZIP uploads.
+## Requirements
+- AWS account
+    - Admin permissions
+- Terminal (bash)
+    - make
+    - zip
+    - aws
+- Static website hosting
 
-#### Image Processing Bucket
+## Creating the Lambda Bucket
 
-We need a bucket to store the uploaded images and the processed results.
+You must create a versioned S3 bucket before creating the main stack. This is where Lambda code will be stored for deployment via CFN. 
 
-```
-s3-image-processing-bucket
-  /originals      - upload images here; after processing they are noved to processed
-  /processed      - images that have been operated on are move from originals to here
-  /thumbs         - one thumbnail for each processed image;
-                    should be available via HTTP to client application
-  /json           - one JSON file of text matches for each processed image;
-                  - server will read these to perform search;
-                  - may possibly coalesce into one file with "shelf" reference
-  /debug          - offline process may store intermediate iamges here;
-                  - these would be the masked images or images showing matched text
-  /passes         - input images for each rekognition pass; text that has been
-                    previously found is covered with a white polygon so that it
-                    isn't detected in subsequent passes.
-```
+Run the following commands (replace 'my-bucket' with a GLOBALLY UNIQUE bucket name):
+```aws s3 mb my-bucket```
+```aws s3api put-bucket-versioning --bucket my-bucket --versioning-configuration Status=Enabled```
 
-File name format:
+In `Makefile`, change the value of `lambda_bucket` to your bucket name.
+In `book-finder.yml`, change the default value of the `LambdaBucketName` parameter to your bucket name.
 
-- `s3-image-processing-bucket/`
-  - `/originals/file.png`: might want to put a "shelf" number in there somewhere
-  - `/processed/file.png`: same as originals
-  - `thumbs/file-thumb.png`
-  - `/json/file.json`
-  - `/debug/file-mode-n.png`: where mode can be "outline" or "masked"; n is the sequence of the intermediate image
+## Creating the AWS Stack
 
-### Data Storage
+Before creating the main stack, you will need to create the node.js canvas lambda layer and add its ARN to your CFN file (`book-finder.yml`).
 
-The records looks like (less than 400 byts per book, and could reduce that--don't need
-all that precision in `X` and `Y`):
+1. In your AWS console, navigate to the Serverless Application Repository via “Services”.
+2. Click “Available applications” on the left
+3. Search for “canvas”
+4. Click “lambda-layer-canvas-nodejs” by Charoite Lee
+5. Click “Deploy”
+6. Navigate to CloudFormation in the console and select the stack that was just created
+7. Click the “Resources” tab on the right sidebar
+8. Copy the resource’s ARN under “Physical ID”
+9. Search for “REKOG LAMBDA” in `book-finder.yml`
+10. Update the value of the `Layers` property of the `S3TriggerLambda` resource with the new ARN and save the file
 
-```json
-{
-  "TextDetections": [
-    {
-      "DetectedText": "Almost Vegetarian",
-      "Type": "LINE",
-      "Geometry": {
-        "Polygon": [
-          { "X": 0.2913122773170471, "Y": 0.45773550868034363 },
-          { "X": 0.3072223961353302, "Y": 0.5984686017036438 },
-          { "X": 0.2840229868888855, "Y": 0.6010913252830505 },
-          { "X": 0.2681128680706024, "Y": 0.46035823225975037 }
-        ]
-      }
-    }
-  ]
-}
-```
+The rest of the AWS resources are contained in a single stack created via Makefile. 
 
-Need a tool to merge multiple JSON files.
+1. In your local terminal, navigate to the “server” directory
+2. Run `make`
 
-### Database Alternatives
+The Makefile will check for updates to Lambda code before zipping the functions and uploading them to the previously created versioned Lambda bucket.
 
-DynamoDB: No unique key. Text substring search requires a scan. Will be slow.
+## Front-End Hosting
+The front-end is a simple static site. I use Netlify's Continuous Deployment feature to assist with development, but any static website hosting service will work. 
 
-Aurora Serverles: SQL. Can do substring search. Not really serverless--minimum monthly charge
-of around $40 to keep server active.
+You will need to change a few values in your `config.js` file to hook it up to your AWS stack.
 
-DocumentDB: MongoDB clone. Would be good, but again not serverless. Minimum charge for server.
+1. `APIEndpointID`
+    - To find the ID of your REST API (`bookfinder-api-gateway`), run: `aws apigateway get-rest-apis`
+2. `region`
+    - Replace with the default region of your AWS account as defined in your `config` file, e.g. `us-west-2`
 
-CloudSearch: Can index everything and do Google-type searches. Close enough searchs, etc.
-Index can be updated using a lambda for new data. No free plan. Costs.
+You can also find the above information in the console.
 
-EFS: This is cheap and should work well, but must deal with VPC and getting lambda into same
-VPC as EFS. Still may be a server charge.
+----
+After following these steps, you should be able to spin up your own copy of Book Finder and tinker with it as you please. Thank you for checking out my project. If you encountered any issues, or if you have a suggestion or request, [submit an issue](https://github.com/mcpherson/AWS-book-finder/issues/new).
 
-Raw JSON data: This is the best approach. 300 books (300 \* 400 = 120KB, less if we limit
-precision of the X and Y elements that delimit text bounding polygon)
-means small amount of data. Could just
-load it into lambda as part of `node_modules` or put it in a lambda layer. Found a post
-on the web where a guy uses lambda layers to store small hash tables for rapid search.
-This is the same approach.
+## License
+
+This software is licensed under the GNU General Public License v3.0 or later.
+
+See [LICENSE](https://github.com/mcpherson/AWS-book-finder/blob/main/LICENSE) to see the full text of the license.

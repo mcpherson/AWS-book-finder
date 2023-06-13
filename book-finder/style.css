@@ -249,7 +249,7 @@ html, body {
     display: none;
 }
 
-#file-name {
+#file-name, #tooltip {
     font-family: 'Kanit', sans-serif;
     font-weight: 500;
     font-size: 1.1rem;
@@ -259,13 +259,12 @@ html, body {
 }
 
 #crop-button, #clear-button, #upload-button {
-    visibility: hidden;
+    display: none;
     font-family: 'Kanit', sans-serif;
     font-weight: 600;
     font-size: 1.1rem;
     border: unset;
     border-radius: 5px;
-    display: inline;
     padding: 6px 12px;
     cursor: pointer;
     background-color: white;
@@ -277,12 +276,11 @@ html, body {
 }
 
 #new-file-name {
-    visibility: hidden;
+    display: none;
     border: unset;
     border-radius: 5px;
     margin-left: 10px;
     cursor: text;
-    display: inline;
     font-weight: 200;
 }
 
@@ -303,6 +301,7 @@ html, body {
 #draw-area {
     background-color: rgba(0,0,0,0);
     z-index: 2;
+    cursor: crosshair;
 }
 
 #final-image, #draw-area, #uploaded-image {

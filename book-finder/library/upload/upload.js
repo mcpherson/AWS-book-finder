@@ -11,6 +11,7 @@ imageInput.addEventListener("change", handleImage, false);
 const uploadSpinner = document.getElementById('upload-spinner');
 const alertArea = document.getElementById('upload-alert-area');
 const alertMessage = document.getElementById('upload-alert-message');
+const tooltip = document.getElementById('tooltip')
 // CANVASES 
 const imageCanvas = document.getElementById("uploaded-image");
 const drawCanvas = document.getElementById('draw-area');
@@ -31,6 +32,8 @@ let buf;
 let newFileName;
 let isMouseDown = false;
 let imageScale = 1;
+let initScale // track first calculated scale - weirdness with the timing of resize events makes it difficult or impossible to return to the original value after window resizing down and up.
+let previousWidth // used during window resize
 
 let returnedURL;
 
@@ -42,10 +45,16 @@ window.onload = () => {
 // WINDOW RESIZE DETECTION TO PRESERVE SCALE
 window.addEventListener('resize', () => {
     if (userImage != undefined) {
-        const screenWidth = document.documentElement.clientWidth;
-        if (screenWidth < (userImage.width)*.95) {
-            imageScale = (screenWidth*.95) / userImage.width;
+        const imageWidth = imageCanvas.offsetWidth
+        if (previousWidth === imageWidth) {
+            console.log(initScale)
+            imageScale = initScale
+            return
         }
+        if (imageWidth !== userImage.width) {
+            imageScale = imageWidth / userImage.width;
+        }
+        previousWidth = imageWidth
     }
 });
 
@@ -68,11 +77,14 @@ function handleImage(e) {
             context.drawImage(uploadedImage, 0, 0);
             drawCanvas.height = uploadedImage.height;
             drawCanvas.width = uploadedImage.width;
-            // get window size
-            const screenWidth = document.documentElement.clientWidth;
-            // set scale for large images
-            if (screenWidth < (uploadedImage.width)*.95) {
-                imageScale = (screenWidth*.95) / uploadedImage.width;
+            // get displayed image size
+            const imageWidth = document.getElementById('uploaded-image').offsetWidth;
+            // set scale for images larger than max displayable size
+            if (imageWidth !== uploadedImage.width) {
+                imageScale = imageWidth / uploadedImage.width;
+                initScale = imageScale
+            } else {
+                initScale = imageScale
             }
         }
         uploadedImage.src = event.target.result;
@@ -81,9 +93,10 @@ function handleImage(e) {
     };
     reader.readAsDataURL(e.target.files[0]);
     imageInputLabel.style.display = "none";
-    cropButton.style.visibility = "visible";
-    clearButton.style.visibility = "visible";
+    cropButton.style.display = "inline-block";
+    clearButton.style.display = "inline-block";
     alertArea.style.display = 'none'
+    tooltip.innerText = 'To crop your image, click and drag to select the area you wish to upload before clicking "Continue".'
 };
 
 
@@ -124,8 +137,15 @@ drawCanvas.addEventListener('mouseup', (event) => {
         const endPosition = [event.offsetX, event.offsetY];
         cropRect.width = (endPosition[0] - cropRect.startX);
         cropRect.height = (endPosition[1] - cropRect.startY);
-        if (cropRect.width === 0 && cropRect.height === 0) {
+        if (cropRect.width < 10 && cropRect.height < 10) {
             drawContext.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+            cropRect.startX = 0
+            cropRect.startY = 0
+            cropRect.width = imageCanvas.width/imageScale
+            cropRect.height = imageCanvas.height/imageScale
+            cropButton.innerHTML = '<i class="fa-solid fa-arrow-right"></i>&nbsp;&nbsp;CONTINUE';
+            isMouseDown = false
+            return
         } else {
             drawContext.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
             drawContext.fillStyle = 'rgba(187, 255, 0, .3)';
@@ -145,7 +165,7 @@ drawCanvas.addEventListener('mouseup', (event) => {
     }
     isMouseDown = false;
     // cropButton.disabled = false;
-    // cropButton.style.backgroundColor = "#bbff00";
+    cropButton.innerHTML = '<i class="fa-solid fa-crop-simple"></i>&nbsp;&nbsp;CROP';
 });
 
 
@@ -250,14 +270,14 @@ cropButton.addEventListener('click', () => {
         cropRect.width/imageScale, 
         cropRect.height/imageScale
     );
-    newFileNameField.style.visibility = "visible";
+    newFileNameField.style.display = "inline-block";
     imageCanvas.style.display = "none";
     drawCanvas.style.display = "none";
     cropButton.style.display = "none";
     cropButton.style.backgroundColor = "white";
     // cropButton.disabled = "true";
     uploadButton.style.display = "inline"
-    uploadButton.style.visibility = "visible"
+    uploadButton.style.display = "inline-block"
 
     finalImage = finalCanvas.toDataURL('image/png', 1);
 });
@@ -271,7 +291,7 @@ newFileNameField.addEventListener('keyup', (event) => {
         uploadButton.style.backgroundColor = "#bbff00";
         fileName.innerText = `${newFileNameField.value}.png`;
         newFileName = newFileNameField.value;
-        fileName.style.visibility = "visible";
+        fileName.style.display = "inline-block";
         if (!/^[^\\/:\*\?"<>\|]+$/.test(fileName.innerText)) {
             newFileNameField.style.backgroundColor = 'lightcoral';
             uploadButton.disabled = true;
@@ -306,8 +326,8 @@ uploadButton.addEventListener('click', () => {
     finalCanvas.style.display = "none";
     clearButton.style.display = "none";
     uploadButton.style.display = "none";
-    newFileNameField.style.visibility = "hidden";
-    fileName.style.visibility = "hidden";
+    newFileNameField.style.display = "none";
+    fileName.style.display = "none";
 
     // DATA TO SEND TO S3
     // const uploadData = {

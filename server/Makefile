@@ -1,9 +1,7 @@
-#  Rewrite to used CRUD so initial deploy is create. Then update, delete.
-#  Read would be used to dump status of stack.
 .DEFAULT_GOAL := deploy
 
-stack_name = build-book-db
-cfn_file = build-book-db.yml
+stack_name = book-finder
+cfn_file = book-finder.yml
 λ_apigw = apigw.js
 λ_user_signup = user-signup.js
 λ_user_confirm_signup = user-confirm-signup.js
@@ -17,7 +15,7 @@ cfn_file = build-book-db.yml
 λ_rekog = rekog.js
 
 # Bucket must exist and have versioning enabled
-lambda_bucket = losalamosal-udemy-uploads-3
+lambda_bucket = book-finder-lambda-bucket-001
 
 # https://stackoverflow.com/a/20714468/227441
 # https://stackoverflow.com/a/69710710/227441
@@ -36,12 +34,6 @@ deploy: lambda.zip
 		--template-file $(cfn_file)                                               \
 		--parameter-overrides ZipVersionId=$$zip_version                          \
 		--capabilities CAPABILITY_NAMED_IAM
-
-# OLD
-# lambda.zip: lambda/$(lambda_file_name-rekog) lambda/$(lambda_file_name-db-test) lambda/node_modules
-# 	@echo "Lambda(s) modified. Zipping and uploading new version..."
-# 	@cd lambda; zip -r -q ../lambda.zip *
-# 	@aws s3 cp lambda.zip s3://$(lambda_bucket)
 
 # Need to use zip like this to avoid leaving deleted file in the ZIP archive
 # https://superuser.com/a/351020
