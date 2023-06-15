@@ -2,9 +2,7 @@
 
 Book Finder is a simple OCR app powered by AWS Serverless. It allows a user to upload images and search for text contained in them.
 
-[Try the app](https://bookfinder.mcpherson.dev)
 
-[Read about the app's development](https://mcpherson.dev/projects/AWS-book-finder)
 
 ## Requirements
 - AWS account
@@ -54,14 +52,14 @@ The front-end is a simple static site. I use Netlify's Continuous Deployment fea
 You will need to change a few values in your `config.js` file to hook it up to your AWS stack.
 
 1. `APIEndpointID`
-    - To find the ID of your REST API (`bookfinder-api-gateway`), run: `aws apigateway get-rest-apis`
+    - To find the ID of your REST API (`bookfinder-api-gateway`), run: `aws apigateway get-rest-apis` or check the console.
 2. `region`
     - Replace with the default region of your AWS account as defined in your `config` file, e.g. `us-west-2`
 
 You can also find the above information in the console.
 
 ----
-After following these steps, you should be able to spin up your own copy of Book Finder and tinker with it as you please. Thank you for checking out my project. If you encountered any issues, or if you have a suggestion or request, [submit an issue](https://github.com/mcpherson/AWS-book-finder/issues/new).
+After following these steps, you should be able to spin up your own copy of Book Finder. Thank you for checking out my project. If you encountered any issues, or if you have a suggestion or request, [submit an issue](https://github.com/mcpherson/AWS-book-finder/issues/new).
 
 ## License
 
