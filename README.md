@@ -6,10 +6,9 @@ Book Finder is a simple OCR app powered by AWS Serverless. It allows a user to u
 
 ## Requirements
 - AWS account
-    - Admin permissions
+    - admin + CLI access
 - Terminal (bash)
     - make
-    - zip
     - aws
 - Static website hosting
 
@@ -18,7 +17,9 @@ Book Finder is a simple OCR app powered by AWS Serverless. It allows a user to u
 You must create a versioned S3 bucket before creating the main stack. This is where Lambda code will be stored for deployment via CFN. 
 
 Run the following commands (replace 'my-bucket' with a GLOBALLY UNIQUE bucket name):
+
 ```aws s3 mb my-bucket```
+
 ```aws s3api put-bucket-versioning --bucket my-bucket --versioning-configuration Status=Enabled```
 
 In `Makefile`, change the value of `lambda_bucket` to your bucket name.
