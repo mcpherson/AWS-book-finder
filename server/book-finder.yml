@@ -863,6 +863,7 @@ Resources:
       Runtime: nodejs16.x
       Environment:
         Variables:
+          UPLOADS_BUCKET_NAME: !Ref UploadBucketName
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
           DB_TABLE_NAME: !Ref TableName
       Handler: library-get.handler
@@ -1056,6 +1057,7 @@ Resources:
       Environment:
         Variables:
           COGNITO_APP_CLIENT_ID: !Ref UserPoolClient
+          UPLOADS_BUCKET_NAME: !Ref UploadBucketName
       Handler: library-upload.handler
       Code:
         S3Bucket: !Ref LambdaBucketName

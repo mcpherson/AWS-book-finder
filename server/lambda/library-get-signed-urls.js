@@ -6,7 +6,7 @@ exports.handler = async (event) => {
     
     // CONFIGURE CLIENTS
     const config = {
-        region : "us-east-1"
+        region : process.env.AWS_REGION
     }
 
     // S3
@@ -14,7 +14,7 @@ exports.handler = async (event) => {
     
     // GET OBJECT KEYS FOR ALL OBJECTS IN BUCKET 
     const params = {
-        Bucket : `book-finder-uploads`,
+        Bucket : process.env.UPLOADS_BUCKET_NAME,
         Prefix : `${event.queryStringParameters.usersub}`
     }
 
@@ -66,7 +66,7 @@ exports.handler = async (event) => {
     s3Keys.forEach(async (index, i) => {
 
         let getParams = {
-            Bucket: 'book-finder-uploads', 
+            Bucket: process.env.UPLOADS_BUCKET_NAME, 
             Key: i
         };
 

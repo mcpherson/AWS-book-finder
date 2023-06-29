@@ -3,7 +3,7 @@ const { SSOClient, LogoutCommand } = require("@aws-sdk/client-sso"); // CommonJS
 exports.handler = async (event) => {
 
     const client = new SSOClient({
-        region: "us-east-1"
+        region: process.env.AWS_REGION
     });
     
     const bodyData = JSON.parse(event.body);

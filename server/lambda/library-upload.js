@@ -3,12 +3,12 @@ const { S3Client, PutObjectCommand, ListObjectsCommand } = require("@aws-sdk/cli
 
 exports.handler = async (event) => {
 
-    const client = new S3Client({region : "us-east-1"});
+    const client = new S3Client({region : process.env.AWS_REGION});
 
     const uploadData = JSON.parse(event.body);
 
     const params = {
-        Bucket: 'book-finder-uploads', 
+        Bucket: process.env.UPLOADS_BUCKET_NAME, 
         Key: `${uploadData.UserSub}/${uploadData.fileName}`, 
         ContentEncoding: 'base64',
         ContentType: 'image/png'
@@ -16,7 +16,7 @@ exports.handler = async (event) => {
     }
 
     const listParams = {
-        Bucket: 'book-finder-uploads', 
+        Bucket: process.env.UPLOADS_BUCKET_NAME, 
         Prefix : `${uploadData.UserSub}`
     }
 

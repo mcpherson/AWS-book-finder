@@ -5,7 +5,7 @@ exports.handler = async (event) => {
 
     // CONFIGURE CLIENTS
     const config = {
-        region : "us-east-1"
+        region : process.env.AWS_REGION
     }
 
     const dynamoClient = new DynamoDBClient(config)

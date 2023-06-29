@@ -3,7 +3,7 @@ const { CognitoIdentityProviderClient, SignUpCommand } = require("@aws-sdk/clien
 exports.handler = async (event) => {
 
     const client = new CognitoIdentityProviderClient({
-        region: "us-east-1"
+        region: process.env.AWS_REGION
     });
     
     console.log(JSON.stringify(event));
