@@ -15,7 +15,7 @@ cfn_file = book-finder.yml
 λ_rekog = rekog.js
 
 # Bucket must exist and have versioning enabled
-lambda_bucket = book-finder-lambda-bucket-001
+lambda_bucket = book-finder-lambda-unique
 
 # https://stackoverflow.com/a/20714468/227441
 # https://stackoverflow.com/a/69710710/227441
