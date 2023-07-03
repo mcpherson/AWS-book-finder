@@ -684,3 +684,28 @@ html, body {
 .home-option-description-container {
     margin-top: 25px;
 }
+
+footer {
+    background-color: rgb(48, 48, 48);
+    position: fixed;
+    bottom: 0%;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+}
+
+#footer-text {
+    color: white;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 400;
+    font-size: 1.2rem;
+    line-height: 1rem;
+    margin: 10px auto;
+}
+
+#footer-text a, #footer-text a:visited {
+    text-decoration: none;
+    color: #bf0;
+}

@@ -109,7 +109,7 @@ const refreshTokens = function () {
     
     let checkTime = new Date();
 
-    if (checkTime.getTime() > JSON.parse(localStorage.getItem('book-finder-token-expiration'))) {
+    if (checkTime.getTime() > checkTime.getTime() - JSON.parse(localStorage.getItem('book-finder-token-expiration'))) {
         cognitoRefresh(apiEndpoints.API_USER_REFRESH)
         .then((data) => {
             if(data.$metadata.httpStatusCode !== 200) {

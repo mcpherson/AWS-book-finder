@@ -22,15 +22,15 @@ As with any AWS resource, there are financial risks. Please monitor any resource
 
 You must create a versioned S3 bucket before creating the main stack. This is where Lambda code will be stored for deployment via CFN. 
 
-Run the following commands (replace 'my-bucket' with a GLOBALLY UNIQUE bucket name):
+Run the following commands (replace 'my-bucket' with a GLOBALLY UNIQUE lowercase bucket name):
 
 ```sh
 aws s3 mb s3://my-bucket
 aws s3api put-bucket-versioning --bucket my-bucket --versioning-configuration Status=Enabled
 ```
 
-In `Makefile`, change the value of `lambda_bucket` to your bucket name.
-In `book-finder.yml`, change the default value of the `LambdaBucketName` parameter to your bucket name.
+In `Makefile` (located in `server`), change the value of `lambda_bucket` to your bucket name.
+In `book-finder.yml` (located in `server`), change the default value of the `LambdaBucketName` parameter to your bucket name.
 
 ## Creating the Node.js Canvas Lambda Layer
 
@@ -56,9 +56,9 @@ This will prepare the necessary node modules for the Lambda environment.
 
 ## Creating the AWS Stack
 
-Before creating the main stack, you need to ensure that all of your bucket names (in addition to the Lambda bucket created earlier) are GLOBALLY UNIQUE. In the `book-finder.yml` CFN file, you'll need to change the Default values for the `ResultsBucketName` and `UploadBucketName` parameters. To help with this, you can use the following shell command to generate a unique alphanumeric string to be added to the values in place of the 'xxxxx' that is currently present:
+Before creating the main stack, you need to ensure that all of your bucket names (in addition to the Lambda bucket created earlier) are GLOBALLY UNIQUE. In the `book-finder.yml` CFN file, you'll need to change the Default values for the `ResultsBucketName` and `UploadBucketName` parameters. To help with this, you can create a unique string to be appended to the values in place of the 'xxxxx' that is currently present. (NOTE: Bucket names cannot conain capital letters.) You can also use the following shell command to generate a unique alphanumeric string:
 ```sh
-tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo ''
+tr -dc a-z0-9 </dev/urandom | head -c 8 ; echo ''
 ```
 
 The rest of the AWS resources are contained in a single stack created via `Makefile`. 
@@ -73,12 +73,12 @@ The front-end is a simple static site, so it can run on localhost. I used VS Cod
 
 (**NOTE:** If you are testing with localhost, please be aware that the resource paths for some links may not work correctly. This is because the root directory name (`book-finder`) is excluded from the URL by Netlify, but is required in localhost.)
 
-You will need to change a few values in your `config.js` file to hook it up to your AWS stack.
+You will need to change a few values in your `config.js` file (found in `book-finder`) to hook it up to your AWS stack.
 
 1. `APIEndpointID`
     - To find the ID of your REST API (`bookfinder-api-gateway`), run: `aws apigateway get-rest-apis`
 2. `region`
-    - Replace with the default region of your AWS account as defined in your `config` file, e.g. `us-west-2`
+    - Replace with the default region of your AWS account as defined in your AWS `config` file, e.g. `us-west-2`
 
 You can also find the above information in the console.
 
@@ -97,7 +97,7 @@ To delete the main stack, run:
 ```sh
 aws cloudformation delete-stack --stack-name book-finder
 ```
-To delete the node.js canvas lambda layer, run:
+To delete the node.js canvas lambda layer, first run:
 ```sh
 aws lambda list-layers
 ``` 
@@ -105,7 +105,12 @@ Note the `Version` (`your-version-number` in the following command), then run:
 ```sh
 aws lambda delete-layer-version --layer-name canvas-nodejs --version-number your-version-number
 ```
-To delete the versioned Lambda bucket and all of its contents, run (replace `my-bucket` with your bucket name): 
+Because deploying the node.js canvas lambda layer creates a stack, you will need to delete it:
+```sh
+cloudformation delete-stack --stack-name serverlessrepo-lambda-layer-canvas-nodejs
+```
+To delete the versioned Lambda bucket and all of its contents, run (replace both instances of `my-bucket` with your bucket name): 
+(NOTE: One or both of the first two commands may fail - simply continue to the third command if they do.)
 ```sh
 aws s3api delete-objects --bucket my-bucket --delete "$(aws s3api list-object-versions \
     --bucket my-bucket --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')"
@@ -115,6 +120,8 @@ aws s3 rb s3://my-bucket
 ```
 For the curious, see [this StackOverflow answer](https://stackoverflow.com/a/61123579).
 Finally, remove the `lambda.zip` file from your `server` directory if it exists.
+CloudWatch logs are not deleted by this process and will persist for up to 3 days after stack deletion. You may delete them via the console if you wish.
+
 ## License
 
 This software is licensed under the GNU General Public License v3.0 or later.

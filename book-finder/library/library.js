@@ -218,14 +218,11 @@ function addListeners() {
             // DELETE IMAGE
             deleteImage(clickedImageName) 
             .then((data) => {
-                console.log(data)
-                console.log(clickedImageName.split('.')[0])
                 // Remove data from localStorage
                 let currentURLs = JSON.parse(localStorage.getItem('book-finder-data')).signedURLs
                 let currentData = JSON.parse(localStorage.getItem('book-finder-data')).dynamoData
                 currentURLs.splice(clickedID, 1)
                 let imageKey = `${userSub}/${clickedImageName}`
-                console.log(imageKey)
                 delete currentData[imageKey]
                 let newData = {
                     s3URLs: currentURLs,
