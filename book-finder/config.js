@@ -1,4 +1,4 @@
-const apiEndpointID = "u253s74dr6"
+const apiEndpointID = "7yccvr7xhe"
 const apiStage = "dev"
 const awsRegion = "us-east-1"
 const apiEndpoints = {

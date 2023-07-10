@@ -709,3 +709,14 @@ footer {
     text-decoration: none;
     color: #bf0;
 }
+
+
+/* MOBILE STYLING (homepage) */
+@media screen and (max-width: 800px) {
+    #home-logo, #home-options-container, footer { display: none; }
+    #home-title { font-size: 40px;}
+    #home-tagline { 
+        font-size: 30px;
+        color: red;
+    }
+}

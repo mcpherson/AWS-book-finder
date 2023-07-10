@@ -64,7 +64,7 @@ tr -dc a-z0-9 </dev/urandom | head -c 8 ; echo ''
 The rest of the AWS resources are contained in a single stack created via `Makefile`. 
 
 1. In your local terminal, navigate to the `server` directory
-2. Run `make`
+1. Run `make`
 
 The Makefile will check for updates to Lambda code before zipping the functions and uploading them to the previously created versioned Lambda bucket.
 
@@ -76,8 +76,11 @@ The front-end is a simple static site, so it can run on localhost. I used VS Cod
 You will need to change a few values in your `config.js` file (found in `book-finder`) to hook it up to your AWS stack.
 
 1. `APIEndpointID`
-    - To find the ID of your REST API (`bookfinder-api-gateway`), run: `aws apigateway get-rest-apis`
-2. `region`
+    - To find the ID of your REST API (`bookfinder-api-gateway`), run: 
+    ```sh
+    aws apigateway get-rest-apis
+    ```
+1. `region`
     - Replace with the default region of your AWS account as defined in your AWS `config` file, e.g. `us-west-2`
 
 You can also find the above information in the console.
@@ -89,15 +92,16 @@ Before deleting your stack, you must empty all S3 buckets that are part of the s
 ```sh
 aws s3 ls
 ```
-Use the following command to delete the contents of each bucket (you will need to do this for the buckets containing "book-finder-uploads" and "book-finder-results"):
+Use the following command to delete the contents of each bucket (you will need to do this for all three buckets):
 ```sh
 aws s3 rm s3://your-bucket-name --recursive
 ```
-To delete the main stack, run: 
+To delete the main stack and the stack created for the node.js canvas lambda layer, run: 
 ```sh
 aws cloudformation delete-stack --stack-name book-finder
+aws cloudformation delete-stack --stack-name serverlessrepo-lambda-layer-canvas-nodejs
 ```
-To delete the node.js canvas lambda layer, first run:
+To delete the node.js canvas lambda layer, which still exists because of its retention policy, first run:
 ```sh
 aws lambda list-layers
 ``` 
@@ -105,11 +109,7 @@ Note the `Version` (`your-version-number` in the following command), then run:
 ```sh
 aws lambda delete-layer-version --layer-name canvas-nodejs --version-number your-version-number
 ```
-Because deploying the node.js canvas lambda layer creates a stack, you will need to delete it:
-```sh
-cloudformation delete-stack --stack-name serverlessrepo-lambda-layer-canvas-nodejs
-```
-To delete the versioned Lambda bucket and all of its contents, run (replace both instances of `my-bucket` with your bucket name): 
+To delete the versioned Lambda bucket and all of its contents, run (replace all instances of `my-bucket` in the following commands with your bucket name): 
 (NOTE: One or both of the first two commands may fail - simply continue to the third command if they do.)
 ```sh
 aws s3api delete-objects --bucket my-bucket --delete "$(aws s3api list-object-versions \

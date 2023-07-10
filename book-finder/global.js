@@ -5,6 +5,13 @@ function setUserState() {
         document.getElementById('fouc').style.display = "none"
     }, 40)
 
+    // HANDLE SMALL DISPLAYS --temporary
+    if (window.location.href === "window.location.pathname/" && document.documentElement.clientWidth < "900px") {
+        let tagline = document.getElementById('home-tagline')
+        tagline.style.color = "red"
+        tagline.innerText = "This app is not yet configured for mobile devices. Please visit on a laptop or desktop."
+    }
+
     const authNav = document.getElementById('auth-link')
     const signupNav = document.getElementById('signup-link')
     const libraryNav = document.getElementById('library-link')

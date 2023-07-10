@@ -1280,7 +1280,7 @@ Resources:
       # https://github.com/charoitel/lambda-layer-canvas-nodejs/wiki
       # https://docs.aws.amazon.com/serverlessrepo/latest/devguide/sharing-lambda-layers.html
       Layers:
-        - arn:aws:lambda:us-east-1:795959022439:layer:canvas-nodejs:2
+        - arn:aws:lambda:us-east-1:795959022439:layer:canvas-nodejs:3
       MemorySize: 1024
       Timeout: 300
 
