@@ -717,11 +717,16 @@ footer {
     font-weight: 400;
     font-size: 30px;
     color: red;
-    
+    display: none;
+    visibility: hidden;
 }
 
 
 @media screen and (max-width: 800px) {
     #home-logo, #home-options-container, #home-tagline, footer { display: none; }
     #home-title { font-size: 40px;}
+    #home-mobile {
+        display: block;
+        visibility: visible;
+    }
 }
