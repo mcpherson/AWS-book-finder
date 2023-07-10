@@ -712,11 +712,16 @@ footer {
 
 
 /* MOBILE STYLING (homepage) */
+#home-mobile {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 400;
+    font-size: 30px;
+    color: red;
+    
+}
+
+
 @media screen and (max-width: 800px) {
-    #home-logo, #home-options-container, footer { display: none; }
+    #home-logo, #home-options-container, #home-tagline, footer { display: none; }
     #home-title { font-size: 40px;}
-    #home-tagline { 
-        font-size: 30px;
-        color: red;
-    }
 }
