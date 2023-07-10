@@ -499,6 +499,7 @@ html, body {
 }
 .details-area { 
     grid-area: 4 / 6 / 5 / 7; 
+    display: none;
 }
 .expand-area { 
     grid-area: 4 / 8 / 5 / 9; 

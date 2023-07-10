@@ -96,7 +96,7 @@ function handleImage(e) {
     cropButton.style.display = "inline-block";
     clearButton.style.display = "inline-block";
     alertArea.style.display = 'none'
-    tooltip.innerText = 'To crop your image, click and drag to select the area you wish to upload before clicking "Continue".'
+    tooltip.innerText = 'To crop your image, click and drag to select the area you wish to upload, then click "Crop".'
 };
 
 
@@ -280,6 +280,8 @@ cropButton.addEventListener('click', () => {
     uploadButton.style.display = "inline-block"
 
     finalImage = finalCanvas.toDataURL('image/png', 1);
+
+    tooltip.innerText = 'Name your file, then click "Upload Image".'
 });
 
 
@@ -328,6 +330,7 @@ uploadButton.addEventListener('click', () => {
     uploadButton.style.display = "none";
     newFileNameField.style.display = "none";
     fileName.style.display = "none";
+    tooltip.innerText = ''
 
     // DATA TO SEND TO S3
     // const uploadData = {

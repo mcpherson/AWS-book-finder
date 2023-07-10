@@ -175,7 +175,7 @@ function displayResults(results = []) {
 
     // no results found
     if (results.length === 0) {
-        console.log('shit son')
+        console.log('no results found')
     }
 
     // reset UI for sequential searches
