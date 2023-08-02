@@ -294,7 +294,7 @@ newFileNameField.addEventListener('keyup', (event) => {
         fileName.innerText = `${newFileNameField.value}.png`;
         newFileName = newFileNameField.value;
         fileName.style.display = "inline-block";
-        if (!/^[^\\/:\*\?"<>\|]+$/.test(fileName.innerText)) {
+        if (!/^[^\\/:\*\?"<>\|]+$ /.test(fileName.innerText)) {
             newFileNameField.style.backgroundColor = 'lightcoral';
             uploadButton.disabled = true;
             uploadButton.style.backgroundColor = "white";
