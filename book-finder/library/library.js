@@ -29,7 +29,6 @@ window.onload = async () => {
     
     setUserState() // in global js file
     if (!localStorage.getItem('book-finder-login-data')) {
-        console.log('ayy')
         messageText.innerText = "You are not currently logged in."
         return
     }
@@ -110,7 +109,7 @@ window.onload = async () => {
         } else {
             // generic error
             messageText.innerHTML = ''
-            errorArea.innerHTML = '<p>Something went wrong. If this error persists, please <a class="library-error" target="_blank" href="https://github.com/mcpherson/AWS-book-finder/issues/new">submit an issue</a>. In the meantime, you may <a class="library-error" href="../signup">create a new account</a>.</p>'
+            errorArea.innerHTML = '<p>Something went wrong. Try reloading. If this error persists, please <a class="library-error" target="_blank" href="https://github.com/mcpherson/AWS-book-finder/issues/new">submit an issue</a>. In the meantime, you may <a class="library-error" href="../signup">create a new account</a>.</p>'
         }
     });
 
