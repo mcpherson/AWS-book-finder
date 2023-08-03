@@ -295,7 +295,7 @@ newFileNameField.addEventListener('keyup', (event) => {
         newFileName = newFileNameField.value;
         fileName.style.display = "inline-block";
         // if (!/^[^\\/:\*\?"<>\| ]+$/.test(fileName.innerText)) {
-        if (/[ ~`!@#$%^&\*\(\)+=\[\]\'\":;,\/\|\\<>]/.test(fileName.innerText) || /\\./.test(fileName.innerText)) { // this should work...
+        if (/[ ~`!@#$%^&\*\(\)+=\[\]\'\":;,\/\|\\<>]/.test(newFileName) || /\./.test(newFileName)) { // this should work...
         // if (!/[A-Za-z0-9]/.test(fileName.innerText)) {
             newFileNameField.style.backgroundColor = 'lightcoral';
             uploadButton.disabled = true;
