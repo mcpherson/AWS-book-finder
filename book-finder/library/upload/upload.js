@@ -281,7 +281,7 @@ cropButton.addEventListener('click', () => {
 
     finalImage = finalCanvas.toDataURL('image/png', 1);
 
-    tooltip.innerText = 'Name your file, then click "Upload Image". Names may only contain letters, numbers, hyphens, and underscores.'
+    tooltip.innerText = 'Name your file, then click "Upload Image".'
 });
 
 
@@ -294,7 +294,8 @@ newFileNameField.addEventListener('keyup', (event) => {
         fileName.innerText = `${newFileNameField.value}.png`;
         newFileName = newFileNameField.value;
         fileName.style.display = "inline-block";
-        if (!/^[^\\/:\*\?"<>\| ]+$/.test(fileName.innerText)) {
+        // if (!/^[^\\/:\*\?"<>\| ]+$/.test(fileName.innerText)) {
+        if (/[ \.~`!@#$%^&*\(\)+=\[\]\'\":;,\/\|\\<>]/.test(fileName.innerText)) {
             newFileNameField.style.backgroundColor = 'lightcoral';
             uploadButton.disabled = true;
             uploadButton.style.backgroundColor = "white";
