@@ -300,16 +300,20 @@ newFileNameField.addEventListener('keyup', (event) => {
             newFileNameField.style.backgroundColor = 'lightcoral';
             uploadButton.disabled = true;
             uploadButton.style.backgroundColor = "white";
+            tooltip.innerText = 'Letters, numbers, hyphens, and underscores only.'
+            fileName.innerText = ""
         } else {
             newFileNameField.style.backgroundColor = 'white';
             uploadButton.disabled = false;
             uploadButton.style.backgroundColor = "#bbff00";
+            tooltip.innerText = 'Name your file, then click "Upload Image".'
         }
     } else {
         fileName.innerText = "";
         uploadButton.disabled = true;
         uploadButton.style.backgroundColor = "white";
         newFileNameField.style.backgroundColor = 'white';
+        tooltip.innerText = 'Name your file, then click "Upload Image".'
     }
 });
 
